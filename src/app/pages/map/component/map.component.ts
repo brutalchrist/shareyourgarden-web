@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
+import { GardensService } from 'src/app/services/gardens/gardens.service';
 
 @Component({
   selector: 'app-map',
@@ -8,8 +9,9 @@ import * as L from 'leaflet';
 })
 export class MapComponent implements OnInit {
   public map;
+  private layerGroup;
 
-  constructor() {}
+  constructor(private gardensService: GardensService) {}
 
   ngOnInit(): void {
     if (navigator.geolocation) {
@@ -33,5 +35,21 @@ export class MapComponent implements OnInit {
     );
 
     tiles.addTo(this.map);
+
+    this.layerGroup = L.layerGroup().addTo(this.map);
+
+    this.map.on('moveend', () => {
+      const bounds = this.map.getBounds();
+
+      this.layerGroup.clearLayers();
+
+      this.gardensService.getFromBounds(bounds).subscribe(gardens => {
+        gardens.map(garden => {
+          L.marker(
+            [garden.location.coordinates[1], garden.location.coordinates[0]]
+          ).addTo(this.layerGroup);
+        });
+      });
+    });
   }
 }
