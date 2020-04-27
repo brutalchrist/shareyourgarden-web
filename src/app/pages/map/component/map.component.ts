@@ -45,9 +45,18 @@ export class MapComponent implements OnInit {
 
       this.gardensService.getFromBounds(bounds).subscribe(gardens => {
         gardens.map(garden => {
+          const icon = L.icon({
+            iconSize: [ 25, 41 ],
+            iconAnchor: [ 13, 0 ],
+            iconUrl: 'leaflet/marker-icon.png',
+            shadowUrl: 'leaflet/marker-shadow.png'
+          });
+
           L.marker(
-            [garden.location.coordinates[1], garden.location.coordinates[0]]
-          ).addTo(this.layerGroup);
+            [garden.location.coordinates[1], garden.location.coordinates[0]],
+            { icon }
+          )
+            .addTo(this.layerGroup);
         });
       });
     });
