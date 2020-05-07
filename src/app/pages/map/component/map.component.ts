@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import * as L from 'leaflet';
+
+import { Garden } from 'src/app/classes/garden';
+
 import { GardensService } from 'src/app/services/gardens/gardens.service';
+
+import { GardenMapComponent } from './garden/garden.map.component';
 
 @Component({
   selector: 'app-map',
@@ -11,7 +17,10 @@ export class MapComponent implements OnInit {
   public map;
   private layerGroup;
 
-  constructor(private gardensService: GardensService) {}
+  constructor(
+    private gardensService: GardensService,
+    private drawerService: NzDrawerService
+  ) {}
 
   ngOnInit(): void {
     if (navigator.geolocation) {
@@ -54,11 +63,26 @@ export class MapComponent implements OnInit {
 
           L.marker(
             [garden.location.coordinates[1], garden.location.coordinates[0]],
-            { icon }
+            {
+              icon,
+              title: garden.name,
+              data: garden
+            }
           )
+            .on('click', this.markerOnClick)
             .addTo(this.layerGroup);
         });
       });
+    });
+  }
+
+  public markerOnClick = (event) => {
+    const garden = event.target.options.data;
+    const drawerRef = this.drawerService.create<GardenMapComponent, { garden: Garden }, Garden>({
+      nzTitle: garden.name,
+      nzContent: GardenMapComponent,
+      nzWidth: 640,
+      nzContentParams: { garden }
     });
   }
 }

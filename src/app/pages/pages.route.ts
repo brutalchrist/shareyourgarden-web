@@ -2,19 +2,12 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: '/map' },
   {
     path: 'map',
     loadChildren: () => import('./map/map.module').then(m => m.MapModule),
     pathMatch: 'full'
-  },
-  // {
-  //   path: 'book',
-  //   loadChildren: () => import('./book/book.module').then(m => m.BookModule)
-  // },
-  // {
-  //   path: 'configs',
-  //   loadChildren: () => import('./configs/configs.module').then(m => m.ConfigsModule)
-  // },
+  }
 ];
 
 @NgModule({

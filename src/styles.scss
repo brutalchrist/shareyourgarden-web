@@ -1,1 +1,5 @@
 @import "~leaflet/dist/leaflet.css";
+
+.ant-drawer-content-wrapper, .ant-drawer-mask {
+  margin-top: 64px;
+}
