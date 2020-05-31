@@ -4,7 +4,7 @@ import { name, version } from '../../package.json';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.sass']
 })
 export class AppComponent implements OnInit {
   ngOnInit(): void {

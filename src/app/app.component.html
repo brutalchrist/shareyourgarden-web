@@ -1,1 +1,17 @@
-<router-outlet></router-outlet>
+<nz-layout class="app-layout">
+  <nz-header class="header">
+    <div class="header-title">ShareYourGarden</div>
+    <nz-input-group [nzSuffix]="suffixIconSearch" class="header-search">
+      <input type="text" nz-input placeholder="input search text" />
+    </nz-input-group>
+    <ng-template #suffixIconSearch>
+      <i nz-icon nzType="search"></i>
+    </ng-template>
+    <div class="header-user"><i nz-icon nzType="user" nzTheme="outline"></i></div>
+  </nz-header>
+  <nz-layout>
+    <nz-content>
+      <router-outlet></router-outlet>
+    </nz-content>
+  </nz-layout>
+</nz-layout>
