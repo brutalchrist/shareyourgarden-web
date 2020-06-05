@@ -2,7 +2,12 @@
   <nz-header class="header">
     <div class="header-title">ShareYourGarden</div>
     <nz-input-group [nzSuffix]="suffixIconSearch" class="header-search">
-      <input type="text" nz-input placeholder="input search text" />
+      <input
+        type="text"
+        nz-input
+        placeholder="tomato"
+        [(ngModel)]="searchText"
+        (ngModelChange)="onChange($event)"/>
     </nz-input-group>
     <ng-template #suffixIconSearch>
       <i nz-icon nzType="search"></i>

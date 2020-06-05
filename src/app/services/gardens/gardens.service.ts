@@ -13,7 +13,7 @@ export class GardensService {
 
   constructor(@Inject(RestService) private rest: RestService) {}
 
-  public getFromBounds(bounds: LatLngBounds): Observable<Garden[]> {
+  public getFromBounds(bounds: LatLngBounds, where: string): Observable<Garden[]> {
     return new Observable<Garden[]>(observe => {
       const polygon = [
         [
@@ -37,7 +37,7 @@ export class GardensService {
           bounds.getNorthWest().lat
         ]
       ];
-      const url = `${this.prefix}?polygon=${JSON.stringify(polygon)}`;
+      const url = `${this.prefix}?polygon=${JSON.stringify(polygon)}&where=${where}`;
 
       this.rest.get(url).subscribe((data: any[]) => {
         observe.next(data.map(garden => new Garden(garden)));
