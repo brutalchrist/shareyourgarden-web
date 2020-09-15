@@ -7,6 +7,7 @@ import { Garden } from 'src/app/classes/garden';
 import { GardensService } from 'src/app/services/gardens/gardens.service';
 
 import { GardenMapComponent } from './garden/garden.map.component';
+import { SearchService } from 'src/app/services/search/search.service';
 
 @Component({
   selector: 'app-map',
@@ -14,12 +15,15 @@ import { GardenMapComponent } from './garden/garden.map.component';
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit {
+  private searchText = '';
   public map;
   private layerGroup;
+  private bounds;
 
   constructor(
     private gardensService: GardensService,
-    private drawerService: NzDrawerService
+    private drawerService: NzDrawerService,
+    private searchService: SearchService
   ) {}
 
   ngOnInit(): void {
@@ -28,6 +32,11 @@ export class MapComponent implements OnInit {
         this.initMap(position);
       });
     }
+
+    this.searchService.change.subscribe(search => {
+      this.searchText = search;
+      this.searchGardens();
+    });
   }
 
   private initMap(position): void {
@@ -48,31 +57,8 @@ export class MapComponent implements OnInit {
     this.layerGroup = L.layerGroup().addTo(this.map);
 
     this.map.on('moveend', () => {
-      const bounds = this.map.getBounds();
-
-      this.layerGroup.clearLayers();
-
-      this.gardensService.getFromBounds(bounds).subscribe(gardens => {
-        gardens.map(garden => {
-          const icon = L.icon({
-            iconSize: [ 25, 41 ],
-            iconAnchor: [ 13, 0 ],
-            iconUrl: 'leaflet/marker-icon.png',
-            shadowUrl: 'leaflet/marker-shadow.png'
-          });
-
-          L.marker(
-            [garden.location.coordinates[1], garden.location.coordinates[0]],
-            {
-              icon,
-              title: garden.name,
-              data: garden
-            }
-          )
-            .on('click', this.markerOnClick)
-            .addTo(this.layerGroup);
-        });
-      });
+      this.bounds = this.map.getBounds();
+      this.searchGardens();
     });
   }
 
@@ -83,6 +69,31 @@ export class MapComponent implements OnInit {
       nzContent: GardenMapComponent,
       nzWidth: 640,
       nzContentParams: { garden }
+    });
+  }
+
+  private searchGardens() {
+    this.gardensService.getFromBounds(this.bounds, this.searchText).subscribe(gardens => {
+      this.layerGroup.clearLayers();
+      gardens.map(garden => {
+        const icon = L.icon({
+          iconSize: [ 25, 41 ],
+          iconAnchor: [ 13, 0 ],
+          iconUrl: 'leaflet/marker-icon.png',
+          shadowUrl: 'leaflet/marker-shadow.png'
+        });
+
+        L.marker(
+          [garden.location.coordinates[1], garden.location.coordinates[0]],
+          {
+            icon,
+            title: garden.name,
+            data: garden
+          }
+        )
+          .on('click', this.markerOnClick)
+          .addTo(this.layerGroup);
+      });
     });
   }
 }
