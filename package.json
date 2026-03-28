@@ -3,12 +3,12 @@
   "version": "20.2.1",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
+    "start": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng serve",
+    "build": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng build",
+    "test": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build-prod": "ng build --prod --aot"
+    "build-prod": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng build --prod --aot"
   },
   "private": true,
   "dependencies": {
@@ -46,5 +46,9 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~3.8.3"
+  },
+  "engines": {
+    "node": ">=22.21.1",
+    "npm": ">=11"
   }
 }
