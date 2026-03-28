@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { name, version } from '../../package.json';
-
 import { SearchService } from './services/search/search.service';
 
 @Component({
@@ -13,9 +11,7 @@ export class AppComponent implements OnInit {
 
   constructor(private searchService: SearchService) {}
 
-  ngOnInit(): void {
-    console.info(`🌱 ${name} version ${version}`);
-  }
+  ngOnInit(): void {}
 
   onChange(value: string): void {
     this.searchText = value;

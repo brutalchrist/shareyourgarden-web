@@ -4,10 +4,10 @@ import { Injectable, Output, EventEmitter } from '@angular/core';
 export class SearchService {
   searchText = '';
 
-  @Output() change: EventEmitter<string> = new EventEmitter();
+  @Output() searchChanged: EventEmitter<string> = new EventEmitter();
 
-  search(searchText) {
+  search(searchText: string): void {
     this.searchText = searchText;
-    this.change.emit(this.searchText);
+    this.searchChanged.emit(this.searchText);
   }
 }

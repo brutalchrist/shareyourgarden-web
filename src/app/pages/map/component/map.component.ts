@@ -33,7 +33,7 @@ export class MapComponent implements OnInit {
       });
     }
 
-    this.searchService.change.subscribe(search => {
+    this.searchService.searchChanged.subscribe(search => {
       this.searchText = search;
       this.searchGardens();
     });
