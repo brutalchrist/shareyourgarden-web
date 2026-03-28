@@ -28,7 +28,7 @@
     <ng-template #userPopoverContent>
       <div *ngIf="!hasSession(); else userSession" class="popover-login">
         <p class="popover-title">Inicia sesión para gestionar tu perfil</p>
-        <button nz-button nzType="primary" (click)="startGoogleLogin()">
+        <button nz-button nzType="primary" [nzLoading]="isAuthLoading" (click)="startGoogleLogin()">
           Iniciar sesión con Google
         </button>
       </div>

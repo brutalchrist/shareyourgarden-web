@@ -8,7 +8,10 @@
     "test": "npm run ng -- test",
     "lint": "npm run ng -- lint",
     "e2e": "npm run ng -- e2e",
-    "build-prod": "npm run ng -- build --prod --aot"
+    "build-prod": "npm run ng -- build --prod --aot",
+    "prestart": "node scripts/generate-runtime-env.js",
+    "prebuild": "node scripts/generate-runtime-env.js",
+    "prebuild-prod": "node scripts/generate-runtime-env.js"
   },
   "private": true,
   "dependencies": {
