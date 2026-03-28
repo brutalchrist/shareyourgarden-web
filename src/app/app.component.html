@@ -12,7 +12,38 @@
     <ng-template #suffixIconSearch>
       <i nz-icon nzType="search"></i>
     </ng-template>
-    <div class="header-user"><i nz-icon nzType="user" nzTheme="outline"></i></div>
+
+    <button
+      nz-button
+      nzType="default"
+      class="header-user"
+      nz-popover
+      nzPopoverTrigger="click"
+      [nzPopoverContent]="userPopoverContent"
+      nzPopoverPlacement="bottomRight">
+      <i nz-icon nzType="user" nzTheme="outline"></i>
+      <span>{{ hasSession() ? 'Mi cuenta' : 'Iniciar sesión' }}</span>
+    </button>
+
+    <ng-template #userPopoverContent>
+      <div *ngIf="!hasSession(); else userSession" class="popover-login">
+        <p class="popover-title">Inicia sesión para gestionar tu perfil</p>
+        <button nz-button nzType="primary" (click)="startGoogleLogin()">
+          Iniciar sesión con Google
+        </button>
+      </div>
+
+      <ng-template #userSession>
+        <div class="popover-user">
+          <img *ngIf="googleUser?.picture" [src]="googleUser?.picture" alt="avatar" class="user-avatar" />
+          <div>
+            <div class="user-name">{{ googleUser?.name || 'Usuario de Google' }}</div>
+            <div class="user-email">{{ googleUser?.email }}</div>
+          </div>
+        </div>
+        <button nz-button nzType="default" nzDanger (click)="logout()">Cerrar sesión</button>
+      </ng-template>
+    </ng-template>
   </nz-header>
   <nz-layout>
     <nz-content>
