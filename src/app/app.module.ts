@@ -10,15 +10,18 @@ import { NZ_I18N } from 'ng-zorro-antd/i18n';
 import { es_ES } from 'ng-zorro-antd/i18n';
 import { IconDefinition } from '@ant-design/icons-angular';
 import { NzIconModule, NZ_ICONS } from 'ng-zorro-antd/icon';
-import { UserOutline } from '@ant-design/icons-angular/icons';
+import { SearchOutline, UserOutline } from '@ant-design/icons-angular/icons';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { NzMessageModule } from 'ng-zorro-antd/message';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ServicesModule } from './services/services.module';
 
-const icons: IconDefinition[] = [ UserOutline ];
+const icons: IconDefinition[] = [SearchOutline, UserOutline];
 
 registerLocaleData(es);
 
@@ -34,6 +37,9 @@ registerLocaleData(es);
     NzLayoutModule,
     NzIconModule,
     NzInputModule,
+    NzButtonModule,
+    NzPopoverModule,
+    NzMessageModule,
     ServicesModule
   ],
   providers: [
