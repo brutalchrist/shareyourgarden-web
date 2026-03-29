@@ -23,7 +23,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     console.info(`🌱 ${name} version ${version}`);
+
     this.googleUser = this.authService.restoreSession();
+    this.refreshSession();
   }
 
   onChange(value: string): void {
@@ -36,24 +38,25 @@ export class AppComponent implements OnInit {
   }
 
   startGoogleLogin(): void {
-    this.isAuthLoading = true;
-
-    this.authService.loginWithGoogle().subscribe({
-      next: (user) => {
-        this.googleUser = user;
-        this.messageService.success('Sesión iniciada correctamente');
-        this.isAuthLoading = false;
-      },
-      error: (error: Error) => {
-        this.messageService.error(error.message || 'No se pudo iniciar sesión con Google');
-        this.isAuthLoading = false;
-      }
-    });
+    this.authService.startGoogleLogin();
   }
 
   logout(): void {
-    this.authService.logout();
-    this.googleUser = null;
-    this.messageService.info('Sesión cerrada');
+    this.isAuthLoading = true;
+
+    this.authService.logout().subscribe(() => {
+      this.googleUser = null;
+      this.isAuthLoading = false;
+      this.messageService.info('Sesión cerrada');
+    });
+  }
+
+  private refreshSession(): void {
+    this.isAuthLoading = true;
+
+    this.authService.syncSessionFromBackend().subscribe((user) => {
+      this.googleUser = user;
+      this.isAuthLoading = false;
+    });
   }
 }

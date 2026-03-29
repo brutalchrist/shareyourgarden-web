@@ -4,8 +4,7 @@
 
 export const environment = {
   production: false,
-  API: 'http://localhost:1337',
-  GOOGLE_CLIENT_ID: ''
+  API: 'http://localhost:1337'
 };
 
 /*
