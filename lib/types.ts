@@ -99,9 +99,15 @@ export interface Conversation {
   lastMessage: LastMessage | null
   unreadCount: number
   otherLastReadAt: string | null
+  // Why nobody can write anymore, if so. "blocked" does not say who blocked.
+  readOnly: ConversationReadOnlyReason | null
+  // Whether the signed-in user is the one who blocked, to offer unblocking.
+  blockedByMe: boolean
   createdAt: string
   updatedAt: string
 }
+
+export type ConversationReadOnlyReason = "blocked" | "garden-deleted"
 
 export function toConversation(data: any): Conversation {
   return {
@@ -124,6 +130,11 @@ export function toConversation(data: any): Conversation {
       : null,
     unreadCount: data?.unreadCount ?? 0,
     otherLastReadAt: data?.otherLastReadAt ?? null,
+    readOnly:
+      data?.readOnly === "blocked" || data?.readOnly === "garden-deleted"
+        ? data.readOnly
+        : null,
+    blockedByMe: data?.blockedByMe ?? false,
     createdAt: data?.createdAt ?? "",
     updatedAt: data?.updatedAt ?? "",
   }

@@ -12,6 +12,10 @@ import {
 import { useFormatter, useNow, useTranslations } from "next-intl"
 
 import { useAuth } from "@/components/auth-provider"
+import {
+  ConversationActionsMenu,
+  ReadOnlyNotice,
+} from "@/components/messages/conversation-safety"
 import { MessageComposer } from "@/components/messages/message-composer"
 import { ParticipantAvatar } from "@/components/messages/participant-avatar"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
@@ -46,6 +50,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { usePageVisible } from "@/hooks/use-page-visible"
 import { ApiError } from "@/lib/api"
+import { toast } from "sonner"
 import {
   getConversation,
   listMessages,
@@ -222,6 +227,14 @@ export function ConversationThread({
     }
   }, [conversationId, hasOlder, loadingOlder, messages])
 
+  const reloadConversation = React.useCallback(async () => {
+    try {
+      updateConversation(await getConversation(conversationId))
+    } catch (error) {
+      console.error(error)
+    }
+  }, [conversationId, updateConversation])
+
   const send = React.useCallback(
     async (body: string, retryKey?: string) => {
       if (!user) return
@@ -268,9 +281,20 @@ export function ConversationThread({
             message.key === key ? { ...message, status: "failed" } : message
           )
         )
+        if (error instanceof ApiError) {
+          if (error.code === "TOO_MANY_MESSAGES") {
+            toast.error(t("tooManyMessages"))
+          } else if (
+            error.code === "USER_BLOCKED" ||
+            error.code === "CONVERSATION_CLOSED"
+          ) {
+            // It became read-only meanwhile: show why instead of the composer.
+            void reloadConversation()
+          }
+        }
       }
     },
-    [conversationId, user, updateConversation]
+    [conversationId, user, updateConversation, reloadConversation, t]
   )
 
   const markRead = React.useCallback(async () => {
@@ -335,6 +359,7 @@ export function ConversationThread({
         conversation={conversation}
         garden={garden}
         backHref={backHref}
+        onConversationChanged={reloadConversation}
       />
       <MessageScrollerProvider autoScroll defaultScrollPosition="end">
         <MessageScroller className="flex-1">
@@ -356,13 +381,14 @@ export function ConversationThread({
                 conversation={conversation}
                 onRetry={(message) => send(message.body, message.key)}
               />
-              {garden === null && (
-                <MessageScrollerItem>
-                  <Marker variant="separator" className="pt-4">
-                    <MarkerContent>{t("gardenGone")}</MarkerContent>
-                  </Marker>
-                </MessageScrollerItem>
-              )}
+              {garden === null &&
+                conversation.readOnly !== "garden-deleted" && (
+                  <MessageScrollerItem>
+                    <Marker variant="separator" className="pt-4">
+                      <MarkerContent>{t("gardenGone")}</MarkerContent>
+                    </Marker>
+                  </MessageScrollerItem>
+                )}
             </MessageScrollerContent>
           </MessageScrollerViewport>
           <MessageScrollerButton>
@@ -378,7 +404,14 @@ export function ConversationThread({
         />
         <div className="border-t bg-background p-3 md:p-4">
           <div className="mx-auto max-w-3xl">
-            <ComposerWithScroll onSend={(body) => send(body)} />
+            {conversation.readOnly ? (
+              <ReadOnlyNotice
+                conversation={conversation}
+                onChanged={reloadConversation}
+              />
+            ) : (
+              <ComposerWithScroll onSend={(body) => send(body)} />
+            )}
           </div>
         </div>
       </MessageScrollerProvider>
@@ -404,10 +437,12 @@ function ThreadHeader({
   conversation,
   garden,
   backHref,
+  onConversationChanged,
 }: {
   conversation: Conversation
   garden: Garden | null | undefined
   backHref: string
+  onConversationChanged: () => Promise<void>
 }) {
   const t = useTranslations("Messages")
 
@@ -449,6 +484,10 @@ function ThreadHeader({
           <span className="max-sm:sr-only">{t("viewOnMap")}</span>
         </ButtonLink>
       )}
+      <ConversationActionsMenu
+        conversation={conversation}
+        onChanged={onConversationChanged}
+      />
     </header>
   )
 }

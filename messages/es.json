@@ -206,7 +206,10 @@
     "greeting": "Hola",
     "greetingName": "Hola {name}",
     "viewConversation": "Ver conversación",
-    "unread": "{count, plural, one {# nuevo} other {# nuevos}}"
+    "unread": "{count, plural, one {# nuevo} other {# nuevos}}",
+    "errorBlocked": "No puedes escribirle a esta persona.",
+    "errorTooManyConversations": "Iniciaste muchas conversaciones en poco tiempo. Inténtalo más tarde.",
+    "errorTooManyMessages": "Estás enviando mensajes muy rápido. Espera un momento."
   },
   "Messages": {
     "title": "Mensajes",
@@ -255,6 +258,22 @@
     "composerLabel": "Mensaje",
     "send": "Enviar",
     "sendHint": "<kbd>Enter</kbd> para enviar · <kbd>Shift</kbd> + <kbd>Enter</kbd> para una nueva línea",
-    "unreadConversations": "{count, plural, one {# conversación sin leer} other {# conversaciones sin leer}}"
+    "unreadConversations": "{count, plural, one {# conversación sin leer} other {# conversaciones sin leer}}",
+    "actions": "Acciones de la conversación",
+    "block": "Bloquear a {name}",
+    "unblock": "Desbloquear a {name}",
+    "unblockShort": "Desbloquear",
+    "blockTitle": "¿Bloquear a {name}?",
+    "blockDescription": "No podrán escribirse en ninguna conversación ni empezar otras nuevas. {name} no recibirá aviso. Puedes desbloquearle cuando quieras.",
+    "blockConfirm": "Bloquear",
+    "cancel": "Cancelar",
+    "blocked": "Bloqueaste a {name}",
+    "unblocked": "Desbloqueaste a {name}",
+    "blockError": "No se pudo completar la acción. Inténtalo de nuevo.",
+    "readOnlyBlockedByMe": "Bloqueaste a {name}. No pueden escribirse mientras siga bloqueado.",
+    "readOnlyBlocked": "No puedes responder en esta conversación.",
+    "readOnlyGardenDeleted": "{garden} ya no existe. La conversación quedó en solo lectura.",
+    "readOnlyLabel": "Solo lectura",
+    "tooManyMessages": "Estás enviando mensajes muy rápido. Espera un momento."
   }
 }

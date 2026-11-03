@@ -433,6 +433,10 @@ function sendErrorKey(error: unknown) {
     if (error.code === "GARDEN_NOT_FOUND") return "errorUnavailable"
     if (error.code === "GARDEN_HAS_NO_OWNER") return "errorNoOwner"
     if (error.code === "CANNOT_CONTACT_OWN_GARDEN") return "errorOwnGarden"
+    if (error.code === "USER_BLOCKED") return "errorBlocked"
+    if (error.code === "TOO_MANY_CONVERSATIONS")
+      return "errorTooManyConversations"
+    if (error.code === "TOO_MANY_MESSAGES") return "errorTooManyMessages"
   }
   return "errorGeneric"
 }
