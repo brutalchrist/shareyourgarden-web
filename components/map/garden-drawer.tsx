@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { formatQuantity, productTypeLabel } from "@/lib/products"
 import type { Garden } from "@/lib/types"
 
 export function GardenDrawer({
@@ -95,9 +96,11 @@ export function GardenDrawer({
                       displayed.products.map((product, index) => (
                         <TableRow key={index}>
                           <TableCell>{product.name}</TableCell>
-                          <TableCell>{product.type}</TableCell>
                           <TableCell>
-                            {product.quantity} {product.unit}
+                            {productTypeLabel(product.type)}
+                          </TableCell>
+                          <TableCell>
+                            {formatQuantity(product.quantity, product.unit)}
                           </TableCell>
                         </TableRow>
                       ))

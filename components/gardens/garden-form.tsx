@@ -11,8 +11,9 @@ import {
   LeafIcon,
   Loader2Icon,
   LocateFixedIcon,
-  PackageIcon,
   PlusIcon,
+  ShovelIcon,
+  SproutIcon,
   XIcon,
   type LucideIcon,
 } from "lucide-react"
@@ -50,6 +51,16 @@ import {
   loadGardenDraft,
   saveGardenDraft,
 } from "@/lib/garden-drafts"
+import {
+  isProductType,
+  isProductUnit,
+  PRODUCT_TYPES,
+  PRODUCT_UNITS,
+  productTypeLabel,
+  productUnitLabel,
+  type ProductType,
+  type ProductUnit,
+} from "@/lib/products"
 import type { Garden, GardenInput } from "@/lib/types"
 
 // Leaflet touches `window` on import, so the picker only renders on the client.
@@ -66,23 +77,23 @@ const DESCRIPTION_MAX = 500
 const PRODUCT_NAME_MAX = 60
 const PRODUCTS_MAX = 50
 
-const PRODUCT_TYPES: { value: string; icon: LucideIcon }[] = [
-  { value: "Fruta", icon: AppleIcon },
-  { value: "Verdura", icon: CarrotIcon },
-  { value: "Hierba", icon: LeafIcon },
-  { value: "Semilla", icon: BeanIcon },
-  { value: "Flor", icon: Flower2Icon },
-  { value: "Otro", icon: PackageIcon },
-]
-
-const UNITS = ["unidades", "kg", "g", "atados", "macetas", "litros"]
+const TYPE_ICONS: Record<ProductType, LucideIcon> = {
+  vegetable: CarrotIcon,
+  fruit: AppleIcon,
+  herb: LeafIcon,
+  flower: Flower2Icon,
+  seed: BeanIcon,
+  seedbed: SproutIcon,
+  supply: ShovelIcon,
+}
 
 interface ProductDraft {
   key: string
   name: string
-  type: string
+  // Empty when the stored value isn't a known code: the user picks again.
+  type: ProductType | ""
   quantity: string
-  unit: string
+  unit: ProductUnit | ""
 }
 
 interface GardenDraft {
@@ -99,9 +110,9 @@ function newProduct(): ProductDraft {
   return {
     key: crypto.randomUUID(),
     name: "",
-    type: "Verdura",
+    type: "vegetable",
     quantity: "1",
-    unit: "unidades",
+    unit: "unit",
   }
 }
 
@@ -124,9 +135,15 @@ function toDraft(garden?: Garden): GardenDraft {
     products: garden.products.map((product) => ({
       key: crypto.randomUUID(),
       name: product.name,
-      type: product.type,
+      type: isProductType(product.type) ? product.type : "",
       quantity: String(product.quantity),
-      unit: product.unit ?? "unidades",
+      // Without a unit the quantity counts items.
+      unit:
+        product.unit === undefined
+          ? "unit"
+          : isProductUnit(product.unit)
+            ? product.unit
+            : "",
     })),
   }
 }
@@ -146,6 +163,12 @@ function validate(draft: GardenDraft): Errors {
   draft.products.forEach((product) => {
     if (!product.name.trim()) {
       errors[`product.${product.key}.name`] = "Indica qué producto es."
+    }
+    if (!product.type) {
+      errors[`product.${product.key}.type`] = "Elige un tipo."
+    }
+    if (!product.unit) {
+      errors[`product.${product.key}.unit`] = "Elige una unidad."
     }
     const quantity = Number(product.quantity)
     if (product.quantity.trim() === "" || !(quantity >= 0)) {
@@ -210,7 +233,11 @@ export function GardenForm({
   })
   const [draft, setDraft] = React.useState(initial.draft)
   const [restored, setRestored] = React.useState(initial.restored)
-  const [submitted, setSubmitted] = React.useState(false)
+  // An existing garden with values the form can't show (types saved before
+  // the codes) points them out right away instead of waiting for a save.
+  const [submitted, setSubmitted] = React.useState(
+    () => !!garden && Object.keys(validate(initial.draft)).length > 0
+  )
   const [pending, setPending] = React.useState(false)
   const [locating, setLocating] = React.useState(false)
   const [locateError, setLocateError] = React.useState<string | null>(null)
@@ -552,11 +579,8 @@ function ProductRow({
   const id = `product-${product.key}`
   const nameError = errors[`product.${product.key}.name`]
   const quantityError = errors[`product.${product.key}.quantity`]
-  // Keep values from older gardens (e.g. "Vegetal") selectable.
-  const types = PRODUCT_TYPES.some((type) => type.value === product.type)
-    ? PRODUCT_TYPES
-    : [...PRODUCT_TYPES, { value: product.type, icon: PackageIcon }]
-  const units = UNITS.includes(product.unit) ? UNITS : [...UNITS, product.unit]
+  const typeError = errors[`product.${product.key}.type`]
+  const unitError = errors[`product.${product.key}.unit`]
 
   return (
     <div
@@ -580,24 +604,37 @@ function ProductRow({
         />
         <FieldError>{nameError}</FieldError>
       </Field>
-      <Field className="col-span-2 sm:col-span-1">
+      <Field
+        data-invalid={!!typeError || undefined}
+        className="col-span-2 sm:col-span-1"
+      >
         <FieldLabel htmlFor={`${id}-type`}>Tipo</FieldLabel>
-        <Select
-          value={product.type}
+        <Select<ProductType>
+          value={product.type || null}
           onValueChange={(type) => type && onChange({ type })}
         >
-          <SelectTrigger id={`${id}-type`} className="w-full">
-            <SelectValue />
+          <SelectTrigger
+            id={`${id}-type`}
+            className="w-full"
+            aria-invalid={!!typeError || undefined}
+          >
+            {/* A render function replaces the placeholder, so it handles
+                the empty value itself. */}
+            <SelectValue>
+              {(type: ProductType | null) =>
+                type ? <ProductTypeOption type={type} /> : "Elige un tipo"
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {types.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                <type.icon className="text-muted-foreground" />
-                {type.value}
+            {PRODUCT_TYPES.map((type) => (
+              <SelectItem key={type} value={type}>
+                <ProductTypeOption type={type} />
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <FieldError>{typeError}</FieldError>
       </Field>
       <Field data-invalid={!!quantityError || undefined}>
         <FieldLabel htmlFor={`${id}-quantity`}>Cantidad</FieldLabel>
@@ -613,23 +650,32 @@ function ProductRow({
         />
         <FieldError>{quantityError}</FieldError>
       </Field>
-      <Field>
+      <Field data-invalid={!!unitError || undefined}>
         <FieldLabel htmlFor={`${id}-unit`}>Unidad</FieldLabel>
-        <Select
-          value={product.unit}
+        <Select<ProductUnit>
+          value={product.unit || null}
           onValueChange={(unit) => unit && onChange({ unit })}
         >
-          <SelectTrigger id={`${id}-unit`} className="w-full">
-            <SelectValue />
+          <SelectTrigger
+            id={`${id}-unit`}
+            className="w-full"
+            aria-invalid={!!unitError || undefined}
+          >
+            <SelectValue>
+              {(unit: ProductUnit | null) =>
+                unit ? productUnitLabel(unit) : "Elige"
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {units.map((unit) => (
+            {PRODUCT_UNITS.map((unit) => (
               <SelectItem key={unit} value={unit}>
-                {unit}
+                {productUnitLabel(unit)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <FieldError>{unitError}</FieldError>
       </Field>
       <Button
         type="button"
@@ -642,5 +688,16 @@ function ProductRow({
         <XIcon />
       </Button>
     </div>
+  )
+}
+
+function ProductTypeOption({ type }: { type: ProductType }) {
+  const Icon = TYPE_ICONS[type]
+
+  return (
+    <>
+      <Icon className="text-muted-foreground" />
+      {productTypeLabel(type)}
+    </>
   )
 }
