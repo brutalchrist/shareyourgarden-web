@@ -73,6 +73,12 @@ function GardensMenu() {
   const t = useTranslations("MyGardens")
   const { gardens, status, reload } = useMyGardens()
   const { summary } = useMessages()
+  const tMessages = useTranslations("Messages")
+  // The collapsed sidebar only shows a dot, so its tooltip spells it out.
+  const withUnread = (label: string, count = 0) =>
+    count > 0
+      ? `${label} · ${tMessages("unreadConversations", { count })}`
+      : label
   const { isMobile } = useSidebar()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -110,7 +116,7 @@ function GardensMenu() {
             <SidebarMenuButton
               render={<Link href={gardenEditHref(garden.id)} />}
               isActive={garden.id === activeId}
-              tooltip={garden.name}
+              tooltip={withUnread(garden.name, summary?.byGarden[garden.id])}
               className="relative"
             >
               <SproutIcon />

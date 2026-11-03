@@ -89,7 +89,12 @@
     "saved": "Changes saved",
     "error": "We couldn't save the changes. Try again.",
     "delete": "Delete garden",
-    "viewOnMap": "View on map"
+    "viewOnMap": "View on map",
+    "messages": "Messages",
+    "unreadCount": "{count, plural, one {# unread} other {# unread}}",
+    "unreadTitle": "{count, plural, one {You have # unread conversation about this garden} other {You have # unread conversations about this garden}}",
+    "unreadDescription": "Someone wants to exchange your produce.",
+    "viewMessages": "View messages"
   },
   "DeleteGarden": {
     "title": "Delete “{name}”?",
@@ -249,6 +254,7 @@
     "composerPlaceholder": "Write a message",
     "composerLabel": "Message",
     "send": "Send",
-    "sendHint": "<kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line"
+    "sendHint": "<kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line",
+    "unreadConversations": "{count, plural, one {# unread conversation} other {# unread conversations}}"
   }
 }

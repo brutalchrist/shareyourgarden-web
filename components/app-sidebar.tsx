@@ -31,6 +31,7 @@ export function AppSidebar() {
   const t = useTranslations("Sidebar")
   const pathname = usePathname()
   const { summary } = useMessages()
+  const tMessages = useTranslations("Messages")
   const unread: Partial<Record<(typeof navItems)[number]["title"], number>> = {
     messages: summary?.unread,
   }
@@ -63,7 +64,11 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     render={<Link href={item.href} />}
                     isActive={pathname.startsWith(item.href)}
-                    tooltip={t(item.title)}
+                    tooltip={
+                      unread[item.title]
+                        ? `${t(item.title)} · ${tMessages("unreadConversations", { count: unread[item.title]! })}`
+                        : t(item.title)
+                    }
                     className="relative"
                   >
                     <item.icon />
