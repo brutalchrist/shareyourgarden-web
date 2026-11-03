@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -150,6 +151,31 @@ function SidebarProvider({
   )
 }
 
+// Closes the mobile sheet once the page a link opened has rendered, rather
+// than on the click, so it never uncovers the page being left.
+function CloseOnNavigation() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const { setOpenMobile } = useSidebar()
+
+  React.useEffect(() => {
+    setOpenMobile(false)
+  }, [pathname, searchParams, setOpenMobile])
+
+  return null
+}
+
+// Trailing slashes aside, as the static export adds them.
+function isCurrentPage(link: HTMLAnchorElement) {
+  const strip = (path: string) => path.replace(/\/$/, "")
+
+  return (
+    link.origin === window.location.origin &&
+    strip(link.pathname) === strip(window.location.pathname) &&
+    link.search === window.location.search
+  )
+}
+
 function Sidebar({
   side = "left",
   variant = "sidebar",
@@ -201,12 +227,17 @@ function Sidebar({
             <SheetTitle>{t("sheetTitle")}</SheetTitle>
             <SheetDescription>{t("sheetDescription")}</SheetDescription>
           </SheetHeader>
-          {/* Following a link closes the sheet, so the page it opens is in
-              view. Menus and other buttons inside keep it open. */}
+          <React.Suspense>
+            <CloseOnNavigation />
+          </React.Suspense>
+          {/* A link to the page already open won't navigate, so it closes the
+              sheet right away. Menus and other buttons keep it open. */}
           <div
             className="flex h-full w-full flex-col"
             onClick={(event) => {
-              if ((event.target as HTMLElement).closest("a[href]")) {
+              const link = (event.target as HTMLElement).closest("a[href]")
+
+              if (link instanceof HTMLAnchorElement && isCurrentPage(link)) {
                 setOpenMobile(false)
               }
             }}
