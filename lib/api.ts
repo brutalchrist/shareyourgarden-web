@@ -5,9 +5,21 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1337"
 export class ApiError extends Error {
   constructor(
     message: string,
-    readonly status: number
+    readonly status: number,
+    // Stable error code from the backend (e.g. "GARDEN_NOT_FOUND"), when sent.
+    readonly code?: string
   ) {
     super(message)
+  }
+}
+
+async function errorCode(response: Response): Promise<string | undefined> {
+  try {
+    const body: unknown = await response.json()
+    const code = (body as { code?: unknown } | null)?.code
+    return typeof code === "string" ? code : undefined
+  } catch {
+    return undefined
   }
 }
 
@@ -30,7 +42,8 @@ async function apiRequest<T>(
   if (!response.ok) {
     throw new ApiError(
       `${method} ${uri} failed with status ${response.status}`,
-      response.status
+      response.status,
+      await errorCode(response)
     )
   }
 

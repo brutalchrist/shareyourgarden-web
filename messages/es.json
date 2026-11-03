@@ -53,8 +53,7 @@
     "type": "Tipo",
     "quantity": "Cantidad",
     "noProducts": "Sin productos",
-    "ownerInfo": "Datos del dueño",
-    "email": "Correo"
+    "ownerInfo": "Datos del dueño"
   },
   "AddressSearch": {
     "placeholder": "Busca una dirección o lugar",
@@ -169,5 +168,35 @@
       "bunch": "{amount} {count, plural, one {atado} other {atados}}",
       "l": "{amount} {count, plural, one {litro} other {litros}}"
     }
+  },
+  "ContactGarden": {
+    "proposeExchange": "Proponer intercambio",
+    "writeAgain": "Enviar otro mensaje",
+    "requiresAccount": "Requiere iniciar sesión",
+    "ownGarden": "Es tu huerta",
+    "edit": "Editar",
+    "youWrote": "Le escribiste {when}",
+    "theyReplied": "{name} te respondió {when}",
+    "signInTitle": "Inicia sesión para escribirle a {name}",
+    "signInDescription": "Solo las personas con cuenta pueden proponer intercambios.",
+    "benefitExchange": "Coordina intercambios con quienes cultivan cerca",
+    "benefitInbox": "Recibe las respuestas en tus mensajes",
+    "notNow": "Ahora no",
+    "composerTitle": "Mensaje para {name}",
+    "interestedIn": "Me interesa",
+    "templateProduct": "{greeting}, vi que tienes {product}. ¿Te gustaría hacer un intercambio?",
+    "templateGeneral": "{greeting}, me interesan los productos de tu huerta. ¿Te gustaría hacer un intercambio?",
+    "messageLabel": "Mensaje",
+    "cancel": "Cancelar",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "sent": "Mensaje enviado a {name}",
+    "errorSignIn": "Tu sesión expiró. Vuelve a iniciar sesión.",
+    "errorUnavailable": "Esta huerta ya no está disponible.",
+    "errorNoOwner": "Esta huerta no tiene un dueño al que escribir.",
+    "errorOwnGarden": "No puedes escribirle a tu propia huerta.",
+    "errorGeneric": "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+    "greeting": "Hola",
+    "greetingName": "Hola {name}"
   }
 }

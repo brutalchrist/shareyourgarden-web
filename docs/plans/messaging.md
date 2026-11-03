@@ -333,8 +333,14 @@ La v2 puede migrar a SSE (`@Sse()` en Nest) sin cambiar el contrato de datos.
 
 ## 5. Fases
 
-1. **Backend MVP**: entidades, endpoints, quitar el email público y tests.
-2. **Frontend: contacto**: `ContactGardenButton`, `SignInRequired` con intención pendiente y `QuickComposer` en el drawer.
+1. **Backend MVP** ✅: entidades, endpoints, quitar el email público y tests.
+2. **Frontend: contacto** ✅: `ContactGardenButton`, `SignInRequired` con intención pendiente y `QuickComposer` en el drawer.
+   - Implementado en `components/messages/contact-garden.tsx`. Diferencias con lo planeado:
+     - El inicio de sesión y el compositor se abren **dentro del pie del drawer**, no en un `Popover` ni en un drawer anidado. Es el mismo patrón en móvil y escritorio, sin overlays apilados sobre un panel que en escritorio no es modal, y el iframe de Google se dibuja sin problemas.
+     - Sin `sessionStorage` para la intención pendiente: el login de Google no recarga la página, así que el estado del componente basta. Al autenticarse, el panel de login pasa solo al compositor, o se cierra si la huerta resulta ser propia.
+     - Si ya existe una conversación, el CTA dice "Enviar otro mensaje" y muestra el último mensaje con su hora relativa. **El enlace "Ver conversación" y la acción del toast llegan en la fase 3**, cuando exista `/messages`.
+     - Atajo para enviar: `Cmd/Ctrl+Enter`, porque `Enter` agrega una línea en el compositor rápido.
+     - Las huertas antiguas sin `ownerId` no muestran CTA.
 3. **Frontend: bandeja**: página `/messages`, list–detail, `Message` / `Bubble` / `Marker` / `MessageScroller` y compositor con envío optimista.
 4. **Sidebar y notificaciones**: `MessagesProvider`, badges en "Mensajes" y en "Mis huertas", y contador en el título.
 5. **Confianza**: bloquear usuario, rate limit y conversaciones de huertas eliminadas en solo lectura.
