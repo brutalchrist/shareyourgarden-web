@@ -116,7 +116,9 @@ export default function LocationPicker({
         .addTo(map)
     }
 
-    if (!map.getBounds().contains(latLng)) {
+    // Values from outside the map (the address search, geolocation) may land
+    // off-screen or on a zoomed-out view: bring them close enough to adjust.
+    if (!map.getBounds().contains(latLng) || map.getZoom() < PICKED_ZOOM - 4) {
       map.setView(latLng, Math.max(map.getZoom(), PICKED_ZOOM))
     }
   }, [value])

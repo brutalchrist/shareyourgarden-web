@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 
 import { useAuth } from "@/components/auth-provider"
+import { AddressSearch } from "@/components/map/address-search"
 import type { Coordinates } from "@/components/map/location-picker"
 import { Button } from "@/components/ui/button"
 import {
@@ -354,10 +355,17 @@ export function GardenForm({
         <FieldSet>
           <FieldLegend>Ubicación</FieldLegend>
           <FieldDescription>
-            Toca el mapa para marcar tu huerto. Puedes arrastrar el marcador
-            para ajustarlo.
+            Busca la dirección o toca el mapa para marcar tu huerto. Puedes
+            arrastrar el marcador para ajustarlo.
           </FieldDescription>
           <Field>
+            <AddressSearch
+              near={draft.coordinates}
+              onSelect={(place) => {
+                setLocateError(null)
+                patch({ coordinates: place.coordinates })
+              }}
+            />
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 type="button"
