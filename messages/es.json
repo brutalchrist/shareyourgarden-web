@@ -64,6 +64,13 @@
     "locate": "Ir a mi ubicación",
     "locateError": "No pudimos obtener tu ubicación. Revisa los permisos del navegador."
   },
+  "GardenMap": {
+    "productCount": "{count, plural, =0 {sin productos} one {# producto} other {# productos}}",
+    "emptyTitle": "No hay huertos en esta zona",
+    "emptySearchTitle": "No hay huertos con «{query}» en esta zona",
+    "emptyDescription": "Aleja el mapa o muévete para ver más.",
+    "emptyCta": "Comparte tu huerto"
+  },
   "AddressSearch": {
     "placeholder": "Busca una dirección o lugar",
     "label": "Buscar dirección",
