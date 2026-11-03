@@ -1,8 +1,7 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { MapIcon, SproutIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { NavGardens } from "@/components/nav-gardens"
 import { NavUser } from "@/components/nav-user"
@@ -19,10 +18,12 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { Link, usePathname } from "@/i18n/navigation"
 
-const navItems = [{ title: "Mapa", href: "/map", icon: MapIcon }]
+const navItems = [{ title: "map", href: "/map", icon: MapIcon }] as const
 
 export function AppSidebar() {
+  const t = useTranslations("Sidebar")
   const pathname = usePathname()
 
   return (
@@ -45,7 +46,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navegación</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("navigation")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -53,10 +54,10 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     render={<Link href={item.href} />}
                     isActive={pathname.startsWith(item.href)}
-                    tooltip={item.title}
+                    tooltip={t(item.title)}
                   >
                     <item.icon />
-                    <span>{item.title}</span>
+                    <span>{t(item.title)}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Loader2Icon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { useMyGardens } from "@/components/my-gardens-provider"
@@ -26,6 +27,7 @@ export function DeleteGardenDialog({
   onOpenChange: (open: boolean) => void
   onDeleted?: () => void
 }) {
+  const t = useTranslations("DeleteGarden")
   const { remove } = useMyGardens()
   const [pending, setPending] = React.useState(false)
 
@@ -41,12 +43,12 @@ export function DeleteGardenDialog({
     setPending(true)
     try {
       await remove(garden.id)
-      toast.success(`Eliminaste «${garden.name}»`)
+      toast.success(t("deleted", { name: garden.name }))
       onOpenChange(false)
       onDeleted?.()
     } catch (error) {
       console.error(error)
-      toast.error("No pudimos eliminar el huerto. Inténtalo de nuevo.")
+      toast.error(t("error"))
     } finally {
       setPending(false)
     }
@@ -59,21 +61,22 @@ export function DeleteGardenDialog({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Eliminar «{displayed?.name}»?</AlertDialogTitle>
-          <AlertDialogDescription>
-            El huerto y sus productos dejarán de aparecer en el mapa. Esta
-            acción no se puede deshacer.
-          </AlertDialogDescription>
+          <AlertDialogTitle>
+            {t("title", { name: displayed?.name ?? "" })}
+          </AlertDialogTitle>
+          <AlertDialogDescription>{t("description")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>
+            {t("cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={pending}
             onClick={handleDelete}
           >
             {pending && <Loader2Icon className="animate-spin" />}
-            Eliminar
+            {t("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

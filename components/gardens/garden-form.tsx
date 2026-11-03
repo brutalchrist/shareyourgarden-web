@@ -17,6 +17,7 @@ import {
   XIcon,
   type LucideIcon,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { useAuth } from "@/components/auth-provider"
 import { AddressSearch } from "@/components/map/address-search"
@@ -56,8 +57,7 @@ import {
   isProductUnit,
   PRODUCT_TYPES,
   PRODUCT_UNITS,
-  productTypeLabel,
-  productUnitLabel,
+  useProductLabels,
   type ProductType,
   type ProductUnit,
 } from "@/lib/products"
@@ -104,7 +104,19 @@ interface GardenDraft {
   products: ProductDraft[]
 }
 
-type Errors = Partial<Record<string, string>>
+// Message keys under `GardenForm.errors`, translated when rendered.
+type ErrorCode =
+  | "nameRequired"
+  | "descriptionTooLong"
+  | "locationRequired"
+  | "productNameRequired"
+  | "typeRequired"
+  | "unitRequired"
+  | "quantityInvalid"
+  | "geolocationUnsupported"
+  | "geolocationFailed"
+
+type Errors = Partial<Record<string, ErrorCode>>
 
 function newProduct(): ProductDraft {
   return {
@@ -152,27 +164,27 @@ function validate(draft: GardenDraft): Errors {
   const errors: Errors = {}
 
   if (!draft.name.trim()) {
-    errors.name = "Ponle un nombre a tu huerto."
+    errors.name = "nameRequired"
   }
   if (draft.description.length > DESCRIPTION_MAX) {
-    errors.description = `Máximo ${DESCRIPTION_MAX} caracteres.`
+    errors.description = "descriptionTooLong"
   }
   if (!draft.coordinates) {
-    errors.location = "Marca en el mapa dónde está tu huerto."
+    errors.location = "locationRequired"
   }
   draft.products.forEach((product) => {
     if (!product.name.trim()) {
-      errors[`product.${product.key}.name`] = "Indica qué producto es."
+      errors[`product.${product.key}.name`] = "productNameRequired"
     }
     if (!product.type) {
-      errors[`product.${product.key}.type`] = "Elige un tipo."
+      errors[`product.${product.key}.type`] = "typeRequired"
     }
     if (!product.unit) {
-      errors[`product.${product.key}.unit`] = "Elige una unidad."
+      errors[`product.${product.key}.unit`] = "unitRequired"
     }
     const quantity = Number(product.quantity)
     if (product.quantity.trim() === "" || !(quantity >= 0)) {
-      errors[`product.${product.key}.quantity`] = "Cantidad inválida."
+      errors[`product.${product.key}.quantity`] = "quantityInvalid"
     }
   })
 
@@ -224,6 +236,8 @@ export function GardenForm({
   onCancel: () => void
   extraActions?: React.ReactNode
 }) {
+  const t = useTranslations("GardenForm")
+  const errorMessage = useErrorMessage()
   const { user } = useAuth()
   const savedSnapshot = React.useMemo(() => snapshot(toDraft(garden)), [garden])
   // Pick up changes left unsaved when the user navigated away.
@@ -240,7 +254,7 @@ export function GardenForm({
   )
   const [pending, setPending] = React.useState(false)
   const [locating, setLocating] = React.useState(false)
-  const [locateError, setLocateError] = React.useState<string | null>(null)
+  const [locateError, setLocateError] = React.useState<ErrorCode | null>(null)
   const formRef = React.useRef<HTMLFormElement>(null)
 
   // The baseline follows the saved garden, so a save clears the changes.
@@ -299,7 +313,7 @@ export function GardenForm({
 
   function locateMe() {
     if (!navigator.geolocation) {
-      setLocateError("Tu navegador no permite obtener la ubicación.")
+      setLocateError("geolocationUnsupported")
       return
     }
 
@@ -314,7 +328,7 @@ export function GardenForm({
       },
       () => {
         setLocating(false)
-        setLocateError("No pudimos obtener tu ubicación. Márcala en el mapa.")
+        setLocateError("geolocationFailed")
       },
       { enableHighAccuracy: true, timeout: 10000 }
     )
@@ -357,44 +371,40 @@ export function GardenForm({
             className="flex items-center gap-2 rounded-md border bg-muted/50 px-3 py-2 text-sm"
           >
             <HistoryIcon className="size-4 shrink-0 text-muted-foreground" />
-            <span className="flex-1">
-              Recuperamos los cambios que no guardaste.
-            </span>
+            <span className="flex-1">{t("restored")}</span>
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={discardChanges}
             >
-              Descartar
+              {t("discard")}
             </Button>
           </div>
         )}
         <FieldSet>
-          <FieldLegend>Información</FieldLegend>
-          <FieldDescription>
-            Cómo verán tu huerto quienes lo encuentren en el mapa.
-          </FieldDescription>
+          <FieldLegend>{t("info")}</FieldLegend>
+          <FieldDescription>{t("infoDescription")}</FieldDescription>
           <FieldGroup>
             <Field data-invalid={!!errors.name || undefined}>
-              <FieldLabel htmlFor="garden-name">Nombre</FieldLabel>
+              <FieldLabel htmlFor="garden-name">{t("name")}</FieldLabel>
               <Input
                 id="garden-name"
                 value={draft.name}
                 onChange={(event) => patch({ name: event.target.value })}
                 maxLength={NAME_MAX}
-                placeholder="Ej. Huerto de la Plaza Ñuñoa"
+                placeholder={t("namePlaceholder")}
                 autoComplete="off"
                 aria-invalid={!!errors.name || undefined}
                 autoFocus={!garden}
               />
-              <FieldError>{errors.name}</FieldError>
+              <FieldError>{errorMessage(errors.name)}</FieldError>
             </Field>
             <Field data-invalid={!!errors.description || undefined}>
               <FieldLabel htmlFor="garden-description">
-                Descripción
+                {t("description")}
                 <span className="font-normal text-muted-foreground">
-                  (opcional)
+                  {t("optional")}
                 </span>
               </FieldLabel>
               <Textarea
@@ -403,22 +413,18 @@ export function GardenForm({
                 onChange={(event) => patch({ description: event.target.value })}
                 maxLength={DESCRIPTION_MAX}
                 rows={3}
-                placeholder="Horarios para retirar, cómo contactarte, si aceptas intercambios…"
+                placeholder={t("descriptionPlaceholder")}
                 aria-invalid={!!errors.description || undefined}
               />
               <FieldDescription className="text-right tabular-nums">
                 {draft.description.length}/{DESCRIPTION_MAX}
               </FieldDescription>
-              <FieldError>{errors.description}</FieldError>
+              <FieldError>{errorMessage(errors.description)}</FieldError>
             </Field>
             <Field orientation="horizontal">
               <FieldContent>
-                <FieldLabel htmlFor="garden-active">
-                  Visible en el mapa
-                </FieldLabel>
-                <FieldDescription>
-                  Desactívalo para ocultarlo temporalmente sin perder sus datos.
-                </FieldDescription>
+                <FieldLabel htmlFor="garden-active">{t("visible")}</FieldLabel>
+                <FieldDescription>{t("visibleDescription")}</FieldDescription>
               </FieldContent>
               <Switch
                 id="garden-active"
@@ -431,11 +437,10 @@ export function GardenForm({
                 <UserAvatar user={user} />
                 <FieldContent>
                   <FieldTitle>
-                    Publicado por {user.name ?? user.email}
+                    {t("publishedBy", { name: user.name ?? user.email })}
                   </FieldTitle>
                   <FieldDescription>
-                    Se muestra tu nombre y {user.email} para que puedan
-                    contactarte.
+                    {t("contactNotice", { email: user.email })}
                   </FieldDescription>
                 </FieldContent>
               </Field>
@@ -446,11 +451,8 @@ export function GardenForm({
         <FieldSeparator />
 
         <FieldSet>
-          <FieldLegend>Ubicación</FieldLegend>
-          <FieldDescription>
-            Busca la dirección o toca el mapa para marcar tu huerto. Puedes
-            arrastrar el marcador para ajustarlo.
-          </FieldDescription>
+          <FieldLegend>{t("location")}</FieldLegend>
+          <FieldDescription>{t("locationDescription")}</FieldDescription>
           <Field>
             <AddressSearch
               near={draft.coordinates}
@@ -472,12 +474,12 @@ export function GardenForm({
                 ) : (
                   <LocateFixedIcon />
                 )}
-                Usar mi ubicación
+                {t("useMyLocation")}
               </Button>
               <span className="text-sm text-muted-foreground tabular-nums">
                 {draft.coordinates
                   ? `${lat!.toFixed(5)}, ${lng!.toFixed(5)}`
-                  : "Sin ubicación"}
+                  : t("noLocation")}
               </span>
             </div>
             <LocationPicker
@@ -485,26 +487,23 @@ export function GardenForm({
               onChange={(coordinates) => patch({ coordinates })}
               invalid={!!errors.location}
             />
-            <FieldError>{errors.location ?? locateError}</FieldError>
+            <FieldError>
+              {errorMessage(errors.location ?? locateError ?? undefined)}
+            </FieldError>
           </Field>
         </FieldSet>
 
         <FieldSeparator />
 
         <FieldSet>
-          <FieldLegend>Productos</FieldLegend>
-          <FieldDescription>
-            Lo que ofreces ahora. Mantenlo al día para que nadie viaje por algo
-            que ya no está.
-          </FieldDescription>
+          <FieldLegend>{t("products")}</FieldLegend>
+          <FieldDescription>{t("productsDescription")}</FieldDescription>
           {draft.products.length === 0 ? (
             <div className="flex flex-col items-center gap-3 rounded-md border border-dashed p-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Aún no agregas productos.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("noProducts")}</p>
               <Button type="button" variant="outline" onClick={addProduct}>
                 <PlusIcon />
-                Agregar producto
+                {t("addProduct")}
               </Button>
             </div>
           ) : (
@@ -527,7 +526,7 @@ export function GardenForm({
                   onClick={addProduct}
                 >
                   <PlusIcon />
-                  Agregar producto
+                  {t("addProduct")}
                 </Button>
               )}
             </div>
@@ -549,7 +548,7 @@ export function GardenForm({
             }}
             disabled={pending}
           >
-            Cancelar
+            {t("cancel")}
           </Button>
           {/* Saving an existing garden only makes sense once something
               changed; a new one shows what's missing instead. */}
@@ -576,29 +575,32 @@ function ProductRow({
   onChange: (changes: Partial<ProductDraft>) => void
   onRemove: () => void
 }) {
+  const t = useTranslations("GardenForm")
+  const errorMessage = useErrorMessage()
+  const { productUnitLabel } = useProductLabels()
   const id = `product-${product.key}`
-  const nameError = errors[`product.${product.key}.name`]
-  const quantityError = errors[`product.${product.key}.quantity`]
-  const typeError = errors[`product.${product.key}.type`]
-  const unitError = errors[`product.${product.key}.unit`]
+  const nameError = errorMessage(errors[`product.${product.key}.name`])
+  const quantityError = errorMessage(errors[`product.${product.key}.quantity`])
+  const typeError = errorMessage(errors[`product.${product.key}.type`])
+  const unitError = errorMessage(errors[`product.${product.key}.unit`])
 
   return (
     <div
       role="group"
-      aria-label={`Producto ${index + 1}`}
+      aria-label={t("productGroup", { number: index + 1 })}
       className="relative grid grid-cols-2 gap-3 rounded-md border p-3 pr-11 sm:grid-cols-[minmax(0,1fr)_9.5rem_6rem_8rem]"
     >
       <Field
         data-invalid={!!nameError || undefined}
         className="col-span-2 sm:col-span-1"
       >
-        <FieldLabel htmlFor={`${id}-name`}>Producto</FieldLabel>
+        <FieldLabel htmlFor={`${id}-name`}>{t("product")}</FieldLabel>
         <Input
           id={`${id}-name`}
           value={product.name}
           onChange={(event) => onChange({ name: event.target.value })}
           maxLength={PRODUCT_NAME_MAX}
-          placeholder="Ej. Tomate cherry"
+          placeholder={t("productPlaceholder")}
           autoComplete="off"
           aria-invalid={!!nameError || undefined}
         />
@@ -608,7 +610,7 @@ function ProductRow({
         data-invalid={!!typeError || undefined}
         className="col-span-2 sm:col-span-1"
       >
-        <FieldLabel htmlFor={`${id}-type`}>Tipo</FieldLabel>
+        <FieldLabel htmlFor={`${id}-type`}>{t("type")}</FieldLabel>
         <Select<ProductType>
           value={product.type || null}
           onValueChange={(type) => type && onChange({ type })}
@@ -622,7 +624,7 @@ function ProductRow({
                 the empty value itself. */}
             <SelectValue>
               {(type: ProductType | null) =>
-                type ? <ProductTypeOption type={type} /> : "Elige un tipo"
+                type ? <ProductTypeOption type={type} /> : t("chooseType")
               }
             </SelectValue>
           </SelectTrigger>
@@ -637,7 +639,7 @@ function ProductRow({
         <FieldError>{typeError}</FieldError>
       </Field>
       <Field data-invalid={!!quantityError || undefined}>
-        <FieldLabel htmlFor={`${id}-quantity`}>Cantidad</FieldLabel>
+        <FieldLabel htmlFor={`${id}-quantity`}>{t("quantity")}</FieldLabel>
         <Input
           id={`${id}-quantity`}
           type="number"
@@ -651,7 +653,7 @@ function ProductRow({
         <FieldError>{quantityError}</FieldError>
       </Field>
       <Field data-invalid={!!unitError || undefined}>
-        <FieldLabel htmlFor={`${id}-unit`}>Unidad</FieldLabel>
+        <FieldLabel htmlFor={`${id}-unit`}>{t("unit")}</FieldLabel>
         <Select<ProductUnit>
           value={product.unit || null}
           onValueChange={(unit) => unit && onChange({ unit })}
@@ -663,7 +665,7 @@ function ProductRow({
           >
             <SelectValue>
               {(unit: ProductUnit | null) =>
-                unit ? productUnitLabel(unit) : "Elige"
+                unit ? productUnitLabel(unit) : t("chooseUnit")
               }
             </SelectValue>
           </SelectTrigger>
@@ -683,7 +685,11 @@ function ProductRow({
         size="icon-sm"
         className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
         onClick={onRemove}
-        aria-label={`Quitar ${product.name || `producto ${index + 1}`}`}
+        aria-label={
+          product.name
+            ? t("remove", { name: product.name })
+            : t("removeNumbered", { number: index + 1 })
+        }
       >
         <XIcon />
       </Button>
@@ -692,6 +698,7 @@ function ProductRow({
 }
 
 function ProductTypeOption({ type }: { type: ProductType }) {
+  const { productTypeLabel } = useProductLabels()
   const Icon = TYPE_ICONS[type]
 
   return (
@@ -700,4 +707,11 @@ function ProductTypeOption({ type }: { type: ProductType }) {
       {productTypeLabel(type)}
     </>
   )
+}
+
+function useErrorMessage() {
+  const t = useTranslations("GardenForm.errors")
+
+  return (code: ErrorCode | undefined) =>
+    code && t(code, { max: DESCRIPTION_MAX })
 }

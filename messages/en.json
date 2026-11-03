@@ -1,0 +1,173 @@
+{
+  "Metadata": {
+    "title": "ShareYourGarden"
+  },
+  "NotFound": {
+    "metaTitle": "Page not found",
+    "title": "We couldn't find this page",
+    "description": "The address may be mistyped, or the page may no longer exist.",
+    "backToMap": "Go to the map"
+  },
+  "Header": {
+    "searchLabel": "Search products",
+    "searchPlaceholder": "tomato"
+  },
+  "Sidebar": {
+    "navigation": "Navigation",
+    "map": "Map",
+    "toggle": "Toggle sidebar",
+    "sheetTitle": "Sidebar",
+    "sheetDescription": "Displays the sidebar on small screens."
+  },
+  "MyGardens": {
+    "title": "My gardens",
+    "newGarden": "New garden",
+    "loadError": "Couldn't load them. Retry",
+    "retry": "Retry",
+    "hidden": "Hidden on the map",
+    "actions": "Actions for {name}",
+    "viewOnMap": "View on map",
+    "edit": "Edit",
+    "delete": "Delete",
+    "addFirst": "Add your first garden"
+  },
+  "UserMenu": {
+    "lightAppearance": "Light appearance",
+    "darkAppearance": "Dark appearance",
+    "signOut": "Sign out"
+  },
+  "LanguageMenu": {
+    "label": "Language",
+    "current": "Language: {language}",
+    "auto": "Automatic ({language})",
+    "buttonLabel": "Language (Idioma)"
+  },
+  "SignIn": {
+    "error": "Couldn't sign in"
+  },
+  "GardenDrawer": {
+    "close": "Close",
+    "products": "Products",
+    "owner": "Owner",
+    "name": "Name",
+    "type": "Type",
+    "quantity": "Quantity",
+    "noProducts": "No products",
+    "ownerInfo": "Owner info",
+    "email": "Email"
+  },
+  "AddressSearch": {
+    "placeholder": "Search for an address or place",
+    "label": "Search address",
+    "minLength": "Type at least {min} letters.",
+    "loading": "Searching…",
+    "error": "We couldn't search. Try again or tap the map.",
+    "noResults": "No results. Try another address or tap the map.",
+    "attribution": "Search by Photon · data © <osm>OpenStreetMap</osm>"
+  },
+  "GardenPage": {
+    "signInTitle": "Sign in to manage your gardens",
+    "signInDescription": "Use the Google button at the top."
+  },
+  "NewGarden": {
+    "title": "New garden",
+    "description": "Share what you grow with your neighbors.",
+    "submit": "Create garden",
+    "created": "Created “{name}”",
+    "viewOnMap": "View on map",
+    "error": "We couldn't create the garden. Try again."
+  },
+  "EditGarden": {
+    "title": "Edit garden",
+    "description": "Update the details, location and products.",
+    "notFoundTitle": "We couldn't find this garden",
+    "notFoundDescription": "It may have been deleted, or it isn't yours.",
+    "createGarden": "Create a garden",
+    "submit": "Save changes",
+    "saved": "Changes saved",
+    "error": "We couldn't save the changes. Try again.",
+    "delete": "Delete garden",
+    "viewOnMap": "View on map"
+  },
+  "DeleteGarden": {
+    "title": "Delete “{name}”?",
+    "description": "The garden and its products will no longer appear on the map. This can't be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleted": "Deleted “{name}”",
+    "error": "We couldn't delete the garden. Try again."
+  },
+  "GardenForm": {
+    "restored": "We recovered the changes you didn't save.",
+    "discard": "Discard",
+    "info": "Details",
+    "infoDescription": "How people who find your garden on the map will see it.",
+    "name": "Name",
+    "namePlaceholder": "E.g. Plaza Ñuñoa community garden",
+    "description": "Description",
+    "optional": "(optional)",
+    "descriptionPlaceholder": "Pickup hours, how to reach you, whether you accept swaps…",
+    "visible": "Visible on the map",
+    "visibleDescription": "Turn it off to hide it for a while without losing its data.",
+    "publishedBy": "Posted by {name}",
+    "contactNotice": "Your name and {email} are shown so people can contact you.",
+    "location": "Location",
+    "locationDescription": "Search for the address or tap the map to mark your garden. You can drag the marker to adjust it.",
+    "useMyLocation": "Use my location",
+    "noLocation": "No location",
+    "products": "Products",
+    "productsDescription": "What you offer right now. Keep it up to date so nobody travels for something that's gone.",
+    "noProducts": "You haven't added any products yet.",
+    "addProduct": "Add product",
+    "cancel": "Cancel",
+    "productGroup": "Product {number}",
+    "product": "Product",
+    "productPlaceholder": "E.g. Cherry tomato",
+    "type": "Type",
+    "chooseType": "Choose a type",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "chooseUnit": "Choose",
+    "remove": "Remove {name}",
+    "removeNumbered": "Remove product {number}",
+    "errors": {
+      "nameRequired": "Give your garden a name.",
+      "descriptionTooLong": "{max} characters maximum.",
+      "locationRequired": "Mark on the map where your garden is.",
+      "productNameRequired": "Say what the product is.",
+      "typeRequired": "Choose a type.",
+      "unitRequired": "Choose a unit.",
+      "quantityInvalid": "Invalid quantity.",
+      "geolocationUnsupported": "Your browser can't share your location.",
+      "geolocationFailed": "We couldn't get your location. Mark it on the map."
+    }
+  },
+  "Sheet": {
+    "close": "Close"
+  },
+  "Products": {
+    "types": {
+      "vegetable": "Vegetable",
+      "fruit": "Fruit",
+      "herb": "Herb",
+      "flower": "Flower",
+      "seed": "Seed",
+      "seedbed": "Seedling",
+      "supply": "Supply"
+    },
+    "units": {
+      "unit": "units",
+      "kg": "kilograms",
+      "g": "grams",
+      "bunch": "bunches",
+      "l": "liters"
+    },
+    "quantities": {
+      "unit": "{amount} {count, plural, one {unit} other {units}}",
+      "kg": "{amount} {count, plural, one {kilogram} other {kilograms}}",
+      "g": "{amount} {count, plural, one {gram} other {grams}}",
+      "bunch": "{amount} {count, plural, one {bunch} other {bunches}}",
+      "l": "{amount} {count, plural, one {liter} other {liters}}"
+    }
+  }
+}

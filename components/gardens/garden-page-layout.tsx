@@ -1,6 +1,7 @@
 "use client"
 
 import { LogInIcon, SproutIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { useAuth } from "@/components/auth-provider"
 import {
@@ -21,6 +22,7 @@ export function GardenPageLayout({
   description: string
   children: React.ReactNode
 }) {
+  const t = useTranslations("GardenPage")
   const { status } = useAuth()
 
   return (
@@ -44,12 +46,8 @@ export function GardenPageLayout({
                 <EmptyMedia variant="icon">
                   <LogInIcon />
                 </EmptyMedia>
-                <EmptyTitle>
-                  Inicia sesión para gestionar tus huertos
-                </EmptyTitle>
-                <EmptyDescription>
-                  Usa el botón de Google en la parte superior.
-                </EmptyDescription>
+                <EmptyTitle>{t("signInTitle")}</EmptyTitle>
+                <EmptyDescription>{t("signInDescription")}</EmptyDescription>
               </EmptyHeader>
             </Empty>
           ) : (

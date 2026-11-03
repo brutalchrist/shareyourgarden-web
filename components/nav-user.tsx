@@ -6,9 +6,11 @@ import {
   MoonIcon,
   SunIcon,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 
 import { useAuth } from "@/components/auth-provider"
+import { LanguageSubmenu } from "@/components/language-menu"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +30,7 @@ import { UserAvatar } from "@/components/user-avatar"
 
 // Based on the `NavUser` from shadcn's dashboard-01 block.
 export function NavUser() {
+  const t = useTranslations("UserMenu")
   const { user, signOut } = useAuth()
   const { isMobile } = useSidebar()
   const { resolvedTheme, setTheme } = useTheme()
@@ -82,12 +85,13 @@ export function NavUser() {
               onClick={() => setTheme(isDark ? "light" : "dark")}
             >
               {isDark ? <SunIcon /> : <MoonIcon />}
-              {isDark ? "Aspecto claro" : "Aspecto oscuro"}
+              {isDark ? t("lightAppearance") : t("darkAppearance")}
             </DropdownMenuItem>
+            <LanguageSubmenu />
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>
               <LogOutIcon />
-              Cerrar sesión
+              {t("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

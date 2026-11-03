@@ -2,19 +2,26 @@
 
 import { useAuth } from "@/components/auth-provider"
 import { GoogleSignInButton } from "@/components/google-sign-in-button"
+import { LanguageMenuButton } from "@/components/language-menu"
 
-// Signed-in users reach their account from the sidebar footer (`NavUser`),
-// so the header only offers sign-in to anonymous visitors.
+// Signed-in users reach their account and language from the sidebar footer
+// (`NavUser`), so the header only offers them to anonymous visitors.
 export function UserMenu() {
   const { status } = useAuth()
 
   if (status === "loading") {
-    return <div className="h-8 w-8 sm:w-[180px]" aria-hidden />
+    // Room for the language button and Google's (icon-only on phones).
+    return <div className="h-8 w-18 sm:w-[220px]" aria-hidden />
   }
 
   if (status === "authenticated") {
     return null
   }
 
-  return <GoogleSignInButton />
+  return (
+    <>
+      <LanguageMenuButton />
+      <GoogleSignInButton />
+    </>
+  )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { SearchIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { useSearch } from "@/components/search-provider"
 import {
@@ -18,6 +19,7 @@ export function AppHeader({
 }: {
   showSidebarTrigger?: boolean
 }) {
+  const t = useTranslations("Header")
   const { searchText, setSearchText } = useSearch()
 
   return (
@@ -37,8 +39,8 @@ export function AppHeader({
           <InputGroup className="w-full max-w-[300px]">
             <InputGroupInput
               type="search"
-              placeholder="tomato"
-              aria-label="Buscar productos"
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchLabel")}
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
             />

@@ -1,40 +1,39 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { GardenForm } from "@/components/gardens/garden-form"
 import { GardenPageLayout } from "@/components/gardens/garden-page-layout"
 import { useMyGardens } from "@/components/my-gardens-provider"
+import { useRouter } from "@/i18n/navigation"
 import { discardGardenDraft } from "@/lib/garden-drafts"
 import { gardenEditHref, gardenMapHref } from "@/lib/gardens"
 
 export function NewGarden() {
+  const t = useTranslations("NewGarden")
   const router = useRouter()
   const { create } = useMyGardens()
 
   return (
-    <GardenPageLayout
-      title="Nuevo huerto"
-      description="Comparte lo que cultivas con tus vecinos."
-    >
+    <GardenPageLayout title={t("title")} description={t("description")}>
       <GardenForm
-        submitLabel="Crear huerto"
+        submitLabel={t("submit")}
         onCancel={() => router.back()}
         onSubmit={async (input) => {
           try {
             const garden = await create(input)
             discardGardenDraft()
-            toast.success(`Creaste «${garden.name}»`, {
+            toast.success(t("created", { name: garden.name }), {
               action: {
-                label: "Ver en el mapa",
+                label: t("viewOnMap"),
                 onClick: () => router.push(gardenMapHref(garden)),
               },
             })
             router.replace(gardenEditHref(garden.id))
           } catch (error) {
             console.error(error)
-            toast.error("No pudimos crear el huerto. Inténtalo de nuevo.")
+            toast.error(t("error"))
           }
         }}
       />
