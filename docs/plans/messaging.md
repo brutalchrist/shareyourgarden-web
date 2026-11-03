@@ -349,7 +349,13 @@ La v2 puede migrar a SSE (`@Sse()` en Nest) sin cambiar el contrato de datos.
      - Polling del hilo cada 4 s con backoff hasta 15 s; la bandeja cada 30 s. Ambos se pausan con la pestaña oculta.
      - Mensajes agrupados por autor (hasta 5 min entre ellos), separadores de día con `Marker`, "Visto · hora" bajo tu último mensaje.
      - Los enlaces con forma de botón usan `ButtonLink` (un `Link` con `buttonVariants`) para conservar el rol de enlace. `<Button render={<Link />}>` hace que Base UI les ponga `role="button"`. El resto del repo todavía usa ese patrón.
-4. **Sidebar y notificaciones**: `MessagesProvider`, badges en "Mensajes" y en "Mis huertas", y contador en el título.
+4. **Sidebar y notificaciones** ✅: `MessagesProvider`, badges en "Mensajes" y en "Mis huertas", y contador en el título.
+   - Implementado en `components/messages/messages-provider.tsx` y `unread-indicator.tsx`. Notas:
+     - El resumen se consulta cada 30 s con la pestaña visible. La bandeja lo refresca al instante al leer o al llegar respuestas.
+     - Con el sidebar colapsado a íconos, el número pasa a ser un punto sobre el ícono.
+     - En móvil, donde el sidebar está oculto, el botón que lo abre muestra un punto.
+     - El menú `…` de cada huerta tiene "Ver mensajes", que abre la bandeja filtrada por esa huerta.
+     - El título usa un `MutationObserver` para volver a poner el prefijo cuando Next.js cambia el título al navegar.
 5. **Confianza**: bloquear usuario, rate limit y conversaciones de huertas eliminadas en solo lectura.
 6. **Más adelante (fuera del alcance)**: SSE, notificación por email de mensajes sin leer tras X horas, estado del intercambio (propuesto / acordado / completado) como tarjeta especial en el chat, y fotos adjuntas.
 
