@@ -9,8 +9,7 @@
     "backToMap": "Go to the map"
   },
   "Header": {
-    "searchLabel": "Search products",
-    "searchPlaceholder": "tomato",
+    "shareGarden": "Share your garden",
     "unreadMessages": "{count, plural, one {# unread conversation} other {# unread conversations}}"
   },
   "Sidebar": {
@@ -71,6 +70,13 @@
     "emptyDescription": "Zoom out or move the map to see more.",
     "emptyCta": "Share your garden",
     "clusterLabel": "{count} gardens nearby"
+  },
+  "MapSearch": {
+    "label": "Search gardens and products",
+    "placeholder": "Search tomatoes, lemons, basil…",
+    "clear": "Clear search",
+    "shortcut": "Press / to search",
+    "typesLabel": "Filter by product type"
   },
   "AddressSearch": {
     "placeholder": "Search for an address or place",

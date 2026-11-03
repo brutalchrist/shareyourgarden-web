@@ -9,7 +9,6 @@ import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
 import { MessagesProvider } from "@/components/messages/messages-provider"
 import { MyGardensProvider } from "@/components/my-gardens-provider"
-import { SearchProvider } from "@/components/search-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -75,12 +74,10 @@ export default async function RootLayout({
             <AuthProvider>
               <MyGardensProvider>
                 <MessagesProvider>
-                  <SearchProvider>
-                    <TooltipProvider>
-                      <AppShell>{children}</AppShell>
-                      <Toaster position="top-center" richColors />
-                    </TooltipProvider>
-                  </SearchProvider>
+                  <TooltipProvider>
+                    <AppShell>{children}</AppShell>
+                    <Toaster position="top-center" richColors />
+                  </TooltipProvider>
                 </MessagesProvider>
               </MyGardensProvider>
             </AuthProvider>

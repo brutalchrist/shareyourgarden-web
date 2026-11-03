@@ -10,10 +10,10 @@ import { toast } from "sonner"
 import Supercluster from "supercluster"
 
 import { useMyGardens } from "@/components/my-gardens-provider"
-import { useSearch } from "@/components/search-provider"
 import { GardenDrawer } from "@/components/map/garden-drawer"
 import { MapControls } from "@/components/map/map-controls"
 import { MapEmptyState } from "@/components/map/map-empty-state"
+import { MapSearch } from "@/components/map/map-search"
 import { mapStyleUrl, transformMapStyle } from "@/components/map/map-style"
 import {
   clusterIcon,
@@ -27,6 +27,7 @@ import {
 } from "@/components/map/marker-icon"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { getGardensFromBounds } from "@/lib/gardens"
+import { useProductLabels, type ProductType } from "@/lib/products"
 import type { Garden } from "@/lib/types"
 
 // Fallback view when geolocation is unavailable or denied.
@@ -98,7 +99,11 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   )
   const [isEmpty, setIsEmpty] = React.useState(false)
   const [locating, setLocating] = React.useState(false)
-  const { searchText } = useSearch()
+  const [searchText, setSearchText] = React.useState("")
+  const [productType, setProductType] = React.useState<ProductType | null>(null)
+  // Read by renderMarkers, so a filtered garden shows the filtered type.
+  const productTypeRef = React.useRef(productType)
+  const { productTypeLabel } = useProductLabels()
   // Refetch the markers when the user creates, edits or deletes a garden.
   const { gardens: myGardens } = useMyGardens()
 
@@ -189,8 +194,8 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       }
 
       const options: GardenIconOptions = {
-        // The first product stands for the garden.
-        type: garden.products[0]?.type,
+        // The type filtered by stands for the garden, else its first product.
+        type: productTypeRef.current ?? garden.products[0]?.type,
         own: ownIdsRef.current.has(id),
         selected: id === selectedIdRef.current,
         chip: chip
@@ -439,7 +444,14 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
     const controller = new AbortController()
 
     getGardensFromBounds(bounds, searchText, controller.signal)
-      .then((gardens) => {
+      .then((found) => {
+        productTypeRef.current = productType
+        // The backend searches by text only: the type is filtered here.
+        const gardens = productType
+          ? found.filter((garden) =>
+              garden.products.some((product) => product.type === productType)
+            )
+          : found
         setIsEmpty(gardens.length === 0)
 
         const pending = gardens.find(
@@ -486,7 +498,7 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       })
 
     return () => controller.abort()
-  }, [bounds, searchText, myGardens, renderMarkers])
+  }, [bounds, searchText, productType, myGardens, renderMarkers])
 
   function locate() {
     if (!navigator.geolocation) {
@@ -520,7 +532,21 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   return (
     <>
       <div ref={containerRef} className="size-full" />
-      {isEmpty && <MapEmptyState searchText={searchText} />}
+      <MapSearch
+        searchText={searchText}
+        onSearchTextChange={setSearchText}
+        productType={productType}
+        onProductTypeChange={setProductType}
+      >
+        {isEmpty && (
+          <MapEmptyState
+            query={
+              searchText.trim() ||
+              (productType ? productTypeLabel(productType) : "")
+            }
+          />
+        )}
+      </MapSearch>
       <MapControls
         onZoomIn={() => mapRef.current?.zoomIn()}
         onZoomOut={() => mapRef.current?.zoomOut()}
