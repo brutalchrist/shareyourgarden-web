@@ -3,6 +3,7 @@
 import * as React from "react"
 import {
   InboxIcon,
+  LockIcon,
   MapIcon,
   MessageCircleIcon,
   RotateCwIcon,
@@ -248,6 +249,12 @@ function ConversationRow({
           <ItemTitle className={cn("truncate", unread && "font-semibold")}>
             {conversation.otherUser.name}
           </ItemTitle>
+          {conversation.readOnly && (
+            <LockIcon
+              className="size-3 shrink-0 text-muted-foreground"
+              aria-label={t("readOnlyLabel")}
+            />
+          )}
           {lastMessage && (
             <ListTime
               date={new Date(lastMessage.createdAt)}

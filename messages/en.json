@@ -206,7 +206,10 @@
     "greeting": "Hi",
     "greetingName": "Hi {name}",
     "viewConversation": "View conversation",
-    "unread": "{count, plural, one {# new} other {# new}}"
+    "unread": "{count, plural, one {# new} other {# new}}",
+    "errorBlocked": "You can't write to this person.",
+    "errorTooManyConversations": "You started many conversations in a short time. Please try again later.",
+    "errorTooManyMessages": "You're sending messages too fast. Wait a moment."
   },
   "Messages": {
     "title": "Messages",
@@ -255,6 +258,22 @@
     "composerLabel": "Message",
     "send": "Send",
     "sendHint": "<kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line",
-    "unreadConversations": "{count, plural, one {# unread conversation} other {# unread conversations}}"
+    "unreadConversations": "{count, plural, one {# unread conversation} other {# unread conversations}}",
+    "actions": "Conversation actions",
+    "block": "Block {name}",
+    "unblock": "Unblock {name}",
+    "unblockShort": "Unblock",
+    "blockTitle": "Block {name}?",
+    "blockDescription": "Neither of you will be able to write in any conversation or start new ones. {name} won't be notified. You can unblock them at any time.",
+    "blockConfirm": "Block",
+    "cancel": "Cancel",
+    "blocked": "You blocked {name}",
+    "unblocked": "You unblocked {name}",
+    "blockError": "That didn't work. Please try again.",
+    "readOnlyBlockedByMe": "You blocked {name}. You can't write to each other while they're blocked.",
+    "readOnlyBlocked": "You can't reply in this conversation.",
+    "readOnlyGardenDeleted": "{garden} no longer exists. This conversation is read-only.",
+    "readOnlyLabel": "Read-only",
+    "tooManyMessages": "You're sending messages too fast. Wait a moment."
   }
 }

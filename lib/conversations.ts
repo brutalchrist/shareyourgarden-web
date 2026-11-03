@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "@/lib/api"
+import { apiDelete, apiGet, apiPost } from "@/lib/api"
 import {
   toConversation,
   toMessage,
@@ -142,6 +142,19 @@ export function markConversationRead(conversationId: string): Promise<void> {
     `/conversations/${encodeURIComponent(conversationId)}/read`,
     undefined
   )
+}
+
+// Blocks or unblocks the other person in the conversation. Blocking is between
+// people, so it applies to all their conversations.
+export function blockConversation(conversationId: string): Promise<void> {
+  return apiPost(
+    `/conversations/${encodeURIComponent(conversationId)}/block`,
+    undefined
+  )
+}
+
+export function unblockConversation(conversationId: string): Promise<void> {
+  return apiDelete(`/conversations/${encodeURIComponent(conversationId)}/block`)
 }
 
 // Query params instead of dynamic segments: the static export has no server to
