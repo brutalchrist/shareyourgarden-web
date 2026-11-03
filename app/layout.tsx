@@ -3,6 +3,7 @@ import { Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
 import { AppHeader } from "@/components/app-header"
+import { AuthProvider } from "@/components/auth-provider"
 import { SearchProvider } from "@/components/search-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
@@ -36,12 +37,14 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <SearchProvider>
-            <div className="flex h-svh flex-col">
-              <AppHeader />
-              <main className="min-h-0 flex-1">{children}</main>
-            </div>
-          </SearchProvider>
+          <AuthProvider>
+            <SearchProvider>
+              <div className="flex h-svh flex-col">
+                <AppHeader />
+                <main className="min-h-0 flex-1">{children}</main>
+              </div>
+            </SearchProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

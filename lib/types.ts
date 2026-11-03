@@ -40,3 +40,15 @@ export function toGarden(data: any): Garden {
     },
   }
 }
+
+export interface User {
+  id: string
+  email: string
+  name?: string
+  picture?: string
+}
+
+export interface AuthResponse {
+  accessToken: string
+  user: User
+}
