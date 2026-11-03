@@ -117,7 +117,7 @@
     "visible": "Visible on the map",
     "visibleDescription": "Turn it off to hide it for a while without losing its data.",
     "publishedBy": "Posted by {name}",
-    "contactNotice": "Your name and {email} are shown so people can contact you.",
+    "contactNotice": "Your name is shown. Your email stays private: people write to you through messages.",
     "location": "Location",
     "locationDescription": "Search for the address or tap the map to mark your garden. You can drag the marker to adjust it.",
     "useMyLocation": "Use my location",

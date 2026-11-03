@@ -439,9 +439,7 @@ export function GardenForm({
                   <FieldTitle>
                     {t("publishedBy", { name: user.name ?? user.email })}
                   </FieldTitle>
-                  <FieldDescription>
-                    {t("contactNotice", { email: user.email })}
-                  </FieldDescription>
+                  <FieldDescription>{t("contactNotice")}</FieldDescription>
                 </FieldContent>
               </Field>
             )}

@@ -117,7 +117,7 @@
     "visible": "Visible en el mapa",
     "visibleDescription": "Desactívalo para ocultarlo temporalmente sin perder sus datos.",
     "publishedBy": "Publicado por {name}",
-    "contactNotice": "Se muestra tu nombre y {email} para que puedan contactarte.",
+    "contactNotice": "Se muestra tu nombre. Tu correo no es público: te escriben por mensajes.",
     "location": "Ubicación",
     "locationDescription": "Busca la dirección o toca el mapa para marcar tu huerto. Puedes arrastrar el marcador para ajustarlo.",
     "useMyLocation": "Usar mi ubicación",
