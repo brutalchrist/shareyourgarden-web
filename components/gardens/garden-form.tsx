@@ -7,6 +7,7 @@ import {
   BeanIcon,
   CarrotIcon,
   Flower2Icon,
+  HistoryIcon,
   LeafIcon,
   Loader2Icon,
   LocateFixedIcon,
@@ -44,6 +45,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { UserAvatar } from "@/components/user-avatar"
+import {
+  discardGardenDraft,
+  loadGardenDraft,
+  saveGardenDraft,
+} from "@/lib/garden-drafts"
 import type { Garden, GardenInput } from "@/lib/types"
 
 // Leaflet touches `window` on import, so the picker only renders on the client.
@@ -196,20 +202,36 @@ export function GardenForm({
   extraActions?: React.ReactNode
 }) {
   const { user } = useAuth()
-  const [draft, setDraft] = React.useState(() => toDraft(garden))
+  const savedSnapshot = React.useMemo(() => snapshot(toDraft(garden)), [garden])
+  // Pick up changes left unsaved when the user navigated away.
+  const [initial] = React.useState(() => {
+    const restored = loadGardenDraft<GardenDraft>(garden?.id, savedSnapshot)
+    return { draft: restored ?? toDraft(garden), restored: !!restored }
+  })
+  const [draft, setDraft] = React.useState(initial.draft)
+  const [restored, setRestored] = React.useState(initial.restored)
   const [submitted, setSubmitted] = React.useState(false)
   const [pending, setPending] = React.useState(false)
   const [locating, setLocating] = React.useState(false)
   const [locateError, setLocateError] = React.useState<string | null>(null)
   const formRef = React.useRef<HTMLFormElement>(null)
 
-  // Saving an existing garden only makes sense once something changed. The
-  // baseline follows the saved garden, so a save turns the button off again.
-  const savedSnapshot = React.useMemo(
-    () => garden && snapshot(toDraft(garden)),
-    [garden]
-  )
-  const dirty = !garden || snapshot(draft) !== savedSnapshot
+  // The baseline follows the saved garden, so a save clears the changes.
+  const changed = snapshot(draft) !== savedSnapshot
+
+  React.useEffect(() => {
+    if (changed) {
+      saveGardenDraft(garden?.id, savedSnapshot, draft)
+    } else {
+      discardGardenDraft(garden?.id)
+    }
+  }, [changed, draft, garden?.id, savedSnapshot])
+
+  function discardChanges() {
+    setDraft(toDraft(garden))
+    setRestored(false)
+    setSubmitted(false)
+  }
 
   // Errors show once the user tries to save, then update as they type.
   const errors = submitted ? validate(draft) : {}
@@ -302,6 +324,25 @@ export function GardenForm({
       className="flex min-h-full flex-col"
     >
       <FieldGroup className="flex-1 p-4 md:p-6">
+        {restored && changed && (
+          <div
+            role="status"
+            className="flex items-center gap-2 rounded-md border bg-muted/50 px-3 py-2 text-sm"
+          >
+            <HistoryIcon className="size-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1">
+              Recuperamos los cambios que no guardaste.
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={discardChanges}
+            >
+              Descartar
+            </Button>
+          </div>
+        )}
         <FieldSet>
           <FieldLegend>Información</FieldLegend>
           <FieldDescription>
@@ -473,12 +514,19 @@ export function GardenForm({
           <Button
             type="button"
             variant="ghost"
-            onClick={onCancel}
+            onClick={() => {
+              // Cancelling is a choice to drop the changes, unlike navigating
+              // away.
+              discardGardenDraft(garden?.id)
+              onCancel()
+            }}
             disabled={pending}
           >
             Cancelar
           </Button>
-          <Button type="submit" disabled={pending || !dirty}>
+          {/* Saving an existing garden only makes sense once something
+              changed; a new one shows what's missing instead. */}
+          <Button type="submit" disabled={pending || (!!garden && !changed)}>
             {pending && <Loader2Icon className="animate-spin" />}
             {submitLabel}
           </Button>

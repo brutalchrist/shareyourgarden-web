@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { GardenForm } from "@/components/gardens/garden-form"
 import { GardenPageLayout } from "@/components/gardens/garden-page-layout"
 import { useMyGardens } from "@/components/my-gardens-provider"
+import { discardGardenDraft } from "@/lib/garden-drafts"
 import { gardenEditHref, gardenMapHref } from "@/lib/gardens"
 
 export function NewGarden() {
@@ -23,6 +24,7 @@ export function NewGarden() {
         onSubmit={async (input) => {
           try {
             const garden = await create(input)
+            discardGardenDraft()
             toast.success(`Creaste «${garden.name}»`, {
               action: {
                 label: "Ver en el mapa",
