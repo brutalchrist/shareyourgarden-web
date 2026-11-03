@@ -200,6 +200,16 @@ Al instalar, hay que revisar que el CLI cambie el `IconPlaceholder` del registro
 
 ## 3. Backend (`shareyourgarden-backend`)
 
+> **Estado: fase 1 implementada** en la rama `claude/peaceful-sagan-0r5snt` del backend. El contrato definitivo está en la sección *Conversations* del README del backend. Diferencias con lo planeado abajo:
+>
+> - Los no leídos se guardan como **contadores por lado** (`ownerUnread` / `requesterUnread`), no como `lastReadAt` comparado contra `lastMessage`. Enviar un mensaje deja en 0 el contador propio y suma 1 al del otro. `/read` lo deja en 0. El resumen sale con consultas simples, sin agregaciones.
+> - La huerta se guarda como `gardenName` (string) y los participantes como `owner` / `requester` (`{ name, picture }`).
+> - `GET /conversations` responde `{ conversations, hasMore }` y `GET /conversations/:id/messages` responde `{ messages, hasMore }`, siempre del más antiguo al más reciente.
+> - El índice único `(gardenId, requesterId)` resuelve la carrera de dos primeros mensajes simultáneos: MongoDB reintenta el upsert perdedor. No hace falta reintento manual.
+> - Códigos de error nuevos: `CANNOT_CONTACT_OWN_GARDEN` (400), `INVALID_MESSAGE_CURSOR` (400), `CONVERSATION_NOT_FOUND` (404) y `GARDEN_HAS_NO_OWNER` (409, para huertas antiguas sin `ownerId`).
+> - El email del dueño ya no sale en `GET /gardens` y en `GET /gardens/:id` solo lo recibe el dueño.
+> - **Quedan para la fase 5**: bloquear, rate limit y conversaciones de huertas eliminadas en solo lectura (los campos `blockedBy` y `gardenDeleted` todavía no existen).
+
 ### 3.1 Modelo
 
 Nuevo módulo `src/conversations/`:
