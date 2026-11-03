@@ -49,13 +49,12 @@
   },
   "GardenDrawer": {
     "close": "Cerrar",
-    "products": "Productos",
-    "owner": "Dueño",
-    "name": "Nombre",
-    "type": "Tipo",
-    "quantity": "Cantidad",
-    "noProducts": "Sin productos",
-    "ownerInfo": "Datos del dueño"
+    "byOwner": "De {name}",
+    "updated": "Actualizado {when}",
+    "available": "Disponible",
+    "productCount": "{count, plural, one {# producto} other {# productos}}",
+    "noProducts": "Sin productos por ahora",
+    "noProductsDescription": "Este huerto todavía no publica lo que ofrece."
   },
   "MapControls": {
     "zoomIn": "Acercar",

@@ -49,13 +49,12 @@
   },
   "GardenDrawer": {
     "close": "Close",
-    "products": "Products",
-    "owner": "Owner",
-    "name": "Name",
-    "type": "Type",
-    "quantity": "Quantity",
-    "noProducts": "No products",
-    "ownerInfo": "Owner info"
+    "byOwner": "By {name}",
+    "updated": "Updated {when}",
+    "available": "Available",
+    "productCount": "{count, plural, one {# product} other {# products}}",
+    "noProducts": "No products yet",
+    "noProductsDescription": "This garden hasn't listed anything yet."
   },
   "MapControls": {
     "zoomIn": "Zoom in",

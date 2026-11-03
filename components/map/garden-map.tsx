@@ -44,8 +44,9 @@ const PIN_CLUSTER_RADIUS = 60
 const CHIP_CLUSTER_RADIUS = 110
 // Gardens on the same spot, fanned out around their cluster.
 const SPIDER_RADIUS = 48
-// The drawer's width on larger screens, in rem (see GardenDrawer).
-const DRAWER_WIDTH_REM = 40
+// The room the drawer takes on larger screens, in rem: its width plus the
+// inset on both sides (see GardenDrawer).
+const DRAWER_WIDTH_REM = 27.5
 
 export interface MapFocus {
   lat: number
