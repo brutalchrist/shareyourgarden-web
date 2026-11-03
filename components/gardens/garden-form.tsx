@@ -3,25 +3,18 @@
 import * as React from "react"
 import dynamic from "next/dynamic"
 import {
-  AppleIcon,
-  BeanIcon,
-  CarrotIcon,
-  Flower2Icon,
   HistoryIcon,
-  LeafIcon,
   Loader2Icon,
   LocateFixedIcon,
   PlusIcon,
-  ShovelIcon,
-  SproutIcon,
   XIcon,
-  type LucideIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { useAuth } from "@/components/auth-provider"
 import { AddressSearch } from "@/components/map/address-search"
 import type { Coordinates } from "@/components/map/location-picker"
+import { PRODUCT_TYPE_ICONS } from "@/components/product-type-icon"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -76,16 +69,6 @@ const NAME_MAX = 80
 const DESCRIPTION_MAX = 500
 const PRODUCT_NAME_MAX = 60
 const PRODUCTS_MAX = 50
-
-const TYPE_ICONS: Record<ProductType, LucideIcon> = {
-  vegetable: CarrotIcon,
-  fruit: AppleIcon,
-  herb: LeafIcon,
-  flower: Flower2Icon,
-  seed: BeanIcon,
-  seedbed: SproutIcon,
-  supply: ShovelIcon,
-}
 
 interface ProductDraft {
   key: string
@@ -697,7 +680,7 @@ function ProductRow({
 
 function ProductTypeOption({ type }: { type: ProductType }) {
   const { productTypeLabel } = useProductLabels()
-  const Icon = TYPE_ICONS[type]
+  const Icon = PRODUCT_TYPE_ICONS[type]
 
   return (
     <>

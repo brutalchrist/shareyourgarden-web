@@ -9,8 +9,7 @@
     "backToMap": "Ir al mapa"
   },
   "Header": {
-    "searchLabel": "Buscar productos",
-    "searchPlaceholder": "tomate",
+    "shareGarden": "Comparte tu huerto",
     "unreadMessages": "{count, plural, one {# conversación sin leer} other {# conversaciones sin leer}}"
   },
   "Sidebar": {
@@ -71,6 +70,13 @@
     "emptyDescription": "Aleja el mapa o muévete para ver más.",
     "emptyCta": "Comparte tu huerto",
     "clusterLabel": "{count} huertos cercanos"
+  },
+  "MapSearch": {
+    "label": "Buscar huertos y productos",
+    "placeholder": "Busca tomates, limones, albahaca…",
+    "clear": "Borrar búsqueda",
+    "shortcut": "Pulsa / para buscar",
+    "typesLabel": "Filtrar por tipo de producto"
   },
   "AddressSearch": {
     "placeholder": "Busca una dirección o lugar",
