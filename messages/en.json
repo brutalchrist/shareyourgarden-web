@@ -10,7 +10,8 @@
   },
   "Header": {
     "searchLabel": "Search products",
-    "searchPlaceholder": "tomato"
+    "searchPlaceholder": "tomato",
+    "unreadMessages": "{count, plural, one {# unread conversation} other {# unread conversations}}"
   },
   "Sidebar": {
     "navigation": "Navigation",
@@ -30,7 +31,8 @@
     "viewOnMap": "View on map",
     "edit": "Edit",
     "delete": "Delete",
-    "addFirst": "Add your first garden"
+    "addFirst": "Add your first garden",
+    "viewMessages": "View messages"
   },
   "UserMenu": {
     "lightAppearance": "Light appearance",

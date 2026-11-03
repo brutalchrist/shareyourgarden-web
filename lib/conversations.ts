@@ -70,6 +70,24 @@ export async function listConversations(
   }
 }
 
+export interface ConversationsSummary {
+  // Conversations with unread messages, in either role.
+  unread: number
+  // Conversations with unread messages per garden the user owns.
+  byGarden: Record<string, number>
+}
+
+export async function getConversationsSummary(
+  signal?: AbortSignal
+): Promise<ConversationsSummary> {
+  const data = await apiGet<Partial<ConversationsSummary>>(
+    "/conversations/summary",
+    { signal }
+  )
+
+  return { unread: data.unread ?? 0, byGarden: data.byGarden ?? {} }
+}
+
 export async function getConversation(
   id: string,
   signal?: AbortSignal

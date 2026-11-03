@@ -10,7 +10,8 @@
   },
   "Header": {
     "searchLabel": "Buscar productos",
-    "searchPlaceholder": "tomate"
+    "searchPlaceholder": "tomate",
+    "unreadMessages": "{count, plural, one {# conversación sin leer} other {# conversaciones sin leer}}"
   },
   "Sidebar": {
     "navigation": "Navegación",
@@ -30,7 +31,8 @@
     "viewOnMap": "Ver en el mapa",
     "edit": "Editar",
     "delete": "Eliminar",
-    "addFirst": "Agrega tu primer huerto"
+    "addFirst": "Agrega tu primer huerto",
+    "viewMessages": "Ver mensajes"
   },
   "UserMenu": {
     "lightAppearance": "Aspecto claro",

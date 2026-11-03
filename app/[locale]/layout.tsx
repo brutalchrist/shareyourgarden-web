@@ -7,6 +7,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import "../globals.css"
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
+import { MessagesProvider } from "@/components/messages/messages-provider"
 import { MyGardensProvider } from "@/components/my-gardens-provider"
 import { SearchProvider } from "@/components/search-provider"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -73,12 +74,14 @@ export default async function RootLayout({
           <ThemeProvider>
             <AuthProvider>
               <MyGardensProvider>
-                <SearchProvider>
-                  <TooltipProvider>
-                    <AppShell>{children}</AppShell>
-                    <Toaster position="top-center" richColors />
-                  </TooltipProvider>
-                </SearchProvider>
+                <MessagesProvider>
+                  <SearchProvider>
+                    <TooltipProvider>
+                      <AppShell>{children}</AppShell>
+                      <Toaster position="top-center" richColors />
+                    </TooltipProvider>
+                  </SearchProvider>
+                </MessagesProvider>
               </MyGardensProvider>
             </AuthProvider>
           </ThemeProvider>
