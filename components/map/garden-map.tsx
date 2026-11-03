@@ -4,8 +4,10 @@ import * as React from "react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 
+import { useMyGardens } from "@/components/my-gardens-provider"
 import { useSearch } from "@/components/search-provider"
 import { GardenDrawer } from "@/components/map/garden-drawer"
+import { markerIcon } from "@/components/map/marker-icon"
 import { getGardensFromBounds } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
@@ -14,23 +16,27 @@ const DEFAULT_CENTER: L.LatLngTuple = [0, 0]
 const DEFAULT_ZOOM = 2
 const LOCATED_ZOOM = 16
 
-const markerIcon = L.icon({
-  iconUrl: "/leaflet/marker-icon.png",
-  iconRetinaUrl: "/leaflet/marker-icon-2x.png",
-  shadowUrl: "/leaflet/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  shadowSize: [41, 41],
-})
+export interface MapFocus {
+  lat: number
+  lng: number
+  // Opened in the drawer once its marker loads.
+  gardenId: string | null
+}
 
-export default function GardenMap() {
+export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const mapRef = React.useRef<L.Map | null>(null)
   const layerGroupRef = React.useRef<L.LayerGroup | null>(null)
+  const pendingGardenIdRef = React.useRef<string | null>(null)
+  // Read once on mount: later focus changes arrive through the effect below.
+  const initialFocus = React.useRef(focus)
   const [bounds, setBounds] = React.useState<L.LatLngBounds | null>(null)
   const [selectedGarden, setSelectedGarden] = React.useState<Garden | null>(
     null
   )
   const { searchText } = useSearch()
+  // Refetch the markers when the user creates, edits or deletes a garden.
+  const { gardens: myGardens } = useMyGardens()
 
   React.useEffect(() => {
     if (!containerRef.current) {
@@ -41,6 +47,7 @@ export default function GardenMap() {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
     })
+    mapRef.current = map
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 16,
@@ -60,8 +67,9 @@ export default function GardenMap() {
     // effect), when the map has already been removed.
     let removed = false
 
+    // A focused garden wins over the user's position.
     navigator.geolocation?.getCurrentPosition((position) => {
-      if (removed) {
+      if (removed || initialFocus.current) {
         return
       }
 
@@ -75,9 +83,19 @@ export default function GardenMap() {
       removed = true
       resizeObserver.disconnect()
       map.remove()
+      mapRef.current = null
       layerGroupRef.current = null
     }
   }, [])
+
+  React.useEffect(() => {
+    if (!focus || !mapRef.current) {
+      return
+    }
+
+    pendingGardenIdRef.current = focus.gardenId
+    mapRef.current.setView([focus.lat, focus.lng], LOCATED_ZOOM)
+  }, [focus])
 
   React.useEffect(() => {
     if (!bounds) {
@@ -95,6 +113,15 @@ export default function GardenMap() {
         }
 
         layerGroup.clearLayers()
+
+        const pending = gardens.find(
+          (garden) => garden.id === pendingGardenIdRef.current
+        )
+        if (pending) {
+          pendingGardenIdRef.current = null
+          setSelectedGarden(pending)
+        }
+
         gardens.forEach((garden) => {
           const [lng, lat] = garden.location.coordinates
 
@@ -110,7 +137,7 @@ export default function GardenMap() {
       })
 
     return () => controller.abort()
-  }, [bounds, searchText])
+  }, [bounds, searchText, myGardens])
 
   return (
     <>

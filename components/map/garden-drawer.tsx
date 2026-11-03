@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { formatQuantity, productTypeLabel } from "@/lib/products"
 import type { Garden } from "@/lib/types"
 
 export function GardenDrawer({
@@ -59,6 +60,11 @@ export function GardenDrawer({
                 <span className="sr-only">Close</span>
               </DrawerClose>
             </DrawerHeader>
+            {displayed.description && (
+              <p className="px-4 text-sm whitespace-pre-line text-muted-foreground">
+                {displayed.description}
+              </p>
+            )}
             <Tabs
               defaultValue="products"
               className="w-full overflow-y-auto p-4"
@@ -90,8 +96,12 @@ export function GardenDrawer({
                       displayed.products.map((product, index) => (
                         <TableRow key={index}>
                           <TableCell>{product.name}</TableCell>
-                          <TableCell>{product.type}</TableCell>
-                          <TableCell>{product.quantity}</TableCell>
+                          <TableCell>
+                            {productTypeLabel(product.type)}
+                          </TableCell>
+                          <TableCell>
+                            {formatQuantity(product.quantity, product.unit)}
+                          </TableCell>
                         </TableRow>
                       ))
                     )}

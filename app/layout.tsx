@@ -4,8 +4,10 @@ import { Geist_Mono, Inter } from "next/font/google"
 import "./globals.css"
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
+import { MyGardensProvider } from "@/components/my-gardens-provider"
 import { SearchProvider } from "@/components/search-provider"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -39,11 +41,14 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <AuthProvider>
-            <SearchProvider>
-              <TooltipProvider>
-                <AppShell>{children}</AppShell>
-              </TooltipProvider>
-            </SearchProvider>
+            <MyGardensProvider>
+              <SearchProvider>
+                <TooltipProvider>
+                  <AppShell>{children}</AppShell>
+                  <Toaster position="top-center" richColors />
+                </TooltipProvider>
+              </SearchProvider>
+            </MyGardensProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

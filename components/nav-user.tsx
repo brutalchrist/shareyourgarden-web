@@ -54,7 +54,7 @@ export function NavUser() {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
+              <SidebarMenuButton size="lg" className="aria-expanded:bg-sidebar-accent" />
             }
           >
             <UserAvatar user={user} className="rounded-lg" />

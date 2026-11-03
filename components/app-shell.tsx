@@ -14,7 +14,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider className="h-svh min-h-0">
       {isAuthenticated && <AppSidebar />}
-      <SidebarInset className="min-w-0">
+      {/* `overflow-hidden` clips the map to the inset card's rounded corners. */}
+      <SidebarInset className="min-w-0 overflow-hidden">
         <AppHeader showSidebarTrigger={isAuthenticated} />
         <div className="min-h-0 flex-1">{children}</div>
       </SidebarInset>
