@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useSearchParams } from "next/navigation"
 import { MapPinIcon, SearchXIcon, Trash2Icon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { useAuth } from "@/components/auth-provider"
@@ -27,6 +28,7 @@ import { getGarden, gardenMapHref } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
 export function EditGarden() {
+  const t = useTranslations("EditGarden")
   const id = useSearchParams().get("id") ?? ""
   const router = useRouter()
   const { status: authStatus } = useAuth()
@@ -61,8 +63,8 @@ export function EditGarden() {
 
   return (
     <GardenPageLayout
-      title={garden ? garden.name : "Editar huerto"}
-      description="Actualiza la información, la ubicación y los productos."
+      title={garden ? garden.name : t("title")}
+      description={t("description")}
     >
       {garden === undefined && id ? (
         <GardenFormSkeleton />
@@ -72,14 +74,12 @@ export function EditGarden() {
             <EmptyMedia variant="icon">
               <SearchXIcon />
             </EmptyMedia>
-            <EmptyTitle>No encontramos este huerto</EmptyTitle>
-            <EmptyDescription>
-              Puede que se haya eliminado o que no sea tuyo.
-            </EmptyDescription>
+            <EmptyTitle>{t("notFoundTitle")}</EmptyTitle>
+            <EmptyDescription>{t("notFoundDescription")}</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             <Button render={<Link href="/gardens/new/" />} nativeButton={false}>
-              Crear un huerto
+              {t("createGarden")}
             </Button>
           </EmptyContent>
         </Empty>
@@ -89,17 +89,15 @@ export function EditGarden() {
             // Reset the form when switching gardens from the sidebar.
             key={garden.id}
             garden={garden}
-            submitLabel="Guardar cambios"
+            submitLabel={t("submit")}
             onCancel={() => router.back()}
             onSubmit={async (input) => {
               try {
                 await update(garden.id, input)
-                toast.success("Cambios guardados")
+                toast.success(t("saved"))
               } catch (error) {
                 console.error(error)
-                toast.error(
-                  "No pudimos guardar los cambios. Inténtalo de nuevo."
-                )
+                toast.error(t("error"))
               }
             }}
             extraActions={
@@ -108,8 +106,8 @@ export function EditGarden() {
                   type="button"
                   variant="destructive"
                   size="icon"
-                  aria-label="Eliminar huerto"
-                  title="Eliminar huerto"
+                  aria-label={t("delete")}
+                  title={t("delete")}
                   onClick={() => setConfirmDelete(true)}
                 >
                   <Trash2Icon />
@@ -121,7 +119,7 @@ export function EditGarden() {
                   nativeButton={false}
                 >
                   <MapPinIcon />
-                  Ver en el mapa
+                  {t("viewOnMap")}
                 </Button>
               </>
             }

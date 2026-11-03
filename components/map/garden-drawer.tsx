@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { XIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { formatQuantity, productTypeLabel } from "@/lib/products"
+import { useProductLabels } from "@/lib/products"
 import type { Garden } from "@/lib/types"
 
 export function GardenDrawer({
@@ -31,6 +32,8 @@ export function GardenDrawer({
   garden: Garden | null
   onClose: () => void
 }) {
+  const t = useTranslations("GardenDrawer")
+  const { formatQuantity, productTypeLabel } = useProductLabels()
   const isMobile = useIsMobile()
 
   // Keep showing the last garden while the drawer animates closed.
@@ -57,7 +60,7 @@ export function GardenDrawer({
               <DrawerTitle>{displayed.name}</DrawerTitle>
               <DrawerClose render={<Button variant="ghost" size="icon-sm" />}>
                 <XIcon />
-                <span className="sr-only">Close</span>
+                <span className="sr-only">{t("close")}</span>
               </DrawerClose>
             </DrawerHeader>
             {displayed.description && (
@@ -70,16 +73,16 @@ export function GardenDrawer({
               className="w-full overflow-y-auto p-4"
             >
               <TabsList>
-                <TabsTrigger value="products">Products</TabsTrigger>
-                <TabsTrigger value="owner">Owner</TabsTrigger>
+                <TabsTrigger value="products">{t("products")}</TabsTrigger>
+                <TabsTrigger value="owner">{t("owner")}</TabsTrigger>
               </TabsList>
               <TabsContent value="products">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Quantity</TableHead>
+                      <TableHead>{t("name")}</TableHead>
+                      <TableHead>{t("type")}</TableHead>
+                      <TableHead>{t("quantity")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -89,7 +92,7 @@ export function GardenDrawer({
                           colSpan={3}
                           className="text-center text-muted-foreground"
                         >
-                          No data
+                          {t("noProducts")}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -109,11 +112,11 @@ export function GardenDrawer({
                 </Table>
               </TabsContent>
               <TabsContent value="owner">
-                <h3 className="mb-3 font-medium">Owner Info</h3>
+                <h3 className="mb-3 font-medium">{t("ownerInfo")}</h3>
                 <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
-                  <dt className="text-muted-foreground">Name</dt>
+                  <dt className="text-muted-foreground">{t("name")}</dt>
                   <dd>{displayed.owner.name}</dd>
-                  <dt className="text-muted-foreground">Email</dt>
+                  <dt className="text-muted-foreground">{t("email")}</dt>
                   <dd>{displayed.owner.email}</dd>
                 </dl>
               </TabsContent>

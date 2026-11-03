@@ -1,4 +1,7 @@
-# Links from before routes had a locale. The root page picks the locale in the
-# browser and redirects, keeping the path and query.
-/map/*      /index.html  200
-/gardens/*  /index.html  200
+# Missing pages under a locale get that locale's 404 page.
+/es/*  /es/404/  404
+/en/*  /en/404/  404
+
+# Anything else lacks a locale (`/`, old `/map/` links): the root page picks one
+# in the browser and redirects, keeping the path and query.
+/*  /index.html  200

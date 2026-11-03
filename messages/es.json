@@ -1,5 +1,167 @@
 {
   "Metadata": {
     "title": "ShareYourGarden"
+  },
+  "NotFound": {
+    "metaTitle": "Página no encontrada",
+    "title": "No encontramos esta página",
+    "description": "Puede que la dirección esté mal escrita o que la página ya no exista.",
+    "backToMap": "Ir al mapa"
+  },
+  "Header": {
+    "searchLabel": "Buscar productos",
+    "searchPlaceholder": "tomate"
+  },
+  "Sidebar": {
+    "navigation": "Navegación",
+    "map": "Mapa",
+    "toggle": "Mostrar u ocultar la barra lateral",
+    "sheetTitle": "Barra lateral",
+    "sheetDescription": "Muestra la barra lateral en pantallas pequeñas."
+  },
+  "MyGardens": {
+    "title": "Mis huertos",
+    "newGarden": "Nuevo huerto",
+    "loadError": "No se pudieron cargar. Reintentar",
+    "retry": "Reintentar",
+    "hidden": "Oculto en el mapa",
+    "actions": "Acciones de {name}",
+    "viewOnMap": "Ver en el mapa",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "addFirst": "Agrega tu primer huerto"
+  },
+  "UserMenu": {
+    "lightAppearance": "Aspecto claro",
+    "darkAppearance": "Aspecto oscuro",
+    "signOut": "Cerrar sesión"
+  },
+  "SignIn": {
+    "error": "No se pudo iniciar sesión"
+  },
+  "GardenDrawer": {
+    "close": "Cerrar",
+    "products": "Productos",
+    "owner": "Dueño",
+    "name": "Nombre",
+    "type": "Tipo",
+    "quantity": "Cantidad",
+    "noProducts": "Sin productos",
+    "ownerInfo": "Datos del dueño",
+    "email": "Correo"
+  },
+  "AddressSearch": {
+    "placeholder": "Busca una dirección o lugar",
+    "label": "Buscar dirección",
+    "minLength": "Escribe al menos {min} letras.",
+    "loading": "Buscando…",
+    "error": "No pudimos buscar. Inténtalo de nuevo o marca el mapa.",
+    "noResults": "Sin resultados. Prueba con otra dirección o marca el mapa.",
+    "attribution": "Búsqueda de Photon · datos © <osm>OpenStreetMap</osm>"
+  },
+  "GardenPage": {
+    "signInTitle": "Inicia sesión para gestionar tus huertos",
+    "signInDescription": "Usa el botón de Google en la parte superior."
+  },
+  "NewGarden": {
+    "title": "Nuevo huerto",
+    "description": "Comparte lo que cultivas con tus vecinos.",
+    "submit": "Crear huerto",
+    "created": "Creaste «{name}»",
+    "viewOnMap": "Ver en el mapa",
+    "error": "No pudimos crear el huerto. Inténtalo de nuevo."
+  },
+  "EditGarden": {
+    "title": "Editar huerto",
+    "description": "Actualiza la información, la ubicación y los productos.",
+    "notFoundTitle": "No encontramos este huerto",
+    "notFoundDescription": "Puede que se haya eliminado o que no sea tuyo.",
+    "createGarden": "Crear un huerto",
+    "submit": "Guardar cambios",
+    "saved": "Cambios guardados",
+    "error": "No pudimos guardar los cambios. Inténtalo de nuevo.",
+    "delete": "Eliminar huerto",
+    "viewOnMap": "Ver en el mapa"
+  },
+  "DeleteGarden": {
+    "title": "¿Eliminar «{name}»?",
+    "description": "El huerto y sus productos dejarán de aparecer en el mapa. Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar",
+    "deleted": "Eliminaste «{name}»",
+    "error": "No pudimos eliminar el huerto. Inténtalo de nuevo."
+  },
+  "GardenForm": {
+    "restored": "Recuperamos los cambios que no guardaste.",
+    "discard": "Descartar",
+    "info": "Información",
+    "infoDescription": "Cómo verán tu huerto quienes lo encuentren en el mapa.",
+    "name": "Nombre",
+    "namePlaceholder": "Ej. Huerto de la Plaza Ñuñoa",
+    "description": "Descripción",
+    "optional": "(opcional)",
+    "descriptionPlaceholder": "Horarios para retirar, cómo contactarte, si aceptas intercambios…",
+    "visible": "Visible en el mapa",
+    "visibleDescription": "Desactívalo para ocultarlo temporalmente sin perder sus datos.",
+    "publishedBy": "Publicado por {name}",
+    "contactNotice": "Se muestra tu nombre y {email} para que puedan contactarte.",
+    "location": "Ubicación",
+    "locationDescription": "Busca la dirección o toca el mapa para marcar tu huerto. Puedes arrastrar el marcador para ajustarlo.",
+    "useMyLocation": "Usar mi ubicación",
+    "noLocation": "Sin ubicación",
+    "products": "Productos",
+    "productsDescription": "Lo que ofreces ahora. Mantenlo al día para que nadie viaje por algo que ya no está.",
+    "noProducts": "Aún no agregas productos.",
+    "addProduct": "Agregar producto",
+    "cancel": "Cancelar",
+    "productGroup": "Producto {number}",
+    "product": "Producto",
+    "productPlaceholder": "Ej. Tomate cherry",
+    "type": "Tipo",
+    "chooseType": "Elige un tipo",
+    "quantity": "Cantidad",
+    "unit": "Unidad",
+    "chooseUnit": "Elige",
+    "remove": "Quitar {name}",
+    "removeNumbered": "Quitar producto {number}",
+    "errors": {
+      "nameRequired": "Ponle un nombre a tu huerto.",
+      "descriptionTooLong": "Máximo {max} caracteres.",
+      "locationRequired": "Marca en el mapa dónde está tu huerto.",
+      "productNameRequired": "Indica qué producto es.",
+      "typeRequired": "Elige un tipo.",
+      "unitRequired": "Elige una unidad.",
+      "quantityInvalid": "Cantidad inválida.",
+      "geolocationUnsupported": "Tu navegador no permite obtener la ubicación.",
+      "geolocationFailed": "No pudimos obtener tu ubicación. Márcala en el mapa."
+    }
+  },
+  "Sheet": {
+    "close": "Cerrar"
+  },
+  "Products": {
+    "types": {
+      "vegetable": "Verdura",
+      "fruit": "Fruta",
+      "herb": "Hierba",
+      "flower": "Flor",
+      "seed": "Semilla",
+      "seedbed": "Almácigo",
+      "supply": "Insumo"
+    },
+    "units": {
+      "unit": "unidades",
+      "kg": "kilogramos",
+      "g": "gramos",
+      "bunch": "atados",
+      "l": "litros"
+    },
+    "quantities": {
+      "unit": "{amount} {count, plural, one {unidad} other {unidades}}",
+      "kg": "{amount} {count, plural, one {kilogramo} other {kilogramos}}",
+      "g": "{amount} {count, plural, one {gramo} other {gramos}}",
+      "bunch": "{amount} {count, plural, one {atado} other {atados}}",
+      "l": "{amount} {count, plural, one {litro} other {litros}}"
+    }
   }
 }

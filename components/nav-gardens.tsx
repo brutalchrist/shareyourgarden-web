@@ -12,6 +12,7 @@ import {
   SproutIcon,
   Trash2Icon,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { DeleteGardenDialog } from "@/components/gardens/delete-garden-dialog"
 import { useMyGardens } from "@/components/my-gardens-provider"
@@ -41,15 +42,17 @@ import type { Garden } from "@/lib/types"
 const NEW_GARDEN_HREF = "/gardens/new/"
 
 export function NavGardens() {
+  const t = useTranslations("MyGardens")
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Mis huertos</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("title")}</SidebarGroupLabel>
       <SidebarGroupAction
         render={<Link href={NEW_GARDEN_HREF} />}
-        title="Nuevo huerto"
+        title={t("newGarden")}
       >
         <PlusIcon />
-        <span className="sr-only">Nuevo huerto</span>
+        <span className="sr-only">{t("newGarden")}</span>
       </SidebarGroupAction>
       <SidebarGroupContent>
         {/* The active garden comes from the URL query, which suspends while
@@ -63,6 +66,7 @@ export function NavGardens() {
 }
 
 function GardensMenu() {
+  const t = useTranslations("MyGardens")
   const { gardens, status, reload } = useMyGardens()
   const { isMobile } = useSidebar()
   const pathname = usePathname()
@@ -88,10 +92,10 @@ function GardensMenu() {
             <SidebarMenuButton
               onClick={reload}
               className="text-muted-foreground"
-              tooltip="Reintentar"
+              tooltip={t("retry")}
             >
               <RotateCwIcon />
-              <span>No se pudieron cargar. Reintentar</span>
+              <span>{t("loadError")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         )}
@@ -108,7 +112,7 @@ function GardensMenu() {
               {!garden.active && (
                 <EyeOffIcon
                   className="ml-auto size-3.5! text-muted-foreground"
-                  aria-label="Oculto en el mapa"
+                  aria-label={t("hidden")}
                 />
               )}
             </SidebarMenuButton>
@@ -122,7 +126,9 @@ function GardensMenu() {
                 }
               >
                 <MoreHorizontalIcon />
-                <span className="sr-only">Acciones de {garden.name}</span>
+                <span className="sr-only">
+                  {t("actions", { name: garden.name })}
+                </span>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="min-w-48"
@@ -133,13 +139,13 @@ function GardensMenu() {
                   onClick={() => router.push(gardenMapHref(garden))}
                 >
                   <MapPinIcon />
-                  Ver en el mapa
+                  {t("viewOnMap")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => router.push(gardenEditHref(garden.id))}
                 >
                   <PencilIcon />
-                  Editar
+                  {t("edit")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -147,7 +153,7 @@ function GardensMenu() {
                   onClick={() => setGardenToDelete(garden)}
                 >
                   <Trash2Icon />
-                  Eliminar
+                  {t("delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -159,10 +165,10 @@ function GardensMenu() {
             <SidebarMenuButton
               render={<Link href={NEW_GARDEN_HREF} />}
               className="text-muted-foreground"
-              tooltip="Agrega tu primer huerto"
+              tooltip={t("addFirst")}
             >
               <PlusIcon />
-              <span>Agrega tu primer huerto</span>
+              <span>{t("addFirst")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         )}

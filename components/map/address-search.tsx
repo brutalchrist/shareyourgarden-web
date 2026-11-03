@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { MapPinIcon, SearchIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import {
   Combobox,
@@ -21,6 +22,12 @@ const DEBOUNCE_MS = 300
 
 type SearchStatus = "idle" | "loading" | "ready" | "error"
 
+const EMPTY_MESSAGES = {
+  loading: "loading",
+  error: "error",
+  ready: "noResults",
+} as const
+
 export function AddressSearch({
   near,
   onSelect,
@@ -29,6 +36,7 @@ export function AddressSearch({
   near?: [number, number] | null
   onSelect: (place: Place) => void
 }) {
+  const t = useTranslations("AddressSearch")
   const [places, setPlaces] = React.useState<Place[]>([])
   const [status, setStatus] = React.useState<SearchStatus>("idle")
   const timeoutRef = React.useRef<number | undefined>(undefined)
@@ -88,8 +96,8 @@ export function AddressSearch({
     >
       <div ref={anchorRef}>
         <ComboboxInput
-          placeholder="Busca una dirección o lugar"
-          aria-label="Buscar dirección"
+          placeholder={t("placeholder")}
+          aria-label={t("label")}
           showTrigger={false}
           showClear
         >
@@ -99,7 +107,11 @@ export function AddressSearch({
         </ComboboxInput>
       </div>
       <ComboboxContent anchor={anchorRef}>
-        <ComboboxEmpty>{emptyMessage(status)}</ComboboxEmpty>
+        <ComboboxEmpty>
+          {status === "idle"
+            ? t("minLength", { min: MIN_QUERY_LENGTH })
+            : t(EMPTY_MESSAGES[status])}
+        </ComboboxEmpty>
         <ComboboxList>
           {(place: Place) => (
             <ComboboxItem key={place.id} value={place} className="items-start">
@@ -116,30 +128,20 @@ export function AddressSearch({
           )}
         </ComboboxList>
         <p className="border-t px-3 py-1.5 text-[0.7rem] text-muted-foreground">
-          Búsqueda de Photon · datos ©{" "}
-          <a
-            href="https://www.openstreetmap.org/copyright"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-2"
-          >
-            OpenStreetMap
-          </a>
+          {t.rich("attribution", {
+            osm: (chunks) => (
+              <a
+                href="https://www.openstreetmap.org/copyright"
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-2"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
       </ComboboxContent>
     </Combobox>
   )
-}
-
-function emptyMessage(status: SearchStatus) {
-  switch (status) {
-    case "idle":
-      return `Escribe al menos ${MIN_QUERY_LENGTH} letras.`
-    case "loading":
-      return "Buscando…"
-    case "error":
-      return "No pudimos buscar. Inténtalo de nuevo o marca el mapa."
-    case "ready":
-      return "Sin resultados. Prueba con otra dirección o marca el mapa."
-  }
 }

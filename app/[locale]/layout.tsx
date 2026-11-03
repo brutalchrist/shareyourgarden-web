@@ -38,7 +38,11 @@ export async function generateMetadata({
     namespace: "Metadata",
   })
 
-  return { title: t("title") }
+  return {
+    title: t("title"),
+    // Netlify sets `URL` to the site's address at build time.
+    metadataBase: new URL(process.env.URL ?? "http://localhost:3000"),
+  }
 }
 
 export default async function RootLayout({

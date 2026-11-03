@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Script from "next/script"
+import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 
 import { useAuth } from "@/components/auth-provider"
@@ -9,13 +10,14 @@ import { useAuth } from "@/components/auth-provider"
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
 export function GoogleSignInButton() {
+  const t = useTranslations("SignIn")
   const { signInWithCredential } = useAuth()
   const { resolvedTheme } = useTheme()
   const containerRef = React.useRef<HTMLDivElement>(null)
   const [scriptReady, setScriptReady] = React.useState(
     () => typeof window !== "undefined" && Boolean(window.google?.accounts.id)
   )
-  const [error, setError] = React.useState<string | null>(null)
+  const [error, setError] = React.useState(false)
 
   React.useEffect(() => {
     const container = containerRef.current
@@ -27,10 +29,8 @@ export function GoogleSignInButton() {
     google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: ({ credential }) => {
-        setError(null)
-        signInWithCredential(credential).catch(() => {
-          setError("No se pudo iniciar sesión")
-        })
+        setError(false)
+        signInWithCredential(credential).catch(() => setError(true))
       },
       use_fedcm_for_prompt: true,
     })
@@ -57,7 +57,7 @@ export function GoogleSignInButton() {
         strategy="afterInteractive"
         onReady={() => setScriptReady(true)}
       />
-      {error && <span className="text-sm text-destructive">{error}</span>}
+      {error && <span className="text-sm text-destructive">{t("error")}</span>}
       {/* Google's iframe is light; a dark color-scheme around it makes Chrome paint it an opaque white box. */}
       <div
         ref={containerRef}

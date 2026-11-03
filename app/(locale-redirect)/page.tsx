@@ -2,8 +2,9 @@ import { LOCALE_PREFERENCE_KEY, routing } from "@/i18n/routing"
 
 // The static export has no server to read `Accept-Language`, so the browser
 // picks the locale: the saved preference, then the browser languages, then the
-// default. Netlify also serves this page for old links without a locale
-// (`public/_redirects`), which keep their path, query and hash.
+// default. Netlify also serves this page for any other path without a locale,
+// such as old links (`public/_redirects`), which keep their path, query and
+// hash.
 const script = `(function () {
   var locales = ${JSON.stringify(routing.locales)};
   var locale = null;
