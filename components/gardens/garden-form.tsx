@@ -165,6 +165,23 @@ function toInput(draft: GardenDraft): GardenInput {
   }
 }
 
+// What the form would save, so drafts that differ only in whitespace or product
+// keys compare equal.
+function snapshot(draft: GardenDraft) {
+  return JSON.stringify({
+    name: draft.name.trim(),
+    description: draft.description.trim(),
+    active: draft.active,
+    coordinates: draft.coordinates,
+    products: draft.products.map((product) => [
+      product.name.trim(),
+      product.type,
+      product.quantity.trim(),
+      product.unit,
+    ]),
+  })
+}
+
 export function GardenForm({
   garden,
   submitLabel,
@@ -185,6 +202,14 @@ export function GardenForm({
   const [locating, setLocating] = React.useState(false)
   const [locateError, setLocateError] = React.useState<string | null>(null)
   const formRef = React.useRef<HTMLFormElement>(null)
+
+  // Saving an existing garden only makes sense once something changed. The
+  // baseline follows the saved garden, so a save turns the button off again.
+  const savedSnapshot = React.useMemo(
+    () => garden && snapshot(toDraft(garden)),
+    [garden]
+  )
+  const dirty = !garden || snapshot(draft) !== savedSnapshot
 
   // Errors show once the user tries to save, then update as they type.
   const errors = submitted ? validate(draft) : {}
@@ -453,7 +478,7 @@ export function GardenForm({
           >
             Cancelar
           </Button>
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" disabled={pending || !dirty}>
             {pending && <Loader2Icon className="animate-spin" />}
             {submitLabel}
           </Button>
