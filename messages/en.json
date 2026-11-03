@@ -17,7 +17,8 @@
     "map": "Map",
     "toggle": "Toggle sidebar",
     "sheetTitle": "Sidebar",
-    "sheetDescription": "Displays the sidebar on small screens."
+    "sheetDescription": "Displays the sidebar on small screens.",
+    "messages": "Messages"
   },
   "MyGardens": {
     "title": "My gardens",
@@ -171,7 +172,6 @@
   },
   "ContactGarden": {
     "proposeExchange": "Propose an exchange",
-    "writeAgain": "Send another message",
     "requiresAccount": "Requires signing in",
     "ownGarden": "This is your garden",
     "edit": "Edit",
@@ -197,6 +197,56 @@
     "errorOwnGarden": "You can't write to your own garden.",
     "errorGeneric": "The message could not be sent. Please try again.",
     "greeting": "Hi",
-    "greetingName": "Hi {name}"
+    "greetingName": "Hi {name}",
+    "viewConversation": "View conversation",
+    "unread": "{count, plural, one {# new} other {# new}}"
+  },
+  "Messages": {
+    "title": "Messages",
+    "filterLabel": "Filter conversations",
+    "filter": {
+      "all": "All",
+      "received": "Received",
+      "sent": "Sent"
+    },
+    "gardenFilter": "Filter by garden",
+    "allGardens": "All my gardens",
+    "loadError": "Messages could not be loaded",
+    "retry": "Retry",
+    "loadMore": "Load more",
+    "unread": "{count, plural, one {# unread} other {# unread}}",
+    "gardenWithProduct": "{garden} · {product}",
+    "youWrote": "You: {body}",
+    "emptyTitle": "No conversations yet",
+    "emptyDescription": "Find a garden on the map and propose an exchange.",
+    "emptyFilteredTitle": "Nothing here",
+    "emptyFilteredDescription": "There are no conversations with this filter.",
+    "exploreMap": "Explore the map",
+    "signInTitle": "Sign in to see your messages",
+    "signInDescription": "Your conversations about exchanges show up here.",
+    "noSelectionTitle": "Pick a conversation",
+    "noSelectionDescription": "Select a conversation from the list to read and reply.",
+    "notFoundTitle": "Conversation not found",
+    "notFoundDescription": "The link may be wrong, or you are not part of this conversation.",
+    "backToInbox": "Back to messages",
+    "threadLabel": "Conversation with {name}",
+    "aboutYourGarden": "your garden",
+    "aboutTheirGarden": "their garden",
+    "viewOnMap": "View on map",
+    "gardenGone": "This garden is no longer available",
+    "scrollToEnd": "Go to the latest message",
+    "you": "You",
+    "notSent": "Not sent",
+    "retrySend": "Retry",
+    "sending": "Sending…",
+    "seen": "Seen · {time}",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "olderMessages": "Older messages",
+    "loadingOlder": "Loading older messages…",
+    "composerPlaceholder": "Write a message",
+    "composerLabel": "Message",
+    "send": "Send",
+    "sendHint": "<kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line"
   }
 }

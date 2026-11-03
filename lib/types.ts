@@ -128,3 +128,21 @@ export function toConversation(data: any): Conversation {
     updatedAt: data?.updatedAt ?? "",
   }
 }
+
+export interface Message {
+  id: string
+  conversationId: string
+  senderId: string
+  body: string
+  createdAt: string
+}
+
+export function toMessage(data: any): Message {
+  return {
+    id: data?.id ?? "",
+    conversationId: data?.conversationId ?? "",
+    senderId: data?.senderId ?? "",
+    body: data?.body ?? "",
+    createdAt: data?.createdAt ?? "",
+  }
+}

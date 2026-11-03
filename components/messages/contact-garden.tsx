@@ -5,6 +5,7 @@ import {
   CheckIcon,
   LockIcon,
   MessageCircleIcon,
+  MessagesSquareIcon,
   PencilIcon,
   SendIcon,
   SproutIcon,
@@ -15,21 +16,24 @@ import { toast } from "sonner"
 
 import { useAuth } from "@/components/auth-provider"
 import { GoogleSignInButton } from "@/components/google-sign-in-button"
+import { Badge } from "@/components/ui/badge"
+import { ButtonLink } from "@/components/button-link"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
-import { Link } from "@/i18n/navigation"
+import { useRouter } from "@/i18n/navigation"
 import { ApiError } from "@/lib/api"
 import {
   findConversationAboutGarden,
+  MESSAGE_MAX_LENGTH,
+  messagesHref,
   startConversation,
 } from "@/lib/conversations"
 import { gardenEditHref } from "@/lib/gardens"
 import type { Conversation, Garden } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
-const MESSAGE_MAX_LENGTH = 2000
 // The character counter only shows up close to the limit.
 const COUNTER_THRESHOLD = 1800
 
@@ -83,14 +87,10 @@ export function ContactGarden({ garden }: { garden: Garden }) {
           <SproutIcon className="size-4" />
           {t("ownGarden")}
         </p>
-        <Button
-          variant="outline"
-          render={<Link href={gardenEditHref(garden.id)} />}
-          nativeButton={false}
-        >
+        <ButtonLink variant="outline" href={gardenEditHref(garden.id)}>
           <PencilIcon data-icon="inline-start" />
           {t("edit")}
-        </Button>
+        </ButtonLink>
       </div>
     )
   }
@@ -122,27 +122,46 @@ export function ContactGarden({ garden }: { garden: Garden }) {
     )
   }
 
-  return (
-    <div className="flex flex-col gap-2">
-      {conversation?.lastMessage && (
-        <PreviousConversation conversation={conversation} />
-      )}
-      <Button
-        size="lg"
-        className="w-full"
-        onClick={() => setPanel(isAuthenticated ? "compose" : "signin")}
-      >
-        <MessageCircleIcon data-icon="inline-start" />
-        {conversation ? t("writeAgain") : t("proposeExchange")}
-        {!isAuthenticated && (
-          <LockIcon
-            data-icon="inline-end"
-            className="ml-auto opacity-70"
-            aria-label={t("requiresAccount")}
-          />
+  // Once there is a conversation, it continues in the inbox.
+  if (conversation) {
+    return (
+      <div className="flex flex-col gap-2">
+        {conversation.lastMessage && (
+          <PreviousConversation conversation={conversation} />
         )}
-      </Button>
-    </div>
+        <ButtonLink
+          size="lg"
+          className="w-full"
+          href={messagesHref({ conversation: conversation.id })}
+        >
+          <MessagesSquareIcon data-icon="inline-start" />
+          {t("viewConversation")}
+          {conversation.unreadCount > 0 && (
+            <Badge variant="secondary" className="ml-auto">
+              {t("unread", { count: conversation.unreadCount })}
+            </Badge>
+          )}
+        </ButtonLink>
+      </div>
+    )
+  }
+
+  return (
+    <Button
+      size="lg"
+      className="w-full"
+      onClick={() => setPanel(isAuthenticated ? "compose" : "signin")}
+    >
+      <MessageCircleIcon data-icon="inline-start" />
+      {t("proposeExchange")}
+      {!isAuthenticated && (
+        <LockIcon
+          data-icon="inline-end"
+          className="ml-auto opacity-70"
+          aria-label={t("requiresAccount")}
+        />
+      )}
+    </Button>
   )
 }
 
@@ -249,6 +268,7 @@ function QuickComposer({
   onSent: (conversation: Conversation) => void
 }) {
   const t = useTranslations("ContactGarden")
+  const router = useRouter()
   const [product, setProduct] = React.useState<string | null>(null)
   // null while the user has not edited the suggested message, so it can
   // follow the selected product.
@@ -286,7 +306,13 @@ function QuickComposer({
         body: message.trim(),
         ...(product ? { productName: product } : {}),
       })
-      toast.success(t("sent", { name: garden.owner.name }))
+      toast.success(t("sent", { name: garden.owner.name }), {
+        action: {
+          label: t("viewConversation"),
+          onClick: () =>
+            router.push(messagesHref({ conversation: conversation.id })),
+        },
+      })
       onSent(conversation)
     } catch (error) {
       console.error(error)
