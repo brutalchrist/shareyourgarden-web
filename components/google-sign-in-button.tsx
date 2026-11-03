@@ -58,7 +58,11 @@ export function GoogleSignInButton() {
         onReady={() => setScriptReady(true)}
       />
       {error && <span className="text-sm text-destructive">{error}</span>}
-      <div ref={containerRef} className="h-8 sm:min-w-[180px]" />
+      {/* Google's iframe is light; a dark color-scheme around it makes Chrome paint it an opaque white box. */}
+      <div
+        ref={containerRef}
+        className="h-8 [color-scheme:light] sm:min-w-[180px]"
+      />
     </div>
   )
 }
