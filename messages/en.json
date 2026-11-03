@@ -36,6 +36,12 @@
     "darkAppearance": "Dark appearance",
     "signOut": "Sign out"
   },
+  "LanguageMenu": {
+    "label": "Language",
+    "current": "Language: {language}",
+    "auto": "Automatic ({language})",
+    "buttonLabel": "Language (Idioma)"
+  },
   "SignIn": {
     "error": "Couldn't sign in"
   },

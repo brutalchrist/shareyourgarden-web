@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 
 import { useAuth } from "@/components/auth-provider"
+import { LanguageSubmenu } from "@/components/language-menu"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,6 +87,7 @@ export function NavUser() {
               {isDark ? <SunIcon /> : <MoonIcon />}
               {isDark ? t("lightAppearance") : t("darkAppearance")}
             </DropdownMenuItem>
+            <LanguageSubmenu />
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>
               <LogOutIcon />

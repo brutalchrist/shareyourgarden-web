@@ -12,3 +12,10 @@ export type Locale = (typeof routing.locales)[number]
 
 // The language the visitor picked explicitly; absent means follow the browser.
 export const LOCALE_PREFERENCE_KEY = "locale-preference"
+
+// Each language in its own language, so anyone finds theirs whatever the
+// current one is.
+export const LOCALE_NAMES: Record<Locale, string> = {
+  es: "Español",
+  en: "English",
+}

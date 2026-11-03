@@ -36,6 +36,12 @@
     "darkAppearance": "Aspecto oscuro",
     "signOut": "Cerrar sesión"
   },
+  "LanguageMenu": {
+    "label": "Idioma",
+    "current": "Idioma: {language}",
+    "auto": "Automático ({language})",
+    "buttonLabel": "Idioma (Language)"
+  },
   "SignIn": {
     "error": "No se pudo iniciar sesión"
   },
