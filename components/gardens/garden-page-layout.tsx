@@ -16,10 +16,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 export function GardenPageLayout({
   title,
   description,
+  actions,
   children,
 }: {
   title: string
   description: string
+  // Shown at the end of the header, e.g. links to related pages.
+  actions?: React.ReactNode
   children: React.ReactNode
 }) {
   const t = useTranslations("GardenPage")
@@ -32,10 +35,13 @@ export function GardenPageLayout({
           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <SproutIcon className="size-5" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="truncate text-xl font-semibold">{title}</h1>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
+          {actions && status === "authenticated" && (
+            <div className="flex shrink-0 items-center gap-2">{actions}</div>
+          )}
         </header>
         <div className="flex-1">
           {status === "loading" ? (

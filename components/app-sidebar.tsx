@@ -3,6 +3,8 @@
 import { MapIcon, MessagesSquareIcon, SproutIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
+import { useMessages } from "@/components/messages/messages-provider"
+import { UnreadIndicator } from "@/components/messages/unread-indicator"
 import { NavGardens } from "@/components/nav-gardens"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -28,6 +30,11 @@ const navItems = [
 export function AppSidebar() {
   const t = useTranslations("Sidebar")
   const pathname = usePathname()
+  const { summary } = useMessages()
+  const tMessages = useTranslations("Messages")
+  const unread: Partial<Record<(typeof navItems)[number]["title"], number>> = {
+    messages: summary?.unread,
+  }
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -57,10 +64,16 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     render={<Link href={item.href} />}
                     isActive={pathname.startsWith(item.href)}
-                    tooltip={t(item.title)}
+                    tooltip={
+                      unread[item.title]
+                        ? `${t(item.title)} · ${tMessages("unreadConversations", { count: unread[item.title]! })}`
+                        : t(item.title)
+                    }
+                    className="relative"
                   >
                     <item.icon />
-                    <span>{t(item.title)}</span>
+                    <span className="truncate">{t(item.title)}</span>
+                    <UnreadIndicator count={unread[item.title] ?? 0} />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

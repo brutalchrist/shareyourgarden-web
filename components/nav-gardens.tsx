@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import {
   EyeOffIcon,
   MapPinIcon,
+  MessagesSquareIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PlusIcon,
@@ -15,6 +16,8 @@ import {
 import { useTranslations } from "next-intl"
 
 import { DeleteGardenDialog } from "@/components/gardens/delete-garden-dialog"
+import { useMessages } from "@/components/messages/messages-provider"
+import { UnreadIndicator } from "@/components/messages/unread-indicator"
 import { useMyGardens } from "@/components/my-gardens-provider"
 import {
   DropdownMenu,
@@ -36,6 +39,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
+import { messagesHref } from "@/lib/conversations"
 import { gardenEditHref, gardenMapHref } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
@@ -68,6 +72,13 @@ export function NavGardens() {
 function GardensMenu() {
   const t = useTranslations("MyGardens")
   const { gardens, status, reload } = useMyGardens()
+  const { summary } = useMessages()
+  const tMessages = useTranslations("Messages")
+  // The collapsed sidebar only shows a dot, so its tooltip spells it out.
+  const withUnread = (label: string, count = 0) =>
+    count > 0
+      ? `${label} · ${tMessages("unreadConversations", { count })}`
+      : label
   const { isMobile } = useSidebar()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -105,16 +116,21 @@ function GardensMenu() {
             <SidebarMenuButton
               render={<Link href={gardenEditHref(garden.id)} />}
               isActive={garden.id === activeId}
-              tooltip={garden.name}
+              tooltip={withUnread(garden.name, summary?.byGarden[garden.id])}
+              className="relative"
             >
               <SproutIcon />
-              <span>{garden.name}</span>
+              <span className="truncate">{garden.name}</span>
               {!garden.active && (
                 <EyeOffIcon
                   className="ml-auto size-3.5! text-muted-foreground"
                   aria-label={t("hidden")}
                 />
               )}
+              <UnreadIndicator
+                count={summary?.byGarden[garden.id] ?? 0}
+                className={!garden.active ? "ml-1" : undefined}
+              />
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -140,6 +156,16 @@ function GardensMenu() {
                 >
                   <MapPinIcon />
                   {t("viewOnMap")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(
+                      messagesHref({ role: "received", garden: garden.id })
+                    )
+                  }
+                >
+                  <MessagesSquareIcon />
+                  {t("viewMessages")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => router.push(gardenEditHref(garden.id))}

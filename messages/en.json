@@ -10,7 +10,8 @@
   },
   "Header": {
     "searchLabel": "Search products",
-    "searchPlaceholder": "tomato"
+    "searchPlaceholder": "tomato",
+    "unreadMessages": "{count, plural, one {# unread conversation} other {# unread conversations}}"
   },
   "Sidebar": {
     "navigation": "Navigation",
@@ -30,7 +31,8 @@
     "viewOnMap": "View on map",
     "edit": "Edit",
     "delete": "Delete",
-    "addFirst": "Add your first garden"
+    "addFirst": "Add your first garden",
+    "viewMessages": "View messages"
   },
   "UserMenu": {
     "lightAppearance": "Light appearance",
@@ -87,7 +89,12 @@
     "saved": "Changes saved",
     "error": "We couldn't save the changes. Try again.",
     "delete": "Delete garden",
-    "viewOnMap": "View on map"
+    "viewOnMap": "View on map",
+    "messages": "Messages",
+    "unreadCount": "{count, plural, one {# unread} other {# unread}}",
+    "unreadTitle": "{count, plural, one {You have # unread conversation about this garden} other {You have # unread conversations about this garden}}",
+    "unreadDescription": "Someone wants to exchange your produce.",
+    "viewMessages": "View messages"
   },
   "DeleteGarden": {
     "title": "Delete “{name}”?",
@@ -110,7 +117,7 @@
     "visible": "Visible on the map",
     "visibleDescription": "Turn it off to hide it for a while without losing its data.",
     "publishedBy": "Posted by {name}",
-    "contactNotice": "Your name and {email} are shown so people can contact you.",
+    "contactNotice": "Your name is shown. Your email stays private: people write to you through messages.",
     "location": "Location",
     "locationDescription": "Search for the address or tap the map to mark your garden. You can drag the marker to adjust it.",
     "useMyLocation": "Use my location",
@@ -247,6 +254,7 @@
     "composerPlaceholder": "Write a message",
     "composerLabel": "Message",
     "send": "Send",
-    "sendHint": "<kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line"
+    "sendHint": "<kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line",
+    "unreadConversations": "{count, plural, one {# unread conversation} other {# unread conversations}}"
   }
 }

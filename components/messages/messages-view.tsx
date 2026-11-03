@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useSearchParams } from "next/navigation"
 import { LogInIcon, MessagesSquareIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -8,6 +9,7 @@ import { useAuth } from "@/components/auth-provider"
 import { GoogleSignInButton } from "@/components/google-sign-in-button"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { ConversationThread } from "@/components/messages/conversation-thread"
+import { useMessages } from "@/components/messages/messages-provider"
 import { useConversationList } from "@/components/messages/use-conversation-list"
 import {
   Empty,
@@ -23,6 +25,7 @@ import {
   messagesHref,
   type ConversationFilter,
 } from "@/lib/conversations"
+import type { Conversation } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 function parseRole(value: string | null): ConversationFilter {
@@ -77,6 +80,16 @@ function Inbox() {
   // The garden filter only applies to conversations about your gardens.
   const gardenId = role === "received" ? searchParams.get("garden") : null
   const list = useConversationList({ role, gardenId })
+  const { refresh: refreshUnread } = useMessages()
+  const { upsert } = list
+  const onConversationChange = React.useCallback(
+    (conversation: Conversation) => {
+      upsert(conversation)
+      // Reading or replying here changes the sidebar's unread counts.
+      refreshUnread()
+    },
+    [upsert, refreshUnread]
+  )
 
   return (
     <div className="flex h-full min-h-0">
@@ -110,7 +123,7 @@ function Inbox() {
             key={conversationId}
             conversationId={conversationId}
             backHref={messagesHref({ role, garden: gardenId })}
-            onConversationChange={list.upsert}
+            onConversationChange={onConversationChange}
           />
         ) : (
           <Empty className="h-full">

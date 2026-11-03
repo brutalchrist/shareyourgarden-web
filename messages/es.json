@@ -10,7 +10,8 @@
   },
   "Header": {
     "searchLabel": "Buscar productos",
-    "searchPlaceholder": "tomate"
+    "searchPlaceholder": "tomate",
+    "unreadMessages": "{count, plural, one {# conversación sin leer} other {# conversaciones sin leer}}"
   },
   "Sidebar": {
     "navigation": "Navegación",
@@ -30,7 +31,8 @@
     "viewOnMap": "Ver en el mapa",
     "edit": "Editar",
     "delete": "Eliminar",
-    "addFirst": "Agrega tu primer huerto"
+    "addFirst": "Agrega tu primer huerto",
+    "viewMessages": "Ver mensajes"
   },
   "UserMenu": {
     "lightAppearance": "Aspecto claro",
@@ -87,7 +89,12 @@
     "saved": "Cambios guardados",
     "error": "No pudimos guardar los cambios. Inténtalo de nuevo.",
     "delete": "Eliminar huerto",
-    "viewOnMap": "Ver en el mapa"
+    "viewOnMap": "Ver en el mapa",
+    "messages": "Mensajes",
+    "unreadCount": "{count, plural, one {# sin leer} other {# sin leer}}",
+    "unreadTitle": "{count, plural, one {Tienes # conversación sin leer sobre esta huerta} other {Tienes # conversaciones sin leer sobre esta huerta}}",
+    "unreadDescription": "Alguien quiere intercambiar tus productos.",
+    "viewMessages": "Ver mensajes"
   },
   "DeleteGarden": {
     "title": "¿Eliminar «{name}»?",
@@ -110,7 +117,7 @@
     "visible": "Visible en el mapa",
     "visibleDescription": "Desactívalo para ocultarlo temporalmente sin perder sus datos.",
     "publishedBy": "Publicado por {name}",
-    "contactNotice": "Se muestra tu nombre y {email} para que puedan contactarte.",
+    "contactNotice": "Se muestra tu nombre. Tu correo no es público: te escriben por mensajes.",
     "location": "Ubicación",
     "locationDescription": "Busca la dirección o toca el mapa para marcar tu huerto. Puedes arrastrar el marcador para ajustarlo.",
     "useMyLocation": "Usar mi ubicación",
@@ -247,6 +254,7 @@
     "composerPlaceholder": "Escribe un mensaje",
     "composerLabel": "Mensaje",
     "send": "Enviar",
-    "sendHint": "<kbd>Enter</kbd> para enviar · <kbd>Shift</kbd> + <kbd>Enter</kbd> para una nueva línea"
+    "sendHint": "<kbd>Enter</kbd> para enviar · <kbd>Shift</kbd> + <kbd>Enter</kbd> para una nueva línea",
+    "unreadConversations": "{count, plural, one {# conversación sin leer} other {# conversaciones sin leer}}"
   }
 }
