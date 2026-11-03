@@ -1,0 +1,4 @@
+# Links from before routes had a locale. The root page picks the locale in the
+# browser and redirects, keeping the path and query.
+/map/*      /index.html  200
+/gardens/*  /index.html  200

@@ -1,11 +1,11 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { GardenForm } from "@/components/gardens/garden-form"
 import { GardenPageLayout } from "@/components/gardens/garden-page-layout"
 import { useMyGardens } from "@/components/my-gardens-provider"
+import { useRouter } from "@/i18n/navigation"
 import { discardGardenDraft } from "@/lib/garden-drafts"
 import { gardenEditHref, gardenMapHref } from "@/lib/gardens"
 

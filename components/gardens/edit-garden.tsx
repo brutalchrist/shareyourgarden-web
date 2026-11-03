@@ -1,8 +1,7 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { MapPinIcon, SearchXIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 
@@ -23,6 +22,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { Link, useRouter } from "@/i18n/navigation"
 import { getGarden, gardenMapHref } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 

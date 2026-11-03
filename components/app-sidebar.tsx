@@ -1,7 +1,5 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { MapIcon, SproutIcon } from "lucide-react"
 
 import { NavGardens } from "@/components/nav-gardens"
@@ -19,6 +17,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { Link, usePathname } from "@/i18n/navigation"
 
 const navItems = [{ title: "Mapa", href: "/map", icon: MapIcon }]
 
