@@ -356,7 +356,9 @@ La v2 puede migrar a SSE (`@Sse()` en Nest) sin cambiar el contrato de datos.
      - En móvil, donde el sidebar está oculto, el botón que lo abre muestra un punto.
      - El menú `…` de cada huerta tiene "Ver mensajes", que abre la bandeja filtrada por esa huerta.
      - El título usa un `MutationObserver` para volver a poner el prefijo cuando Next.js cambia el título al navegar.
-5. **Confianza**: bloquear usuario, rate limit y conversaciones de huertas eliminadas en solo lectura.
+5. **Confianza** ✅: bloquear usuario, rate limit y conversaciones de huertas eliminadas en solo lectura.
+   - Backend: bloqueo entre personas (no por conversación), guardado en `User.blockedUserIds`, con `POST`/`DELETE /conversations/:id/block`. Mientras haya un bloqueo en cualquier sentido, nadie escribe ni inicia conversaciones (`403 USER_BLOCKED`). Límites de 10 conversaciones nuevas por hora (`429 TOO_MANY_CONVERSATIONS`) y 20 mensajes por minuto (`429 TOO_MANY_MESSAGES`). Al eliminar una huerta, sus conversaciones quedan con `gardenDeleted` (`409 CONVERSATION_CLOSED`). La API expone `readOnly` y `blockedByMe`.
+   - Web: menú `…` en la cabecera del hilo con bloquear (con confirmación) o desbloquear, y un aviso en lugar del compositor que explica por qué no se puede escribir. A la persona bloqueada no se le dice quién bloqueó.
 6. **Más adelante (fuera del alcance)**: SSE, notificación por email de mensajes sin leer tras X horas, estado del intercambio (propuesto / acordado / completado) como tarjeta especial en el chat, y fotos adjuntas.
 
 ## 6. Verificación
