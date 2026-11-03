@@ -201,7 +201,18 @@ function Sidebar({
             <SheetTitle>{t("sheetTitle")}</SheetTitle>
             <SheetDescription>{t("sheetDescription")}</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          {/* Following a link closes the sheet, so the page it opens is in
+              view. Menus and other buttons inside keep it open. */}
+          <div
+            className="flex h-full w-full flex-col"
+            onClick={(event) => {
+              if ((event.target as HTMLElement).closest("a[href]")) {
+                setOpenMobile(false)
+              }
+            }}
+          >
+            {children}
+          </div>
         </SheetContent>
       </Sheet>
     )
