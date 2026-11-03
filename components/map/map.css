@@ -92,18 +92,18 @@
   stroke-linejoin: round;
 }
 
-.garden-marker.is-selected {
+.garden-marker--selected {
   --marker-fill: color-mix(in oklch, var(--brand), black 25%);
   --marker-stroke: var(--brand-foreground);
   --marker-icon: var(--brand-foreground);
 }
 
-.garden-marker.is-selected .garden-marker__pin {
+.garden-marker--selected .garden-marker__pin {
   transform: translateY(-2px) scale(1.2);
 }
 
 /* A ripple on the ground under the selected pin. */
-.garden-marker.is-selected::before {
+.garden-marker--selected::before {
   content: "";
   position: absolute;
   bottom: -5px;
@@ -114,6 +114,141 @@
   border-radius: 50%;
   background: var(--brand);
   animation: map-ripple 1.6s ease-out infinite;
+}
+
+/* Close up the pin becomes a chip: the root has no size and sits on the
+   garden's point, the body centers itself above it. */
+
+.garden-chip {
+  --chip-bg: var(--background);
+  --chip-fg: var(--foreground);
+  --chip-muted: var(--muted-foreground);
+  --chip-badge-bg: var(--brand);
+  --chip-badge-fg: var(--brand-foreground);
+  outline: none;
+}
+
+.garden-chip--own {
+  --chip-badge-bg: var(--brand-foreground);
+  --chip-badge-fg: var(--brand);
+}
+
+.garden-chip--selected {
+  --chip-bg: color-mix(in oklch, var(--brand), black 25%);
+  --chip-fg: var(--brand-foreground);
+  --chip-muted: color-mix(in oklch, var(--brand-foreground) 75%, transparent);
+  --chip-badge-bg: var(--brand-foreground);
+  --chip-badge-fg: color-mix(in oklch, var(--brand), black 25%);
+}
+
+.garden-chip__body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 13rem;
+  padding: 3px 10px 3px 3px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+  color: var(--chip-fg);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  translate: -50% calc(-100% - 7px);
+  transform-origin: 50% calc(100% + 7px);
+  transition:
+    scale 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+/* The tail pointing at the garden. */
+.garden-chip__body::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-right: inherit;
+  border-bottom: inherit;
+  background: inherit;
+  rotate: 45deg;
+}
+
+.garden-chip:hover .garden-chip__body {
+  scale: 1.05;
+}
+
+.garden-chip--selected .garden-chip__body {
+  scale: 1.1;
+}
+
+.garden-chip:focus-visible .garden-chip__body {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.garden-chip__badge {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--chip-badge-fg);
+  border-radius: 50%;
+  background: var(--chip-badge-bg);
+}
+
+.garden-chip__icon {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: var(--chip-badge-fg);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.garden-chip__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.garden-chip__count {
+  color: var(--chip-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A group of nearby gardens, with how many it holds. */
+
+.garden-cluster__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--brand-foreground);
+  border-radius: 50%;
+  background: var(--brand);
+  box-shadow:
+    0 0 0 5px color-mix(in oklch, var(--brand) 30%, transparent),
+    0 2px 6px rgb(0 0 0 / 0.3);
+  color: var(--brand-foreground);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition: scale 150ms ease-out;
+}
+
+.garden-cluster:hover .garden-cluster__body {
+  scale: 1.1;
 }
 
 /* The user's position: the familiar blue dot. */
@@ -149,11 +284,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .garden-marker__pin,
-  .garden-marker__shape {
+  .garden-marker__shape,
+  .garden-chip__body,
+  .garden-cluster__body {
     transition: none;
   }
 
-  .garden-marker.is-selected::before,
+  .garden-marker--selected::before,
   .user-location::before {
     animation: none;
     opacity: 0.3;

@@ -64,6 +64,13 @@
     "locate": "Go to my location",
     "locateError": "We couldn't get your location. Check your browser permissions."
   },
+  "GardenMap": {
+    "productCount": "{count, plural, =0 {no products} one {# product} other {# products}}",
+    "emptyTitle": "No gardens in this area",
+    "emptySearchTitle": "No gardens with “{query}” in this area",
+    "emptyDescription": "Zoom out or move the map to see more.",
+    "emptyCta": "Share your garden"
+  },
   "AddressSearch": {
     "placeholder": "Search for an address or place",
     "label": "Search address",
