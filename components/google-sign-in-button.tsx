@@ -9,7 +9,13 @@ import { useAuth } from "@/components/auth-provider"
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
-export function GoogleSignInButton() {
+export function GoogleSignInButton({
+  fullWidth = false,
+}: {
+  // A large "Continue with Google" button filling its container, for sign-in
+  // prompts inside the page instead of the header.
+  fullWidth?: boolean
+} = {}) {
   const t = useTranslations("SignIn")
   const locale = useLocale()
   const { signInWithCredential } = useAuth()
@@ -35,20 +41,55 @@ export function GoogleSignInButton() {
       },
       use_fedcm_for_prompt: true,
     })
+    const theme = resolvedTheme === "dark" ? "filled_black" : "outline"
+
+    if (fullWidth) {
+      google.accounts.id.renderButton(container, {
+        type: "standard",
+        theme,
+        size: "large",
+        text: "continue_with",
+        shape: "pill",
+        // Google caps the width at 400px.
+        width: Math.min(400, Math.floor(container.clientWidth)),
+        locale,
+      })
+      return
+    }
+
     // Icon-only button on phones so the header doesn't overflow.
     const compact = !window.matchMedia("(min-width: 640px)").matches
     google.accounts.id.renderButton(container, {
       type: compact ? "icon" : "standard",
-      theme: resolvedTheme === "dark" ? "filled_black" : "outline",
+      theme,
       size: "medium",
       text: "signin_with",
       shape: "pill",
       locale,
     })
-  }, [scriptReady, resolvedTheme, locale, signInWithCredential])
+  }, [scriptReady, resolvedTheme, locale, signInWithCredential, fullWidth])
 
   if (!GOOGLE_CLIENT_ID) {
     return null
+  }
+
+  if (fullWidth) {
+    return (
+      <div className="flex w-full flex-col items-center gap-2">
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="afterInteractive"
+          onReady={() => setScriptReady(true)}
+        />
+        <div
+          ref={containerRef}
+          className="flex h-10 w-full justify-center [color-scheme:light]"
+        />
+        {error && (
+          <span className="text-sm text-destructive">{t("error")}</span>
+        )}
+      </div>
+    )
   }
 
   return (

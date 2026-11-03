@@ -53,8 +53,7 @@
     "type": "Type",
     "quantity": "Quantity",
     "noProducts": "No products",
-    "ownerInfo": "Owner info",
-    "email": "Email"
+    "ownerInfo": "Owner info"
   },
   "AddressSearch": {
     "placeholder": "Search for an address or place",
@@ -169,5 +168,35 @@
       "bunch": "{amount} {count, plural, one {bunch} other {bunches}}",
       "l": "{amount} {count, plural, one {liter} other {liters}}"
     }
+  },
+  "ContactGarden": {
+    "proposeExchange": "Propose an exchange",
+    "writeAgain": "Send another message",
+    "requiresAccount": "Requires signing in",
+    "ownGarden": "This is your garden",
+    "edit": "Edit",
+    "youWrote": "You wrote {when}",
+    "theyReplied": "{name} replied {when}",
+    "signInTitle": "Sign in to write to {name}",
+    "signInDescription": "Only people with an account can propose exchanges.",
+    "benefitExchange": "Arrange exchanges with growers nearby",
+    "benefitInbox": "Get the replies in your messages",
+    "notNow": "Not now",
+    "composerTitle": "Message to {name}",
+    "interestedIn": "I'm interested in",
+    "templateProduct": "{greeting}, I saw you have {product}. Would you like to exchange?",
+    "templateGeneral": "{greeting}, I'm interested in your garden's produce. Would you like to exchange?",
+    "messageLabel": "Message",
+    "cancel": "Cancel",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Message sent to {name}",
+    "errorSignIn": "Your session expired. Please sign in again.",
+    "errorUnavailable": "This garden is no longer available.",
+    "errorNoOwner": "This garden has no owner to write to.",
+    "errorOwnGarden": "You can't write to your own garden.",
+    "errorGeneric": "The message could not be sent. Please try again.",
+    "greeting": "Hi",
+    "greetingName": "Hi {name}"
   }
 }

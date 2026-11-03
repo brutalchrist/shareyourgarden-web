@@ -5,7 +5,8 @@ export interface Location {
 
 export interface Person {
   name: string
-  email: string
+  // Only sent to the garden's owner.
+  email?: string
 }
 
 export interface Product {
@@ -54,7 +55,7 @@ export function toGarden(data: any): Garden {
     })),
     owner: {
       name: data?.owner?.name ?? "",
-      email: data?.owner?.email ?? "",
+      email: data?.owner?.email ?? undefined,
     },
     ownerId: data?.ownerId ?? undefined,
     updatedAt: data?.updatedAt ?? undefined,
@@ -71,4 +72,59 @@ export interface User {
 export interface AuthResponse {
   accessToken: string
   user: User
+}
+
+export type ConversationRole = "owner" | "requester"
+
+export interface Participant {
+  id: string
+  name: string
+  picture?: string
+}
+
+export interface LastMessage {
+  body: string
+  senderId: string
+  createdAt: string
+}
+
+// A conversation as seen by the signed-in user.
+export interface Conversation {
+  id: string
+  gardenId: string
+  gardenName: string
+  productName?: string
+  role: ConversationRole
+  otherUser: Participant
+  lastMessage: LastMessage | null
+  unreadCount: number
+  otherLastReadAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export function toConversation(data: any): Conversation {
+  return {
+    id: data?.id ?? "",
+    gardenId: data?.gardenId ?? "",
+    gardenName: data?.gardenName ?? "",
+    productName: data?.productName ?? undefined,
+    role: data?.role === "owner" ? "owner" : "requester",
+    otherUser: {
+      id: data?.otherUser?.id ?? "",
+      name: data?.otherUser?.name ?? "",
+      picture: data?.otherUser?.picture ?? undefined,
+    },
+    lastMessage: data?.lastMessage
+      ? {
+          body: data.lastMessage.body ?? "",
+          senderId: data.lastMessage.senderId ?? "",
+          createdAt: data.lastMessage.createdAt ?? "",
+        }
+      : null,
+    unreadCount: data?.unreadCount ?? 0,
+    otherLastReadAt: data?.otherLastReadAt ?? null,
+    createdAt: data?.createdAt ?? "",
+    updatedAt: data?.updatedAt ?? "",
+  }
 }

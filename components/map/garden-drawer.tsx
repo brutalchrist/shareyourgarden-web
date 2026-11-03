@@ -4,11 +4,13 @@ import * as React from "react"
 import { XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
+import { ContactGarden } from "@/components/messages/contact-garden"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
@@ -113,14 +115,17 @@ export function GardenDrawer({
               </TabsContent>
               <TabsContent value="owner">
                 <h3 className="mb-3 font-medium">{t("ownerInfo")}</h3>
+                {/* The email is private: visitors write through the button below. */}
                 <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
                   <dt className="text-muted-foreground">{t("name")}</dt>
                   <dd>{displayed.owner.name}</dd>
-                  <dt className="text-muted-foreground">{t("email")}</dt>
-                  <dd>{displayed.owner.email}</dd>
                 </dl>
               </TabsContent>
             </Tabs>
+            {/* Outside the scrolling tabs so it stays in view. */}
+            <DrawerFooter className="border-t pt-4">
+              <ContactGarden key={displayed.id} garden={displayed} />
+            </DrawerFooter>
           </>
         )}
       </DrawerContent>
