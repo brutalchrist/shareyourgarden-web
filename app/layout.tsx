@@ -2,10 +2,11 @@ import type { Metadata } from "next"
 import { Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
-import { AppHeader } from "@/components/app-header"
+import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
 import { SearchProvider } from "@/components/search-provider"
 import { ThemeProvider } from "@/components/theme-provider"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -39,10 +40,9 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <SearchProvider>
-              <div className="flex h-svh flex-col">
-                <AppHeader />
-                <main className="min-h-0 flex-1">{children}</main>
-              </div>
+              <TooltipProvider>
+                <AppShell>{children}</AppShell>
+              </TooltipProvider>
             </SearchProvider>
           </AuthProvider>
         </ThemeProvider>

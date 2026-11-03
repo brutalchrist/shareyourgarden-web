@@ -52,6 +52,10 @@ export default function GardenMap() {
 
     map.on("moveend", () => setBounds(map.getBounds()))
 
+    // The container resizes when the sidebar opens or collapses.
+    const resizeObserver = new ResizeObserver(() => map.invalidateSize())
+    resizeObserver.observe(containerRef.current)
+
     // The position can arrive after unmount (e.g. Strict Mode remounting the
     // effect), when the map has already been removed.
     let removed = false
@@ -69,6 +73,7 @@ export default function GardenMap() {
 
     return () => {
       removed = true
+      resizeObserver.disconnect()
       map.remove()
       layerGroupRef.current = null
     }
