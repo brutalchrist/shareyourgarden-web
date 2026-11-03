@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { MapPinIcon, SearchIcon } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 import {
   Combobox,
@@ -37,6 +37,7 @@ export function AddressSearch({
   onSelect: (place: Place) => void
 }) {
   const t = useTranslations("AddressSearch")
+  const locale = useLocale()
   const [places, setPlaces] = React.useState<Place[]>([])
   const [status, setStatus] = React.useState<SearchStatus>("idle")
   const timeoutRef = React.useRef<number | undefined>(undefined)
@@ -67,7 +68,11 @@ export function AddressSearch({
       const controller = new AbortController()
       abortRef.current = controller
 
-      searchPlaces(query.trim(), { near, signal: controller.signal })
+      searchPlaces(query.trim(), {
+        near,
+        locale,
+        signal: controller.signal,
+      })
         .then((places) => {
           setPlaces(places)
           setStatus("ready")

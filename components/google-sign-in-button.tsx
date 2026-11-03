@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Script from "next/script"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 
 import { useAuth } from "@/components/auth-provider"
@@ -11,6 +11,7 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
 export function GoogleSignInButton() {
   const t = useTranslations("SignIn")
+  const locale = useLocale()
   const { signInWithCredential } = useAuth()
   const { resolvedTheme } = useTheme()
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -42,9 +43,9 @@ export function GoogleSignInButton() {
       size: "medium",
       text: "signin_with",
       shape: "pill",
-      locale: "es",
+      locale,
     })
-  }, [scriptReady, resolvedTheme, signInWithCredential])
+  }, [scriptReady, resolvedTheme, locale, signInWithCredential])
 
   if (!GOOGLE_CLIENT_ID) {
     return null
