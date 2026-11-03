@@ -1,6 +1,6 @@
 "use client"
 
-import { MapIcon, SproutIcon } from "lucide-react"
+import { MapIcon, MessagesSquareIcon, SproutIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { NavGardens } from "@/components/nav-gardens"
@@ -20,7 +20,10 @@ import {
 } from "@/components/ui/sidebar"
 import { Link, usePathname } from "@/i18n/navigation"
 
-const navItems = [{ title: "map", href: "/map", icon: MapIcon }] as const
+const navItems = [
+  { title: "map", href: "/map", icon: MapIcon },
+  { title: "messages", href: "/messages", icon: MessagesSquareIcon },
+] as const
 
 export function AppSidebar() {
   const t = useTranslations("Sidebar")

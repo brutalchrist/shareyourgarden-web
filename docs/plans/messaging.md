@@ -341,7 +341,14 @@ La v2 puede migrar a SSE (`@Sse()` en Nest) sin cambiar el contrato de datos.
      - Si ya existe una conversación, el CTA dice "Enviar otro mensaje" y muestra el último mensaje con su hora relativa. **El enlace "Ver conversación" y la acción del toast llegan en la fase 3**, cuando exista `/messages`.
      - Atajo para enviar: `Cmd/Ctrl+Enter`, porque `Enter` agrega una línea en el compositor rápido.
      - Las huertas antiguas sin `ownerId` no muestran CTA.
-3. **Frontend: bandeja**: página `/messages`, list–detail, `Message` / `Bubble` / `Marker` / `MessageScroller` y compositor con envío optimista.
+3. **Frontend: bandeja** ✅: página `/messages`, list–detail, `Message` / `Bubble` / `Marker` / `MessageScroller` y compositor con envío optimista.
+   - Implementado en `components/messages/` (`messages-view`, `conversation-list`, `use-conversation-list`, `conversation-thread`, `message-composer`) y `lib/thread-items.ts`. Notas:
+     - El ítem "Mensajes" del sidebar se agregó ya, sin badge. Los contadores llegan en la fase 4.
+     - En el drawer, si ya hay conversación, el CTA es "Ver conversación" (con badge de nuevos) y el toast tras enviar ofrece lo mismo.
+     - Se marca como leído cuando el último mensaje del otro está realmente en pantalla (`useMessageScrollerVisibility`) con la pestaña visible, no solo al abrir.
+     - Polling del hilo cada 4 s con backoff hasta 15 s; la bandeja cada 30 s. Ambos se pausan con la pestaña oculta.
+     - Mensajes agrupados por autor (hasta 5 min entre ellos), separadores de día con `Marker`, "Visto · hora" bajo tu último mensaje.
+     - Los enlaces con forma de botón usan `ButtonLink` (un `Link` con `buttonVariants`) para conservar el rol de enlace. `<Button render={<Link />}>` hace que Base UI les ponga `role="button"`. El resto del repo todavía usa ese patrón.
 4. **Sidebar y notificaciones**: `MessagesProvider`, badges en "Mensajes" y en "Mis huertas", y contador en el título.
 5. **Confianza**: bloquear usuario, rate limit y conversaciones de huertas eliminadas en solo lectura.
 6. **Más adelante (fuera del alcance)**: SSE, notificación por email de mensajes sin leer tras X horas, estado del intercambio (propuesto / acordado / completado) como tarjeta especial en el chat, y fotos adjuntas.

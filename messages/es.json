@@ -17,7 +17,8 @@
     "map": "Mapa",
     "toggle": "Mostrar u ocultar la barra lateral",
     "sheetTitle": "Barra lateral",
-    "sheetDescription": "Muestra la barra lateral en pantallas pequeñas."
+    "sheetDescription": "Muestra la barra lateral en pantallas pequeñas.",
+    "messages": "Mensajes"
   },
   "MyGardens": {
     "title": "Mis huertos",
@@ -171,7 +172,6 @@
   },
   "ContactGarden": {
     "proposeExchange": "Proponer intercambio",
-    "writeAgain": "Enviar otro mensaje",
     "requiresAccount": "Requiere iniciar sesión",
     "ownGarden": "Es tu huerta",
     "edit": "Editar",
@@ -197,6 +197,56 @@
     "errorOwnGarden": "No puedes escribirle a tu propia huerta.",
     "errorGeneric": "No se pudo enviar el mensaje. Inténtalo de nuevo.",
     "greeting": "Hola",
-    "greetingName": "Hola {name}"
+    "greetingName": "Hola {name}",
+    "viewConversation": "Ver conversación",
+    "unread": "{count, plural, one {# nuevo} other {# nuevos}}"
+  },
+  "Messages": {
+    "title": "Mensajes",
+    "filterLabel": "Filtrar conversaciones",
+    "filter": {
+      "all": "Todos",
+      "received": "Recibidos",
+      "sent": "Enviados"
+    },
+    "gardenFilter": "Filtrar por huerta",
+    "allGardens": "Todas mis huertas",
+    "loadError": "No se pudieron cargar los mensajes",
+    "retry": "Reintentar",
+    "loadMore": "Cargar más",
+    "unread": "{count, plural, one {# sin leer} other {# sin leer}}",
+    "gardenWithProduct": "{garden} · {product}",
+    "youWrote": "Tú: {body}",
+    "emptyTitle": "Aún no tienes conversaciones",
+    "emptyDescription": "Busca una huerta en el mapa y propón un intercambio.",
+    "emptyFilteredTitle": "Nada por aquí",
+    "emptyFilteredDescription": "No hay conversaciones con este filtro.",
+    "exploreMap": "Explorar el mapa",
+    "signInTitle": "Inicia sesión para ver tus mensajes",
+    "signInDescription": "Tus conversaciones sobre intercambios aparecen aquí.",
+    "noSelectionTitle": "Elige una conversación",
+    "noSelectionDescription": "Selecciona una conversación de la lista para leerla y responder.",
+    "notFoundTitle": "Conversación no encontrada",
+    "notFoundDescription": "Puede que el enlace sea incorrecto o que no participes en ella.",
+    "backToInbox": "Volver a mensajes",
+    "threadLabel": "Conversación con {name}",
+    "aboutYourGarden": "tu huerta",
+    "aboutTheirGarden": "su huerta",
+    "viewOnMap": "Ver en el mapa",
+    "gardenGone": "Esta huerta ya no está disponible",
+    "scrollToEnd": "Ir al último mensaje",
+    "you": "Tú",
+    "notSent": "No se envió",
+    "retrySend": "Reintentar",
+    "sending": "Enviando…",
+    "seen": "Visto · {time}",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "olderMessages": "Mensajes anteriores",
+    "loadingOlder": "Cargando mensajes anteriores…",
+    "composerPlaceholder": "Escribe un mensaje",
+    "composerLabel": "Mensaje",
+    "send": "Enviar",
+    "sendHint": "<kbd>Enter</kbd> para enviar · <kbd>Shift</kbd> + <kbd>Enter</kbd> para una nueva línea"
   }
 }
