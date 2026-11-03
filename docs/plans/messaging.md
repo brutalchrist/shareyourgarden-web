@@ -75,9 +75,9 @@ Para los anónimos, el sidebar ya no existe (`AppShell`), así que el upsell viv
 - **List–detail de dos paneles** en `md+` (bandeja de unos 320 px y conversación), como Linear, Slack o WhatsApp Web. En móvil es **apilado**: la lista y, al tocar una fila, la conversación a pantalla completa con un botón "atrás". Todo se controla con `?c=` en la URL, de modo que el "atrás" del navegador funciona y los enlaces se pueden compartir.
 - **Cabecera de la conversación** con una **tarjeta de contexto fija**: nombre de la huerta, producto de interés y "Ver en el mapa" (`gardenMapHref`). Es el patrón de marketplaces: siempre se sabe *de qué* se está hablando.
 - **Mensajes**:
-  - Burbujas propias a la derecha (color `primary`) y ajenas a la izquierda (`muted`).
+  - Burbujas propias a la derecha (`Bubble variant="default"`, color `primary`) y ajenas a la izquierda (`variant="muted"`).
   - Mensajes consecutivos del mismo autor agrupados: avatar y hora solo en el último del grupo.
-  - Separadores de día ("Hoy", "Ayer", "12 oct").
+  - Separadores de día ("Hoy", "Ayer", "12 oct") con `Marker variant="separator"`.
   - Hora completa al pasar el cursor o con long-press.
 - **Scroller**: se ancla abajo, carga historial al llegar arriba (paginación por cursor `before`) sin saltos de scroll. Si el usuario está leyendo arriba y llega un mensaje, aparece un botón flotante "↓ 2 nuevos" en lugar de forzar el scroll.
 - **Compositor**:
@@ -102,24 +102,87 @@ Para los anónimos, el sidebar ya no existe (`AppShell`), así que el upsell viv
 
 ## 2. Componentes shadcn
 
-> **Sin verificar:** desde esta sesión no se pudo consultar el registro de shadcn (ui.shadcn.com está bloqueado por la red), así que no confirmé los nombres exactos de **Message** y **Message Scroller** ni de sus subcomponentes. Antes de implementar hay que ejecutar:
->
-> ```bash
-> pnpm dlx shadcn@latest view message message-scroller
-> ```
->
-> Si los nombres difieren, se ajustan los imports del paso 4. Si alguno no existe para el estilo `base-vega`, la alternativa es un `div` con `overflow-y-auto` y `flex-col-reverse` más burbujas propias con `cva`.
+Verificado contra el registro `base-vega` (`https://ui.shadcn.com/r/styles/base-vega/<nombre>.json`). Hay un detalle: `llms.txt` **todavía no lista** `message`, `message-scroller`, `bubble`, `marker` ni `attachment`, pero los cinco existen en el registro y se instalan con el CLI.
+
+### 2.1 Familia de chat
+
+| Componente | Exporta | Uso en ShareYourGarden |
+| --- | --- | --- |
+| `message` | `MessageGroup`, `Message` (`align="start" \| "end"`), `MessageAvatar`, `MessageContent`, `MessageHeader`, `MessageFooter` | Estructura de cada mensaje: `align="end"` para los propios, `MessageAvatar` solo en el último de cada grupo y `MessageFooter` con la hora o el "Visto". |
+| `bubble` | `BubbleGroup`, `Bubble` (variantes `default`, `secondary`, `muted`, `tinted`, `outline`, `ghost`, `destructive`), `BubbleContent` (acepta `render`), `BubbleReactions` | El cuerpo del mensaje: `default` (primary) para los propios, `muted` para los del otro y `destructive` para "No se envió · Reintentar". `BubbleContent` lleva `whitespace-pre-wrap`. `BubbleReactions` queda fuera de la v1. |
+| `marker` | `Marker` (variantes `default`, `separator`, `border`), `MarkerIcon`, `MarkerContent` | **Separadores de día** (`variant="separator"`: "Hoy", "Ayer") y avisos de sistema dentro del hilo ("Esta huerta ya no está disponible", "Bloqueaste a esta persona", "Cargando mensajes anteriores…" con `Spinner`). |
+| `message-scroller` | `MessageScrollerProvider`, `MessageScroller`, `MessageScrollerViewport`, `MessageScrollerContent`, `MessageScrollerItem`, `MessageScrollerButton` y los hooks `useMessageScroller`, `useMessageScrollerScrollable`, `useMessageScrollerVisibility` | La lista de mensajes de la conversación. Se apoya en la primitiva `@shadcn/react/message-scroller`, que es una nueva dependencia (v0.3.1). |
+| `attachment` | `Attachment`, `AttachmentMedia`, `AttachmentContent`, … | Fuera de la v1. Sirve para la fase de "fotos adjuntas". |
+
+La primitiva `@shadcn/react` (v0.3.1, aún pre-1.0) resuelve varias cosas que el plan original iba a implementar a mano:
+
+- **Anclaje abajo y autoscroll**: `MessageScrollerProvider autoScroll defaultScrollPosition="end"`. Mantiene la vista pegada al final solo si el usuario ya estaba ahí.
+- **Botón "ir al final"**: `MessageScrollerButton` aparece y se oculta solo (`data-active`). Se le puede pasar `children` para mostrar "↓ 2 nuevos".
+- **Historial hacia arriba sin saltos**: `MessageScrollerViewport preserveScrollOnPrepend`. Para saber cuándo pedir la página anterior (`?before=`), basta `useMessageScrollerScrollable().start` o un sentinela al inicio.
+- **Marcar como leído de verdad**: `useMessageScrollerVisibility().visibleMessageIds` dice qué mensajes están en pantalla. Se llama a `POST /conversations/:id/read` cuando el último mensaje del otro es visible y la pestaña está activa, no solo al abrir la conversación.
+- **Saltar a un mensaje**: `useMessageScroller().scrollToMessage(id)`, útil para un futuro "ir al primer no leído".
+- **Accesibilidad incluida**: el viewport es `role="region"` y `MessageScrollerContent` es `role="log"` con `aria-relevant="additions"`. Solo falta pasar un `aria-label` traducido.
+- **Rendimiento**: `MessageScrollerItem` usa `content-visibility: auto`, así que los hilos largos no necesitan virtualización en la v1.
+
+Cada `MessageScrollerItem` recibe `messageId={message.id}`. Los mensajes propios llevan `scrollAnchor`, para que al enviar se haga scroll a tu mensaje, igual que en el ejemplo oficial.
+
+Esqueleto de `conversation-view.tsx`, siguiendo `message-scroller-example`:
+
+```tsx
+<MessageScrollerProvider autoScroll defaultScrollPosition="end">
+  <MessageScroller>
+    <MessageScrollerViewport preserveScrollOnPrepend aria-label={t("thread")}>
+      <MessageScrollerContent className="p-4">
+        {items.map((item) =>
+          item.type === "day" ? (
+            <MessageScrollerItem key={item.key}>
+              <Marker variant="separator">
+                <MarkerContent>{item.label}</MarkerContent>
+              </Marker>
+            </MessageScrollerItem>
+          ) : (
+            <MessageScrollerItem
+              key={item.message.id}
+              messageId={item.message.id}
+              scrollAnchor={item.mine}
+            >
+              <Message align={item.mine ? "end" : "start"}>
+                {!item.mine && item.lastOfGroup && (
+                  <MessageAvatar>
+                    <UserAvatar user={otherUser} />
+                  </MessageAvatar>
+                )}
+                <MessageContent>
+                  <Bubble variant={item.failed ? "destructive" : item.mine ? "default" : "muted"}>
+                    <BubbleContent className="whitespace-pre-wrap">
+                      {item.message.body}
+                    </BubbleContent>
+                  </Bubble>
+                </MessageContent>
+                {item.lastOfGroup && <MessageFooter>{item.time}</MessageFooter>}
+              </Message>
+            </MessageScrollerItem>
+          )
+        )}
+      </MessageScrollerContent>
+    </MessageScrollerViewport>
+    <MessageScrollerButton />
+  </MessageScroller>
+</MessageScrollerProvider>
+```
+
+La clase `gap-8` de `MessageScrollerContent` está pensada para chats con IA. Para mensajes cortos entre personas conviene `gap-1` entre mensajes del mismo grupo y `gap-4` entre grupos, sobrescribiendo con `className`.
+
+### 2.2 Resto de componentes
 
 | Necesidad | Componente | Estado en el repo |
 | --- | --- | --- |
-| Burbuja de mensaje (avatar, contenido, hora) | `Message` | agregar |
-| Lista con anclaje abajo y botón "ir al final" | `Message Scroller` | agregar |
 | Filas de la bandeja | `Item` (`ItemMedia`, `ItemContent`, `ItemTitle`, `ItemDescription`, `ItemActions`) | agregar |
-| Compositor | `InputGroup` + `Textarea` (`InputGroupTextarea`) | ya existe |
+| Compositor | `InputGroup` + `InputGroupTextarea` + `InputGroupButton` (como en el ejemplo oficial) | ya existe |
 | Estados vacíos | `Empty` | ya existe |
-| Avatares | `Avatar` | ya existe |
+| Avatares | `Avatar` / `UserAvatar` | ya existe |
 | Chip de huerta y contadores | `Badge`, `SidebarMenuBadge` | ya existe |
-| Filtros Todos/Recibidos/Enviados | `ToggleGroup` (o `Tabs`) | agregar `toggle-group` |
+| Filtros Todos/Recibidos/Enviados | `ToggleGroup` | agregar |
 | Filtro por huerta | `Select` / `Combobox` | ya existe |
 | Upsell de login y compositor rápido | `Popover` (escritorio) / `Drawer` anidado (móvil) | agregar `popover` |
 | Carga | `Skeleton`, `Spinner` | `skeleton` existe, agregar `spinner` |
@@ -128,8 +191,10 @@ Para los anónimos, el sidebar ya no existe (`AppShell`), así que el upsell viv
 | Toasts | `sonner` | ya existe |
 
 ```bash
-pnpm dlx shadcn@latest add message message-scroller item toggle-group popover spinner kbd
+pnpm dlx shadcn@latest add message bubble marker message-scroller item toggle-group popover spinner kbd
 ```
+
+Al instalar, hay que revisar que el CLI cambie el `IconPlaceholder` del registro por el ícono de lucide (`ArrowDownIcon`), según `iconLibrary` en `components.json`, y que agregue `@shadcn/react` a `package.json`.
 
 ---
 
@@ -228,7 +293,7 @@ La v2 puede migrar a SSE (`@Sse()` en Nest) sin cambiar el contrato de datos.
 | `conversation-list.tsx` | Filtros (`ToggleGroup` + `Select` de huerta), lista de `Item`, skeleton y `Empty`. |
 | `conversation-list-item.tsx` | Avatar, nombre, chip de huerta, vista previa, hora relativa (`useFormatter().relativeTime` de next-intl) y punto de no leído. |
 | `conversation-view.tsx` | Cabecera con tarjeta de contexto de la huerta, menú `…` (Ver en el mapa, Bloquear), `MessageScroller`, compositor y el polling de 4 s. Llama a `markRead` al abrir y al recibir mensajes con la pestaña visible. |
-| `message-group.tsx` | Agrupa por autor y por día y renderiza los `Message`. |
+| `thread-items.ts` | Función pura que convierte los mensajes en ítems (separador de día o mensaje con `mine`, `lastOfGroup` y estado). Se puede testear sin UI. |
 | `message-composer.tsx` | `InputGroup` + textarea auto-creciente, atajos de teclado, envío optimista con reintento y contador cerca del límite. |
 | `contact-garden-button.tsx` | CTA del drawer con cuatro estados: anónimo (candado → `SignInRequired`), dueño ("Es tu huerta"), con conversación ("Ver conversación" con badge) y nuevo (abre `QuickComposer`). |
 | `quick-composer.tsx` | Chips de productos, mensaje prellenado y enviar. Muestra el toast "Ver conversación". |
@@ -249,7 +314,7 @@ La v2 puede migrar a SSE (`@Sse()` en Nest) sin cambiar el contrato de datos.
 
 ### 4.5 Accesibilidad
 
-- La lista de mensajes es una región con `role="log"` y `aria-live="polite"`, para que los mensajes nuevos se anuncien.
+- `MessageScrollerContent` ya es `role="log"` (con `aria-relevant="additions"`) y el viewport es `role="region"`. Solo falta pasarle un `aria-label` traducido.
 - Las burbujas incluyen el autor y la hora en texto para lectores de pantalla (`sr-only`).
 - El foco va al compositor al abrir una conversación, y vuelve a la lista con "atrás" en móvil.
 - Contraste de las burbujas `primary` verificado en modo claro y oscuro.
@@ -260,7 +325,7 @@ La v2 puede migrar a SSE (`@Sse()` en Nest) sin cambiar el contrato de datos.
 
 1. **Backend MVP**: entidades, endpoints, quitar el email público y tests.
 2. **Frontend: contacto**: `ContactGardenButton`, `SignInRequired` con intención pendiente y `QuickComposer` en el drawer.
-3. **Frontend: bandeja**: página `/messages`, list–detail, `Message` / `Message Scroller` y compositor con envío optimista.
+3. **Frontend: bandeja**: página `/messages`, list–detail, `Message` / `Bubble` / `Marker` / `MessageScroller` y compositor con envío optimista.
 4. **Sidebar y notificaciones**: `MessagesProvider`, badges en "Mensajes" y en "Mis huertas", y contador en el título.
 5. **Confianza**: bloquear usuario, rate limit y conversaciones de huertas eliminadas en solo lectura.
 6. **Más adelante (fuera del alcance)**: SSE, notificación por email de mensajes sin leer tras X horas, estado del intercambio (propuesto / acordado / completado) como tarjeta especial en el chat, y fotos adjuntas.
