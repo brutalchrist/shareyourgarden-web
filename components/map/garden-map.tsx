@@ -1,41 +1,48 @@
 "use client"
 
 import * as React from "react"
-import L from "leaflet"
-// Extends the `L` global that Leaflet sets, so it must come after it.
-import "leaflet.markercluster"
-import "leaflet/dist/leaflet.css"
-import "leaflet.markercluster/dist/MarkerCluster.css"
+import { Map as MapLibreMap, Marker, type LngLatBounds } from "maplibre-gl"
+import "maplibre-gl/dist/maplibre-gl.css"
 import "@/components/map/map.css"
 import { useTranslations } from "next-intl"
+import { useTheme } from "next-themes"
 import { toast } from "sonner"
+import Supercluster from "supercluster"
 
 import { useMyGardens } from "@/components/my-gardens-provider"
 import { useSearch } from "@/components/search-provider"
-import { createBaseLayer } from "@/components/map/base-layer"
 import { GardenDrawer } from "@/components/map/garden-drawer"
 import { MapControls } from "@/components/map/map-controls"
 import { MapEmptyState } from "@/components/map/map-empty-state"
+import { mapStyleUrl, transformMapStyle } from "@/components/map/map-style"
 import {
   clusterIcon,
+  createMarkerElement,
   gardenIcon,
   gardenIconKey,
+  setMarkerContent,
   userLocationIcon,
   type GardenIconOptions,
+  type MarkerContent,
 } from "@/components/map/marker-icon"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { getGardensFromBounds } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
 // Fallback view when geolocation is unavailable or denied.
-const DEFAULT_CENTER: L.LatLngTuple = [0, 0]
-const DEFAULT_ZOOM = 2
-const LOCATED_ZOOM = 16
-const MAX_ZOOM = 16
+const DEFAULT_CENTER: [number, number] = [0, 0]
+const DEFAULT_ZOOM = 1
+const LOCATED_ZOOM = 15
+const MAX_ZOOM = 15
 // From this zoom on, pins become chips with the garden's name.
-const CHIP_ZOOM = 15
-// Keeps the selected pin above its neighbours.
-const SELECTED_Z_OFFSET = 1000
+const CHIP_ZOOM = 14
+// A slight tilt shows the 3D buildings without hiding the gardens.
+const PITCH = 30
+// Clustering radius in pixels: chips are wider than pins.
+const PIN_CLUSTER_RADIUS = 60
+const CHIP_CLUSTER_RADIUS = 110
+// Gardens on the same spot, fanned out around their cluster.
+const SPIDER_RADIUS = 48
 // The drawer's width on larger screens, in rem (see GardenDrawer).
 const DRAWER_WIDTH_REM = 40
 
@@ -46,38 +53,46 @@ export interface MapFocus {
   gardenId: string | null
 }
 
-interface MarkerEntry {
-  garden: Garden
-  marker: L.Marker
-  // Of the icon the marker shows, to skip rebuilding an unchanged one.
-  iconKey: string
+interface GardenPoint {
+  id: string
 }
 
-// What, besides the garden itself, decides how its marker looks.
-interface MarkerView {
-  selectedId: string | null
-  chip: boolean
-  ownIds: Set<string>
+type GardenIndex = Supercluster<GardenPoint>
+
+interface MarkerEntry {
+  marker: Marker
+  element: HTMLElement
+  // Of the content the marker shows, to skip rebuilding an unchanged one.
+  contentKey: string
+  // Swapped on every render: the element's listeners call whatever is here.
+  activate: () => void
 }
 
 export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   const t = useTranslations("MapControls")
   const tMap = useTranslations("GardenMap")
   const isMobile = useIsMobile()
+  const { resolvedTheme } = useTheme()
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const mapRef = React.useRef<L.Map | null>(null)
-  const clusterGroupRef = React.useRef<L.MarkerClusterGroup | null>(null)
-  const entriesRef = React.useRef(new Map<string, MarkerEntry>())
-  const viewRef = React.useRef<MarkerView>({
-    selectedId: null,
-    chip: false,
-    ownIds: new Set(),
-  })
-  const userMarkerRef = React.useRef<L.Marker | null>(null)
+  const mapRef = React.useRef<MapLibreMap | null>(null)
+  const gardensRef = React.useRef(new Map<string, Garden>())
+  const indexesRef = React.useRef<{ pins: GardenIndex; chips: GardenIndex }>(
+    null
+  )
+  const markersRef = React.useRef(new Map<string, MarkerEntry>())
+  const selectedIdRef = React.useRef<string | null>(null)
+  const ownIdsRef = React.useRef(new Set<string>())
+  // The gardens fanned out from a cluster that can't be split by zooming.
+  const spiderRef = React.useRef<Set<string> | null>(null)
+  const userMarkerRef = React.useRef<Marker | null>(null)
+  // For marker handlers to redraw, set once renderMarkers exists below.
+  const renderMarkersRef = React.useRef(() => {})
   const pendingGardenIdRef = React.useRef<string | null>(null)
   // Read once on mount: later focus changes arrive through the effect below.
   const initialFocus = React.useRef(focus)
-  const [bounds, setBounds] = React.useState<L.LatLngBounds | null>(null)
+  // Read once on mount: later changes restyle the map through the effect below.
+  const initialTheme = React.useRef(resolvedTheme)
+  const [bounds, setBounds] = React.useState<LngLatBounds | null>(null)
   const [selectedGarden, setSelectedGarden] = React.useState<Garden | null>(
     null
   )
@@ -87,14 +102,174 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   // Refetch the markers when the user creates, edits or deletes a garden.
   const { gardens: myGardens } = useMyGardens()
 
-  // Marker titles are plain strings: build them here, where `t` is.
-  const markerTitle = React.useCallback(
+  const gardenLabel = React.useCallback(
     (garden: Garden) =>
       `${garden.name} · ${tMap("productCount", { count: garden.products.length })}`,
     [tMap]
   )
 
-  const showUserLocation = React.useCallback((latLng: L.LatLngTuple) => {
+  // Draws the gardens and clusters in view, reusing the markers already there.
+  const renderMarkers = React.useCallback(() => {
+    const map = mapRef.current
+    const indexes = indexesRef.current
+
+    if (!map || !indexes) {
+      return
+    }
+
+    const zoom = map.getZoom()
+    const chip = zoom >= CHIP_ZOOM
+    const index = chip ? indexes.chips : indexes.pins
+    const bounds = map.getBounds()
+    const features = index.getClusters(
+      [
+        bounds.getWest(),
+        bounds.getSouth(),
+        bounds.getEast(),
+        bounds.getNorth(),
+      ],
+      Math.floor(zoom)
+    )
+    const markers = markersRef.current
+    const seen = new Set<string>()
+
+    function place(
+      key: string,
+      lngLat: [number, number],
+      content: MarkerContent,
+      contentKey: string,
+      { label, raised, offset, activate }: MarkerPlacement
+    ) {
+      seen.add(key)
+      let entry = markers.get(key)
+
+      if (!entry) {
+        const element = createMarkerElement(content)
+        element.setAttribute("role", "button")
+        element.tabIndex = 0
+        const created: MarkerEntry = {
+          element,
+          contentKey,
+          activate,
+          marker: new Marker({ element }).setLngLat(lngLat).addTo(map!),
+        }
+        element.addEventListener("click", (event) => {
+          event.stopPropagation()
+          created.activate()
+        })
+        element.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault()
+            created.activate()
+          }
+        })
+        markers.set(key, created)
+        entry = created
+      } else {
+        entry.marker.setLngLat(lngLat)
+        entry.activate = activate
+
+        if (entry.contentKey !== contentKey) {
+          entry.contentKey = contentKey
+          setMarkerContent(entry.element, content)
+        }
+      }
+
+      entry.marker.setOffset(offset ?? [0, 0])
+      entry.element.setAttribute("aria-label", label)
+      entry.element.title = label
+      entry.element.style.zIndex = raised ? "1" : ""
+    }
+
+    function placeGarden(id: string, offset?: [number, number]) {
+      const garden = gardensRef.current.get(id)
+
+      if (!garden) {
+        return
+      }
+
+      const options: GardenIconOptions = {
+        // The first product stands for the garden.
+        type: garden.products[0]?.type,
+        own: ownIdsRef.current.has(id),
+        selected: id === selectedIdRef.current,
+        chip: chip
+          ? { name: garden.name, count: garden.products.length }
+          : undefined,
+      }
+
+      place(
+        `garden:${id}`,
+        garden.location.coordinates,
+        gardenIcon(options),
+        gardenIconKey(options),
+        {
+          label: gardenLabel(garden),
+          raised: options.selected,
+          offset,
+          activate: () => setSelectedGarden(garden),
+        }
+      )
+    }
+
+    for (const feature of features) {
+      const [lng, lat] = feature.geometry.coordinates
+
+      if (!("cluster" in feature.properties)) {
+        placeGarden(feature.properties.id)
+        continue
+      }
+
+      const { cluster_id: clusterId, point_count: count } = feature.properties
+      const leaves = index
+        .getLeaves(clusterId, Infinity)
+        .map((leaf) => leaf.properties.id)
+      const spider = spiderRef.current
+
+      if (spider && leaves.some((id) => spider.has(id))) {
+        leaves.forEach((id, i) => {
+          const angle = (2 * Math.PI * i) / leaves.length - Math.PI / 2
+          const radius = SPIDER_RADIUS + leaves.length * 4
+          placeGarden(id, [Math.cos(angle) * radius, Math.sin(angle) * radius])
+        })
+        continue
+      }
+
+      place(
+        `cluster:${leaves.join(",")}`,
+        [lng, lat],
+        clusterIcon(count),
+        String(count),
+        {
+          label: tMap("clusterLabel", { count }),
+          activate: () => {
+            const expansionZoom = index.getClusterExpansionZoom(clusterId)
+
+            if (expansionZoom <= MAX_ZOOM) {
+              map.easeTo({ center: [lng, lat], zoom: expansionZoom })
+            } else {
+              // Zooming in won't split them: fan them out instead.
+              spiderRef.current = new Set(leaves)
+              renderMarkersRef.current()
+            }
+          },
+        }
+      )
+    }
+
+    markers.forEach((entry, key) => {
+      if (!seen.has(key)) {
+        entry.marker.remove()
+        markers.delete(key)
+      }
+    })
+  }, [gardenLabel, tMap])
+
+  React.useEffect(() => {
+    renderMarkersRef.current = renderMarkers
+  }, [renderMarkers])
+
+  const showUserLocation = React.useCallback((lngLat: [number, number]) => {
     const map = mapRef.current
 
     if (!map) {
@@ -102,13 +277,13 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
     }
 
     if (userMarkerRef.current) {
-      userMarkerRef.current.setLatLng(latLng)
+      userMarkerRef.current.setLngLat(lngLat)
     } else {
-      userMarkerRef.current = L.marker(latLng, {
-        icon: userLocationIcon,
-        interactive: false,
-        keyboard: false,
-      }).addTo(map)
+      const element = createMarkerElement(userLocationIcon)
+      element.style.cursor = "default"
+      userMarkerRef.current = new Marker({ element })
+        .setLngLat(lngLat)
+        .addTo(map)
     }
   }, [])
 
@@ -117,43 +292,47 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       return
     }
 
-    const map = L.map(containerRef.current, {
+    const map = new MapLibreMap({
+      container: containerRef.current,
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
-      // Replaced by MapControls.
-      zoomControl: false,
+      maxZoom: MAX_ZOOM,
+      pitch: PITCH,
+      // North stays up: rotating a map of nearby gardens only disorients.
+      dragRotate: false,
+      attributionControl: { compact: false },
+    })
+    map.touchZoomRotate.disableRotation()
+    map.keyboard.disableRotation()
+    map.setStyle(mapStyleUrl(initialTheme.current), {
+      transformStyle: transformMapStyle(initialTheme.current, {
+        buildings: true,
+      }),
     })
     mapRef.current = map
-    map.attributionControl.setPrefix(
-      '<a href="https://leafletjs.com">Leaflet</a>'
-    )
 
-    createBaseLayer(MAX_ZOOM).addTo(map)
+    const markers = markersRef.current
 
-    clusterGroupRef.current = L.markerClusterGroup({
-      showCoverageOnHover: false,
-      // Chips are wider than pins: group them from further apart.
-      maxClusterRadius: (zoom) => (zoom >= CHIP_ZOOM ? 110 : 60),
-      iconCreateFunction: (cluster) => clusterIcon(cluster.getChildCount()),
-    }).addTo(map)
-
-    const entries = entriesRef.current
-    viewRef.current.chip = map.getZoom() >= CHIP_ZOOM
-
-    map.on("moveend", () => setBounds(map.getBounds()))
-    map.on("zoomend", () => {
-      const chip = map.getZoom() >= CHIP_ZOOM
-
-      if (chip !== viewRef.current.chip) {
-        viewRef.current.chip = chip
-        syncIcons(entries, viewRef.current)
+    map.on("moveend", () => {
+      setBounds(map.getBounds())
+      renderMarkers()
+    })
+    // A zoom change regroups the clusters: fold any fanned-out one back.
+    map.on("zoomstart", () => {
+      spiderRef.current = null
+    })
+    // So does a click on the map itself (markers stop their own clicks).
+    map.on("click", () => {
+      if (spiderRef.current) {
+        spiderRef.current = null
+        renderMarkers()
       }
     })
     // Load the gardens of the starting view too, even if it never moves.
-    map.whenReady(() => setBounds(map.getBounds()))
+    map.once("load", () => setBounds(map.getBounds()))
 
     // The container resizes when the sidebar opens or collapses.
-    const resizeObserver = new ResizeObserver(() => map.invalidateSize())
+    const resizeObserver = new ResizeObserver(() => map.resize())
     resizeObserver.observe(containerRef.current)
 
     // The position can arrive after unmount (e.g. Strict Mode remounting the
@@ -165,15 +344,15 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
         return
       }
 
-      const latLng: L.LatLngTuple = [
-        position.coords.latitude,
+      const lngLat: [number, number] = [
         position.coords.longitude,
+        position.coords.latitude,
       ]
-      showUserLocation(latLng)
+      showUserLocation(lngLat)
 
       // A focused garden wins over the user's position.
       if (!initialFocus.current) {
-        map.setView(latLng, LOCATED_ZOOM)
+        map.jumpTo({ center: lngLat, zoom: LOCATED_ZOOM })
       }
     })
 
@@ -182,11 +361,24 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       resizeObserver.disconnect()
       map.remove()
       mapRef.current = null
-      clusterGroupRef.current = null
       userMarkerRef.current = null
-      entries.clear()
+      markers.clear()
     }
-  }, [showUserLocation])
+  }, [renderMarkers, showUserLocation])
+
+  React.useEffect(() => {
+    const map = mapRef.current
+
+    // The style set on mount already follows the initial theme.
+    if (!map || resolvedTheme === initialTheme.current) {
+      return
+    }
+
+    initialTheme.current = resolvedTheme
+    map.setStyle(mapStyleUrl(resolvedTheme), {
+      transformStyle: transformMapStyle(resolvedTheme, { buildings: true }),
+    })
+  }, [resolvedTheme])
 
   React.useEffect(() => {
     if (!focus || !mapRef.current) {
@@ -194,18 +386,21 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
     }
 
     pendingGardenIdRef.current = focus.gardenId
-    mapRef.current.setView([focus.lat, focus.lng], LOCATED_ZOOM)
+    mapRef.current.jumpTo({
+      center: [focus.lng, focus.lat],
+      zoom: LOCATED_ZOOM,
+    })
   }, [focus])
 
   React.useEffect(() => {
-    viewRef.current.ownIds = new Set(myGardens.map((garden) => garden.id))
-    syncIcons(entriesRef.current, viewRef.current)
-  }, [myGardens])
+    ownIdsRef.current = new Set(myGardens.map((garden) => garden.id))
+    renderMarkers()
+  }, [myGardens, renderMarkers])
 
   React.useEffect(() => {
-    viewRef.current.selectedId = selectedGarden?.id ?? null
-    syncIcons(entriesRef.current, viewRef.current)
-  }, [selectedGarden])
+    selectedIdRef.current = selectedGarden?.id ?? null
+    renderMarkers()
+  }, [selectedGarden, renderMarkers])
 
   // Bring the selected garden into the part of the map the drawer leaves
   // visible: left of the side panel, or above the bottom sheet on mobile.
@@ -216,9 +411,9 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       return
     }
 
-    const [lng, lat] = selectedGarden.location.coordinates
-    const size = map.getSize()
-    let offset = L.point(0, size.y / 4)
+    const width = map.getContainer().clientWidth
+    const height = map.getContainer().clientHeight
+    let offset: [number, number] = [0, -height / 4]
 
     if (!isMobile) {
       const rem = parseFloat(
@@ -226,11 +421,14 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       )
       const drawerWidth = DRAWER_WIDTH_REM * rem
       // Without room left of the drawer, center it as usual.
-      offset = L.point(drawerWidth < size.x ? drawerWidth / 2 : 0, 0)
+      offset = [drawerWidth < width ? -drawerWidth / 2 : 0, 0]
     }
 
-    const target = map.unproject(map.project([lat, lng]).add(offset))
-    map.panTo(target, { animate: true, duration: 0.5 })
+    map.easeTo({
+      center: selectedGarden.location.coordinates,
+      offset,
+      duration: 500,
+    })
   }, [selectedGarden, isMobile])
 
   React.useEffect(() => {
@@ -242,12 +440,6 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
 
     getGardensFromBounds(bounds, searchText, controller.signal)
       .then((gardens) => {
-        const clusterGroup = clusterGroupRef.current
-
-        if (!clusterGroup) {
-          return
-        }
-
         setIsEmpty(gardens.length === 0)
 
         const pending = gardens.find(
@@ -258,54 +450,34 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
           setSelectedGarden(pending)
         }
 
-        // Update the markers in place rather than redrawing them all, so
-        // panning doesn't make the clusters flicker.
-        const entries = entriesRef.current
-        const ids = new Set(gardens.map((garden) => garden.id))
-        const removed: L.Marker[] = []
-        const added: L.Marker[] = []
+        gardensRef.current = new Map(
+          gardens.map((garden) => [garden.id, garden])
+        )
 
-        entries.forEach((entry, id) => {
-          if (!ids.has(id)) {
-            removed.push(entry.marker)
-            entries.delete(id)
-          }
-        })
+        const points = gardens.map(
+          (garden): Supercluster.PointFeature<GardenPoint> => ({
+            type: "Feature",
+            properties: { id: garden.id },
+            geometry: {
+              type: "Point",
+              coordinates: garden.location.coordinates,
+            },
+          })
+        )
+        // Clustered up to the last zoom level: gardens still grouped there
+        // fan out on click.
+        indexesRef.current = {
+          pins: new Supercluster<GardenPoint>({
+            radius: PIN_CLUSTER_RADIUS,
+            maxZoom: MAX_ZOOM,
+          }).load(points),
+          chips: new Supercluster<GardenPoint>({
+            radius: CHIP_CLUSTER_RADIUS,
+            maxZoom: MAX_ZOOM,
+          }).load(points),
+        }
 
-        gardens.forEach((garden) => {
-          const [lng, lat] = garden.location.coordinates
-          const existing = entries.get(garden.id)
-
-          if (existing) {
-            existing.garden = garden
-            existing.marker.options.title = markerTitle(garden)
-
-            if (!existing.marker.getLatLng().equals([lat, lng])) {
-              clusterGroup.removeLayer(existing.marker)
-              existing.marker.setLatLng([lat, lng])
-              clusterGroup.addLayer(existing.marker)
-            }
-
-            syncIcon(existing, viewRef.current)
-            return
-          }
-
-          const entry: MarkerEntry = {
-            garden,
-            marker: L.marker([lat, lng], {
-              title: markerTitle(garden),
-              alt: garden.name,
-            }),
-            iconKey: "",
-          }
-          entry.marker.on("click", () => setSelectedGarden(entry.garden))
-          syncIcon(entry, viewRef.current)
-          entries.set(garden.id, entry)
-          added.push(entry.marker)
-        })
-
-        clusterGroup.removeLayers(removed)
-        clusterGroup.addLayers(added)
+        renderMarkers()
       })
       .catch((error) => {
         if (!controller.signal.aborted) {
@@ -314,7 +486,7 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       })
 
     return () => controller.abort()
-  }, [bounds, searchText, myGardens, markerTitle])
+  }, [bounds, searchText, myGardens, renderMarkers])
 
   function locate() {
     if (!navigator.geolocation) {
@@ -326,12 +498,16 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocating(false)
-        const latLng: L.LatLngTuple = [
-          position.coords.latitude,
+        const lngLat: [number, number] = [
           position.coords.longitude,
+          position.coords.latitude,
         ]
-        showUserLocation(latLng)
-        mapRef.current?.flyTo(latLng, LOCATED_ZOOM, { duration: 0.8 })
+        showUserLocation(lngLat)
+        mapRef.current?.flyTo({
+          center: lngLat,
+          zoom: LOCATED_ZOOM,
+          duration: 800,
+        })
       },
       () => {
         setLocating(false)
@@ -359,31 +535,11 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   )
 }
 
-function iconOptions(garden: Garden, view: MarkerView): GardenIconOptions {
-  return {
-    // The first product stands for the garden.
-    type: garden.products[0]?.type,
-    own: view.ownIds.has(garden.id),
-    selected: garden.id === view.selectedId,
-    chip: view.chip
-      ? { name: garden.name, count: garden.products.length }
-      : undefined,
-  }
-}
-
-function syncIcon(entry: MarkerEntry, view: MarkerView) {
-  const options = iconOptions(entry.garden, view)
-  const key = gardenIconKey(options)
-
-  if (key === entry.iconKey) {
-    return
-  }
-
-  entry.iconKey = key
-  entry.marker.setIcon(gardenIcon(options))
-  entry.marker.setZIndexOffset(options.selected ? SELECTED_Z_OFFSET : 0)
-}
-
-function syncIcons(entries: Map<string, MarkerEntry>, view: MarkerView) {
-  entries.forEach((entry) => syncIcon(entry, view))
+interface MarkerPlacement {
+  label: string
+  // Drawn above its neighbours.
+  raised?: boolean
+  // In pixels from the point, for gardens fanned out of a cluster.
+  offset?: [number, number]
+  activate: () => void
 }

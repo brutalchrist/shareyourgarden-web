@@ -1,6 +1,6 @@
 # ShareYourGarden Web
 
-Web frontend for ShareYourGarden, built with Next.js, Tailwind CSS, shadcn/ui and Leaflet.
+Web frontend for ShareYourGarden, built with Next.js, Tailwind CSS, shadcn/ui and MapLibre GL (with OpenFreeMap tiles).
 
 ## Setup
 

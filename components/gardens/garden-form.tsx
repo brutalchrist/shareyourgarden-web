@@ -63,7 +63,7 @@ import {
 } from "@/lib/products"
 import type { Garden, GardenInput } from "@/lib/types"
 
-// Leaflet touches `window` on import, so the picker only renders on the client.
+// MapLibre needs `window` and WebGL, so the picker only renders on the client.
 const LocationPicker = dynamic(
   () => import("@/components/map/location-picker"),
   {
