@@ -3,7 +3,9 @@
 import * as React from "react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import "@/components/map/map.css"
 
+import { createBaseLayer } from "@/components/map/base-layer"
 import { markerIcon } from "@/components/map/marker-icon"
 
 const DEFAULT_CENTER: L.LatLngTuple = [0, 0]
@@ -48,11 +50,10 @@ export default function LocationPicker({
     })
     mapRef.current = map
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map)
+    map.attributionControl.setPrefix(
+      '<a href="https://leafletjs.com">Leaflet</a>'
+    )
+    createBaseLayer(18).addTo(map)
 
     map.on("click", (event: L.LeafletMouseEvent) => {
       onChangeRef.current([event.latlng.lng, event.latlng.lat])
