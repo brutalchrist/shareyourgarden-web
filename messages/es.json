@@ -58,6 +58,12 @@
     "noProducts": "Sin productos",
     "ownerInfo": "Datos del dueño"
   },
+  "MapControls": {
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "locate": "Ir a mi ubicación",
+    "locateError": "No pudimos obtener tu ubicación. Revisa los permisos del navegador."
+  },
   "AddressSearch": {
     "placeholder": "Busca una dirección o lugar",
     "label": "Buscar dirección",

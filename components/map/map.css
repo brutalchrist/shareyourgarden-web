@@ -1,0 +1,180 @@
+/* Leaflet's own styles, themed to match the app. Imported after
+   leaflet/dist/leaflet.css so these win at equal specificity. */
+
+.leaflet-container {
+  /* Shown while the tiles load: a neutral surface instead of a white flash. */
+  background: var(--muted);
+  font-family: inherit;
+}
+
+/* OpenStreetMap's tiles are busy with colored roads and points of interest:
+   mute them so the green pins lead. In dark mode, invert them and turn the
+   hues back around so water stays blue. */
+.leaflet-container .leaflet-tile-pane {
+  filter: grayscale(0.8) contrast(0.9) brightness(1.04);
+}
+
+.dark .leaflet-container .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) grayscale(0.7) brightness(0.85)
+    contrast(0.85);
+}
+
+.leaflet-container .leaflet-control-attribution {
+  border-top-left-radius: var(--radius-sm);
+  background: color-mix(in oklch, var(--background) 75%, transparent);
+  backdrop-filter: blur(4px);
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+}
+
+.leaflet-container .leaflet-control-attribution a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Garden marker. The root is positioned by Leaflet with a transform, so the
+   hover and selected effects transform the pin inside it instead. */
+
+.garden-marker {
+  --marker-fill: var(--brand);
+  --marker-stroke: var(--brand-foreground);
+  --marker-icon: var(--brand-foreground);
+  border-radius: var(--radius-md);
+}
+
+.garden-marker--own {
+  /* White in both themes: the page background would sink into a dark map. */
+  --marker-fill: var(--brand-foreground);
+  --marker-stroke: var(--brand);
+  --marker-icon: var(--brand);
+}
+
+.garden-marker:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.garden-marker__pin {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  transition: transform 150ms ease-out;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.3));
+}
+
+.garden-marker:hover .garden-marker__pin {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.garden-marker__shape {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: var(--marker-fill);
+  stroke: var(--marker-stroke);
+  stroke-width: 2.5;
+  transition: fill 150ms ease-out;
+}
+
+.garden-marker__icon {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  translate: -50% 0;
+  fill: none;
+  stroke: var(--marker-icon);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.garden-marker.is-selected {
+  --marker-fill: color-mix(in oklch, var(--brand), black 25%);
+  --marker-stroke: var(--brand-foreground);
+  --marker-icon: var(--brand-foreground);
+}
+
+.garden-marker.is-selected .garden-marker__pin {
+  transform: translateY(-2px) scale(1.2);
+}
+
+/* A ripple on the ground under the selected pin. */
+.garden-marker.is-selected::before {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 28px;
+  height: 10px;
+  margin-left: -14px;
+  border-radius: 50%;
+  background: var(--brand);
+  animation: map-ripple 1.6s ease-out infinite;
+}
+
+/* The user's position: the familiar blue dot. */
+
+.user-location {
+  --user-location: oklch(0.62 0.19 255);
+  border-radius: 50%;
+  background: var(--user-location);
+  box-shadow:
+    0 0 0 3px white,
+    0 1px 4px 3px rgb(0 0 0 / 0.3);
+}
+
+.user-location::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--user-location);
+  animation: map-ripple 2s ease-out infinite;
+}
+
+@keyframes map-ripple {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-marker__pin,
+  .garden-marker__shape {
+    transition: none;
+  }
+
+  .garden-marker.is-selected::before,
+  .user-location::before {
+    animation: none;
+    opacity: 0.3;
+  }
+}
+
+/* Leaflet's zoom buttons, where they remain (the location picker). */
+
+.leaflet-container .leaflet-bar {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.leaflet-container .leaflet-bar a {
+  border-bottom-color: var(--border);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.leaflet-container .leaflet-bar a:hover {
+  background: var(--muted);
+}

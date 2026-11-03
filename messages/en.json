@@ -58,6 +58,12 @@
     "noProducts": "No products",
     "ownerInfo": "Owner info"
   },
+  "MapControls": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "locate": "Go to my location",
+    "locateError": "We couldn't get your location. Check your browser permissions."
+  },
   "AddressSearch": {
     "placeholder": "Search for an address or place",
     "label": "Search address",
