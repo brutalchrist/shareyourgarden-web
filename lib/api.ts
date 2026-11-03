@@ -34,6 +34,11 @@ async function apiRequest<T>(
     )
   }
 
+  // 204 No Content (e.g. DELETE) has no body to parse.
+  if (response.status === 204) {
+    return undefined as T
+  }
+
   return response.json()
 }
 
@@ -47,4 +52,19 @@ export function apiPost<T>(
   init?: RequestInit
 ): Promise<T> {
   return apiRequest<T>("POST", uri, { ...init, body: JSON.stringify(body) })
+}
+
+export function apiPatch<T>(
+  uri: string,
+  body: unknown,
+  init?: RequestInit
+): Promise<T> {
+  return apiRequest<T>("PATCH", uri, { ...init, body: JSON.stringify(body) })
+}
+
+export function apiDelete<T = void>(
+  uri: string,
+  init?: RequestInit
+): Promise<T> {
+  return apiRequest<T>("DELETE", uri, init)
 }

@@ -59,6 +59,11 @@ export function GardenDrawer({
                 <span className="sr-only">Close</span>
               </DrawerClose>
             </DrawerHeader>
+            {displayed.description && (
+              <p className="px-4 text-sm whitespace-pre-line text-muted-foreground">
+                {displayed.description}
+              </p>
+            )}
             <Tabs
               defaultValue="products"
               className="w-full overflow-y-auto p-4"
@@ -91,7 +96,9 @@ export function GardenDrawer({
                         <TableRow key={index}>
                           <TableCell>{product.name}</TableCell>
                           <TableCell>{product.type}</TableCell>
-                          <TableCell>{product.quantity}</TableCell>
+                          <TableCell>
+                            {product.quantity} {product.unit}
+                          </TableCell>
                         </TableRow>
                       ))
                     )}

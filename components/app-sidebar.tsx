@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { MapIcon, SproutIcon } from "lucide-react"
 
+import { NavGardens } from "@/components/nav-gardens"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -62,6 +63,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <NavGardens />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
