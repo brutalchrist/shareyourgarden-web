@@ -1,10 +1,10 @@
-import type { LatLngBounds } from "leaflet"
+import type { LngLatBounds } from "maplibre-gl"
 
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api"
 import { toGarden, type Garden, type GardenInput } from "@/lib/types"
 
 export async function getGardensFromBounds(
-  bounds: LatLngBounds,
+  bounds: LngLatBounds,
   where: string,
   signal?: AbortSignal
 ): Promise<Garden[]> {

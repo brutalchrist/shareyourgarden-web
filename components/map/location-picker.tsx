@@ -1,16 +1,18 @@
 "use client"
 
 import * as React from "react"
-import L from "leaflet"
-import "leaflet/dist/leaflet.css"
+import { Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl"
+import "maplibre-gl/dist/maplibre-gl.css"
 import "@/components/map/map.css"
+import { useTheme } from "next-themes"
 
-import { createBaseLayer } from "@/components/map/base-layer"
-import { markerIcon } from "@/components/map/marker-icon"
+import { mapStyleUrl, transformMapStyle } from "@/components/map/map-style"
+import { createMarkerElement, gardenIcon } from "@/components/map/marker-icon"
 
-const DEFAULT_CENTER: L.LatLngTuple = [0, 0]
-const DEFAULT_ZOOM = 2
-const PICKED_ZOOM = 16
+const DEFAULT_CENTER: Coordinates = [0, 0]
+const DEFAULT_ZOOM = 1
+const PICKED_ZOOM = 15
+const MAX_ZOOM = 17
 
 // [lng, lat], as GeoJSON stores it.
 export type Coordinates = [number, number]
@@ -24,9 +26,10 @@ export default function LocationPicker({
   onChange: (value: Coordinates) => void
   invalid?: boolean
 }) {
+  const { resolvedTheme } = useTheme()
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const mapRef = React.useRef<L.Map | null>(null)
-  const markerRef = React.useRef<L.Marker | null>(null)
+  const mapRef = React.useRef<MapLibreMap | null>(null)
+  const markerRef = React.useRef<Marker | null>(null)
   const onChangeRef = React.useRef(onChange)
   React.useEffect(() => {
     onChangeRef.current = onChange
@@ -34,6 +37,8 @@ export default function LocationPicker({
 
   // Read once on mount: later values arrive through the effect below.
   const initialValue = React.useRef(value)
+  // Read once on mount: later changes restyle the map through the effect below.
+  const initialTheme = React.useRef(resolvedTheme)
 
   React.useEffect(() => {
     if (!containerRef.current) {
@@ -41,31 +46,40 @@ export default function LocationPicker({
     }
 
     const initial = initialValue.current
-    const map = L.map(containerRef.current, {
-      center: initial ? [initial[1], initial[0]] : DEFAULT_CENTER,
+    // Flat and without 3D buildings: picking a spot needs a plain top view.
+    const map = new MapLibreMap({
+      container: containerRef.current,
+      center: initial ?? DEFAULT_CENTER,
       zoom: initial ? PICKED_ZOOM : DEFAULT_ZOOM,
+      maxZoom: MAX_ZOOM,
       // The picker sits in a scrolling form: the wheel scrolls the page, the
       // zoom buttons and pinch still zoom the map.
-      scrollWheelZoom: false,
+      scrollZoom: false,
+      dragRotate: false,
+      pitchWithRotate: false,
+      attributionControl: { compact: true },
     })
+    map.touchZoomRotate.disableRotation()
+    map.keyboard.disableRotation()
+    map.setStyle(mapStyleUrl(initialTheme.current), {
+      transformStyle: transformMapStyle(initialTheme.current, {
+        buildings: false,
+      }),
+    })
+    map.addControl(new NavigationControl({ showCompass: false }), "top-left")
     mapRef.current = map
 
-    map.attributionControl.setPrefix(
-      '<a href="https://leafletjs.com">Leaflet</a>'
-    )
-    createBaseLayer(18).addTo(map)
-
-    map.on("click", (event: L.LeafletMouseEvent) => {
-      onChangeRef.current([event.latlng.lng, event.latlng.lat])
+    map.on("click", (event) => {
+      onChangeRef.current([event.lngLat.lng, event.lngLat.lat])
 
       // A click on a zoomed-out map is only a rough guess: zoom in on it so
       // the marker can be dragged to the exact spot.
       if (map.getZoom() < PICKED_ZOOM - 4) {
-        map.setView(event.latlng, PICKED_ZOOM - 2)
+        map.jumpTo({ center: event.lngLat, zoom: PICKED_ZOOM - 2 })
       }
     })
 
-    const resizeObserver = new ResizeObserver(() => map.invalidateSize())
+    const resizeObserver = new ResizeObserver(() => map.resize())
     resizeObserver.observe(containerRef.current)
 
     let removed = false
@@ -77,10 +91,10 @@ export default function LocationPicker({
           return
         }
 
-        map.setView(
-          [position.coords.latitude, position.coords.longitude],
-          PICKED_ZOOM - 2
-        )
+        map.jumpTo({
+          center: [position.coords.longitude, position.coords.latitude],
+          zoom: PICKED_ZOOM - 2,
+        })
       })
     }
 
@@ -96,31 +110,41 @@ export default function LocationPicker({
   React.useEffect(() => {
     const map = mapRef.current
 
+    // The style set on mount already follows the initial theme.
+    if (!map || resolvedTheme === initialTheme.current) {
+      return
+    }
+
+    initialTheme.current = resolvedTheme
+    map.setStyle(mapStyleUrl(resolvedTheme), {
+      transformStyle: transformMapStyle(resolvedTheme, { buildings: false }),
+    })
+  }, [resolvedTheme])
+
+  React.useEffect(() => {
+    const map = mapRef.current
+
     if (!map || !value) {
       return
     }
 
-    const latLng: L.LatLngTuple = [value[1], value[0]]
-
     if (markerRef.current) {
-      markerRef.current.setLatLng(latLng)
+      markerRef.current.setLngLat(value)
     } else {
-      markerRef.current = L.marker(latLng, {
-        icon: markerIcon,
-        draggable: true,
-        autoPan: true,
+      const element = createMarkerElement(gardenIcon({}))
+      element.style.cursor = "grab"
+      const marker = new Marker({ element, draggable: true }).setLngLat(value)
+      marker.on("dragend", () => {
+        const { lng, lat } = marker.getLngLat()
+        onChangeRef.current([lng, lat])
       })
-        .on("dragend", (event) => {
-          const { lat, lng } = (event.target as L.Marker).getLatLng()
-          onChangeRef.current([lng, lat])
-        })
-        .addTo(map)
+      markerRef.current = marker.addTo(map)
     }
 
     // Values from outside the map (the address search, geolocation) may land
     // off-screen or on a zoomed-out view: bring them close enough to adjust.
-    if (!map.getBounds().contains(latLng) || map.getZoom() < PICKED_ZOOM - 4) {
-      map.setView(latLng, Math.max(map.getZoom(), PICKED_ZOOM))
+    if (!map.getBounds().contains(value) || map.getZoom() < PICKED_ZOOM - 4) {
+      map.jumpTo({ center: value, zoom: Math.max(map.getZoom(), PICKED_ZOOM) })
     }
   }, [value])
 

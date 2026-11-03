@@ -69,7 +69,8 @@
     "emptyTitle": "No gardens in this area",
     "emptySearchTitle": "No gardens with “{query}” in this area",
     "emptyDescription": "Zoom out or move the map to see more.",
-    "emptyCta": "Share your garden"
+    "emptyCta": "Share your garden",
+    "clusterLabel": "{count} gardens nearby"
   },
   "AddressSearch": {
     "placeholder": "Search for an address or place",

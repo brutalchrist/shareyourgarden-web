@@ -4,14 +4,14 @@ import * as React from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 
-// Leaflet touches `window` on import, so the map only renders on the client.
+// MapLibre needs `window` and WebGL, so the map only renders on the client.
 const GardenMap = dynamic(() => import("@/components/map/garden-map"), {
   ssr: false,
 })
 
 export function MapView() {
   return (
-    // `isolate` keeps Leaflet's high z-index panes below overlays like the drawer.
+    // `isolate` keeps the map's markers and controls below overlays like the drawer.
     <div className="relative isolate size-full">
       {/* The focused garden comes from the URL query, only known in the
           browser for this statically exported page. */}

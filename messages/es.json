@@ -69,7 +69,8 @@
     "emptyTitle": "No hay huertos en esta zona",
     "emptySearchTitle": "No hay huertos con «{query}» en esta zona",
     "emptyDescription": "Aleja el mapa o muévete para ver más.",
-    "emptyCta": "Comparte tu huerto"
+    "emptyCta": "Comparte tu huerto",
+    "clusterLabel": "{count} huertos cercanos"
   },
   "AddressSearch": {
     "placeholder": "Busca una dirección o lugar",

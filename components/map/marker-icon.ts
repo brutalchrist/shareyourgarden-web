@@ -1,8 +1,6 @@
-import L from "leaflet"
-
 import type { ProductType } from "@/lib/products"
 
-// Lucide icons (ISC), inlined: Leaflet takes icons as HTML strings.
+// Lucide icons (ISC), inlined: the markers are built as HTML strings.
 const SPROUT = `<path d="M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3"/><path d="M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4"/><path d="M5 21h14"/>`
 
 const PRODUCT_ICONS: Record<ProductType, string> = {
@@ -52,49 +50,67 @@ export function gardenIconKey({
   return [type, own, selected, chip?.name, chip?.count].join("|")
 }
 
-export function gardenIcon({ type, own, selected, chip }: GardenIconOptions) {
+export interface MarkerContent {
+  className: string
+  html: string
+}
+
+// The marker element has no size and sits exactly on its point; the content
+// positions itself around it in map.css.
+export function gardenIcon({
+  type,
+  own,
+  selected,
+  chip,
+}: GardenIconOptions): MarkerContent {
   if (chip) {
     const classes = ["garden-chip"]
     if (own) classes.push("garden-chip--own")
     if (selected) classes.push("garden-chip--selected")
 
-    return L.divIcon({
+    return {
       className: classes.join(" "),
-      // No size: the chip is as wide as its name and centers itself on the
-      // point in map.css.
-      iconSize: undefined,
       html: `<div class="garden-chip__body"><span class="garden-chip__badge">${productIcon(type, "garden-chip__icon")}</span><span class="garden-chip__name">${escapeHtml(chip.name)}</span><span class="garden-chip__count">${chip.count}</span></div>`,
-    })
+    }
   }
 
-  // Replaces Leaflet's default `leaflet-div-icon` white box. Styled in map.css.
   const classes = ["garden-marker"]
   if (own) classes.push("garden-marker--own")
   if (selected) classes.push("garden-marker--selected")
 
-  return L.divIcon({
+  return {
     className: classes.join(" "),
     html: `<div class="garden-marker__pin">${PIN_SHAPE}${productIcon(type, "garden-marker__icon")}</div>`,
-    iconSize: [36, 44],
-    // The tip of the pin.
-    iconAnchor: [18, 43],
-  })
+  }
 }
-
-export const markerIcon = gardenIcon({})
 
 // Grows with the number of gardens it holds.
-export function clusterIcon(count: number) {
+export function clusterIcon(count: number): MarkerContent {
   const size = count < 10 ? 36 : count < 100 ? 44 : 52
 
-  return L.divIcon({
+  return {
     className: "garden-cluster",
-    html: `<div class="garden-cluster__body">${count}</div>`,
-    iconSize: [size, size],
-  })
+    html: `<div class="garden-cluster__body" style="--cluster-size: ${size}px">${count}</div>`,
+  }
 }
 
-export const userLocationIcon = L.divIcon({
+export const userLocationIcon: MarkerContent = {
   className: "user-location",
-  iconSize: [16, 16],
-})
+  html: '<div class="user-location__dot"></div>',
+}
+
+// MapLibre positions the element it's given and adds its own classes to it,
+// so the content goes in a child that can be swapped freely.
+export function createMarkerElement(content: MarkerContent) {
+  const element = document.createElement("div")
+  element.className = "map-marker"
+  setMarkerContent(element, content)
+  return element
+}
+
+export function setMarkerContent(
+  element: HTMLElement,
+  { className, html }: MarkerContent
+) {
+  element.innerHTML = `<div class="${className}">${html}</div>`
+}

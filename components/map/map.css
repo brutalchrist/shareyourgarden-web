@@ -1,25 +1,13 @@
-/* Leaflet's own styles, themed to match the app. Imported after
-   leaflet/dist/leaflet.css so these win at equal specificity. */
+/* MapLibre's own controls and the HTML markers, themed to match the app.
+   Imported after maplibre-gl.css so these win at equal specificity. */
 
-.leaflet-container {
-  /* Shown while the tiles load: a neutral surface instead of a white flash. */
+.maplibregl-map {
+  /* Shown while the style loads: a neutral surface instead of a white flash. */
   background: var(--muted);
   font-family: inherit;
 }
 
-/* OpenStreetMap's tiles are busy with colored roads and points of interest:
-   mute them so the green pins lead. In dark mode, invert them and turn the
-   hues back around so water stays blue. */
-.leaflet-container .leaflet-tile-pane {
-  filter: grayscale(0.8) contrast(0.9) brightness(1.04);
-}
-
-.dark .leaflet-container .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) grayscale(0.7) brightness(0.85)
-    contrast(0.85);
-}
-
-.leaflet-container .leaflet-control-attribution {
+.maplibregl-map .maplibregl-ctrl-attrib {
   border-top-left-radius: var(--radius-sm);
   background: color-mix(in oklch, var(--background) 75%, transparent);
   backdrop-filter: blur(4px);
@@ -27,20 +15,53 @@
   font-size: 0.625rem;
 }
 
-.leaflet-container .leaflet-control-attribution a {
+.maplibregl-map .maplibregl-ctrl-attrib a {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-/* Garden marker. The root is positioned by Leaflet with a transform, so the
-   hover and selected effects transform the pin inside it instead. */
+/* MapLibre's zoom buttons, where they remain (the location picker). */
+
+.maplibregl-map .maplibregl-ctrl-group {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.maplibregl-map .maplibregl-ctrl-group button + button {
+  border-top-color: var(--border);
+}
+
+.maplibregl-map .maplibregl-ctrl-group button:hover {
+  background: var(--muted);
+}
+
+.dark .maplibregl-map .maplibregl-ctrl-icon {
+  filter: invert(1);
+}
+
+/* Every marker element has no size and sits on its point: the content below
+   positions itself around it. */
+
+.map-marker {
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+
+.map-marker:focus-visible {
+  outline: none;
+}
+
+/* Garden pin. */
 
 .garden-marker {
   --marker-fill: var(--brand);
   --marker-stroke: var(--brand-foreground);
   --marker-icon: var(--brand-foreground);
-  border-radius: var(--radius-md);
 }
 
 .garden-marker--own {
@@ -50,22 +71,35 @@
   --marker-icon: var(--brand);
 }
 
-.garden-marker:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
+.garden-marker--selected {
+  --marker-fill: color-mix(in oklch, var(--brand), black 25%);
+  --marker-stroke: var(--brand-foreground);
+  --marker-icon: var(--brand-foreground);
 }
 
 .garden-marker__pin {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: -43px;
+  left: -18px;
+  width: 36px;
+  height: 44px;
   transform-origin: 50% 100%;
   transition: transform 150ms ease-out;
   filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.3));
 }
 
-.garden-marker:hover .garden-marker__pin {
+.map-marker:hover .garden-marker__pin {
   transform: translateY(-2px) scale(1.08);
+}
+
+.garden-marker--selected .garden-marker__pin {
+  transform: translateY(-2px) scale(1.2);
+}
+
+.map-marker:focus-visible .garden-marker__pin {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
 }
 
 .garden-marker__shape {
@@ -92,32 +126,20 @@
   stroke-linejoin: round;
 }
 
-.garden-marker--selected {
-  --marker-fill: color-mix(in oklch, var(--brand), black 25%);
-  --marker-stroke: var(--brand-foreground);
-  --marker-icon: var(--brand-foreground);
-}
-
-.garden-marker--selected .garden-marker__pin {
-  transform: translateY(-2px) scale(1.2);
-}
-
 /* A ripple on the ground under the selected pin. */
 .garden-marker--selected::before {
   content: "";
   position: absolute;
-  bottom: -5px;
-  left: 50%;
+  top: -5px;
+  left: -14px;
   width: 28px;
   height: 10px;
-  margin-left: -14px;
   border-radius: 50%;
   background: var(--brand);
   animation: map-ripple 1.6s ease-out infinite;
 }
 
-/* Close up the pin becomes a chip: the root has no size and sits on the
-   garden's point, the body centers itself above it. */
+/* Close up the pin becomes a chip, centered above the garden's point. */
 
 .garden-chip {
   --chip-bg: var(--background);
@@ -125,7 +147,6 @@
   --chip-muted: var(--muted-foreground);
   --chip-badge-bg: var(--brand);
   --chip-badge-fg: var(--brand-foreground);
-  outline: none;
 }
 
 .garden-chip--own {
@@ -181,7 +202,7 @@
   rotate: 45deg;
 }
 
-.garden-chip:hover .garden-chip__body {
+.map-marker:hover .garden-chip__body {
   scale: 1.05;
 }
 
@@ -189,7 +210,7 @@
   scale: 1.1;
 }
 
-.garden-chip:focus-visible .garden-chip__body {
+.map-marker:focus-visible .garden-chip__body {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
@@ -229,11 +250,14 @@
 /* A group of nearby gardens, with how many it holds. */
 
 .garden-cluster__body {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+  width: var(--cluster-size);
+  height: var(--cluster-size);
   border: 3px solid var(--brand-foreground);
   border-radius: 50%;
   background: var(--brand);
@@ -244,17 +268,28 @@
   font-size: 0.8125rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  translate: -50% -50%;
   transition: scale 150ms ease-out;
 }
 
-.garden-cluster:hover .garden-cluster__body {
+.map-marker:hover .garden-cluster__body {
   scale: 1.1;
+}
+
+.map-marker:focus-visible .garden-cluster__body {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 /* The user's position: the familiar blue dot. */
 
-.user-location {
+.user-location__dot {
   --user-location: oklch(0.62 0.19 255);
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--user-location);
   box-shadow:
@@ -262,7 +297,7 @@
     0 1px 4px 3px rgb(0 0 0 / 0.3);
 }
 
-.user-location::before {
+.user-location__dot::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -291,27 +326,8 @@
   }
 
   .garden-marker--selected::before,
-  .user-location::before {
+  .user-location__dot::before {
     animation: none;
     opacity: 0.3;
   }
-}
-
-/* Leaflet's zoom buttons, where they remain (the location picker). */
-
-.leaflet-container .leaflet-bar {
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-}
-
-.leaflet-container .leaflet-bar a {
-  border-bottom-color: var(--border);
-  background: var(--background);
-  color: var(--foreground);
-}
-
-.leaflet-container .leaflet-bar a:hover {
-  background: var(--muted);
 }
