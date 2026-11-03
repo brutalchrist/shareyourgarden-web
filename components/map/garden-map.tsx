@@ -5,7 +5,7 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 
 import { useSearch } from "@/components/search-provider"
-import { GardenSheet } from "@/components/map/garden-sheet"
+import { GardenDrawer } from "@/components/map/garden-drawer"
 import { getGardensFromBounds } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
@@ -115,7 +115,7 @@ export default function GardenMap() {
   return (
     <>
       <div ref={containerRef} className="size-full" />
-      <GardenSheet
+      <GardenDrawer
         garden={selectedGarden}
         onClose={() => setSelectedGarden(null)}
       />

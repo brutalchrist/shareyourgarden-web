@@ -9,7 +9,7 @@ const GardenMap = dynamic(() => import("@/components/map/garden-map"), {
 
 export function MapView() {
   return (
-    // `isolate` keeps Leaflet's high z-index panes below overlays like the sheet.
+    // `isolate` keeps Leaflet's high z-index panes below overlays like the drawer.
     <div className="relative isolate size-full">
       <GardenMap />
     </div>
