@@ -10,6 +10,7 @@ import { GoogleSignInButton } from "@/components/google-sign-in-button"
 import { ConversationList } from "@/components/messages/conversation-list"
 import { ConversationThread } from "@/components/messages/conversation-thread"
 import { useMessages } from "@/components/messages/messages-provider"
+import { PushToggle } from "@/components/messages/push-toggle"
 import { useConversationList } from "@/components/messages/use-conversation-list"
 import {
   Empty,
@@ -110,6 +111,7 @@ function Inbox() {
           gardenId={gardenId}
           activeId={conversationId}
         />
+        <PushToggle />
       </aside>
       <section
         className={cn(

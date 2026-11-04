@@ -3,12 +3,15 @@
 import * as React from "react"
 
 import { usePageVisible } from "@/hooks/use-page-visible"
+import { usePushActive, usePushMessages } from "@/hooks/use-push"
 import { listConversations, type ConversationFilter } from "@/lib/conversations"
 import type { Conversation } from "@/lib/types"
 
 const PAGE_SIZE = 20
-// The inbox refreshes in the background; the open thread polls faster.
+// The inbox refreshes in the background; the open thread polls faster. With
+// push on, new messages announce themselves, so it can wait longer.
 const POLL_MS = 30_000
+const PUSH_POLL_MS = 120_000
 
 export type ConversationListStatus = "loading" | "ready" | "error"
 
@@ -53,6 +56,7 @@ export function useConversationList(filters: ConversationFilters) {
   const [loadingMore, setLoadingMore] = React.useState(false)
   const [attempt, setAttempt] = React.useState(0)
   const visible = usePageVisible()
+  const pollMs = usePushActive() ? PUSH_POLL_MS : POLL_MS
 
   const filtersKey = `${filters.role}:${filters.gardenId ?? ""}`
   const { role, gardenId } = filters
@@ -107,7 +111,7 @@ export function useConversationList(filters: ConversationFilters) {
           )
         })
         .finally(() => {
-          if (!controller.signal.aborted) timer = setTimeout(load, POLL_MS)
+          if (!controller.signal.aborted) timer = setTimeout(load, pollMs)
         })
     }
 
@@ -117,7 +121,10 @@ export function useConversationList(filters: ConversationFilters) {
       controller.abort()
       clearTimeout(timer)
     }
-  }, [role, gardenId, filtersKey, visible, attempt])
+  }, [role, gardenId, filtersKey, visible, attempt, pollMs])
+
+  // A pushed message moves its conversation to the top right away.
+  usePushMessages(() => setAttempt((value) => value + 1))
 
   const loadMore = React.useCallback(async () => {
     const last = state.conversations.at(-1)
