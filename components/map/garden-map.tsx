@@ -23,15 +23,25 @@ import {
   type GardenIconOptions,
   type MarkerContent,
 } from "@/components/map/marker-icon"
+import {
+  fetchApproximateCenter,
+  readSavedView,
+  saveView,
+  ViewSource,
+} from "@/components/map/initial-view"
 import type { MapFilter } from "@/components/map/map-view"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { getGardensFromBounds } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
-// Fallback view when geolocation is unavailable or denied.
+// The whole world, until a better view is known (see initial-view.ts).
 const DEFAULT_CENTER: [number, number] = [0, 0]
 const DEFAULT_ZOOM = 1
 const LOCATED_ZOOM = 15
+// A city, for a position known only from the IP address.
+const APPROXIMATE_ZOOM = 11
+// The neighbourhood around the user's garden.
+const OWN_GARDEN_ZOOM = 13
 const MAX_ZOOM = 15
 // From this zoom on, pins become chips with the garden's name.
 const CHIP_ZOOM = 14
@@ -101,6 +111,10 @@ export default function GardenMap({
   const initialFocus = React.useRef(focus)
   // Read once on mount: later changes restyle the map through the effect below.
   const initialTheme = React.useRef(resolvedTheme)
+  // What placed the current view, and whether the user has moved the map
+  // since: from then on, no source moves it for them.
+  const viewSourceRef = React.useRef<ViewSource>(ViewSource.none)
+  const userMovedRef = React.useRef(false)
   const [bounds, setBounds] = React.useState<LngLatBounds | null>(null)
   const [selectedGarden, setSelectedGarden] = React.useState<Garden | null>(
     null
@@ -296,15 +310,48 @@ export default function GardenMap({
     }
   }, [])
 
+  // Moves the map to a view from a source more precise than the current one.
+  const placeView = React.useCallback(
+    (source: ViewSource, center: [number, number], zoom: number) => {
+      const map = mapRef.current
+
+      if (!map || userMovedRef.current || source <= viewSourceRef.current) {
+        return
+      }
+
+      const fromWorld = viewSourceRef.current === ViewSource.none
+      // Before moving: `jumpTo` ends the move, saving the view, right away.
+      viewSourceRef.current = source
+
+      // Straight there from the whole world; a short flight between two
+      // nearby views, so the user sees where they went.
+      if (fromWorld) {
+        map.jumpTo({ center, zoom })
+      } else {
+        map.flyTo({ center, zoom, duration: 800 })
+      }
+    },
+    []
+  )
+
   React.useEffect(() => {
     if (!containerRef.current) {
       return
     }
 
+    // A focused garden is placed by its own effect below.
+    const saved = initialFocus.current ? null : readSavedView()
+    viewSourceRef.current = initialFocus.current
+      ? ViewSource.focus
+      : saved
+        ? ViewSource.saved
+        : ViewSource.none
+    userMovedRef.current = false
+
     const map = new MapLibreMap({
       container: containerRef.current,
-      center: DEFAULT_CENTER,
-      zoom: DEFAULT_ZOOM,
+      center: saved?.center ?? DEFAULT_CENTER,
+      zoom: saved?.zoom ?? DEFAULT_ZOOM,
       maxZoom: MAX_ZOOM,
       pitch: PITCH,
       // North stays up: rotating a map of nearby gardens only disorients.
@@ -325,7 +372,28 @@ export default function GardenMap({
     map.on("moveend", () => {
       setBounds(map.getBounds())
       renderMarkers()
+
+      // An IP address only says roughly where the visitor is: not worth
+      // reopening there over a better source next time.
+      if (
+        userMovedRef.current ||
+        viewSourceRef.current > ViewSource.approximate
+      ) {
+        saveView({
+          center: map.getCenter().toArray(),
+          zoom: map.getZoom(),
+        })
+      }
     })
+    // Dragging, pinching, scrolling or clicking a marker or cluster: the
+    // user has taken over the map.
+    const container = map.getContainer()
+    function onUserInput() {
+      userMovedRef.current = true
+    }
+    for (const type of ["pointerdown", "wheel", "keydown"]) {
+      container.addEventListener(type, onUserInput)
+    }
     // A zoom change regroups the clusters: fold any fanned-out one back.
     map.on("zoomstart", () => {
       spiderRef.current = null
@@ -348,44 +416,43 @@ export default function GardenMap({
     // effect), when the map has already been removed.
     let removed = false
 
-    // Start at the user's position only if they already allowed it: a
-    // permission prompt on arrival, before they know why, is mostly refused.
-    // Otherwise the locate button asks.
-    navigator.permissions
-      ?.query({ name: "geolocation" })
-      .then((status) => {
-        if (removed || status.state !== "granted") {
-          return
+    // The browser's position is the best start, but it waits on the
+    // permission prompt (and may never come): meanwhile, the visitor's city.
+    navigator.geolocation?.getCurrentPosition((position) => {
+      if (removed) {
+        return
+      }
+
+      const lngLat: [number, number] = [
+        position.coords.longitude,
+        position.coords.latitude,
+      ]
+      showUserLocation(lngLat)
+      placeView(ViewSource.precise, lngLat, LOCATED_ZOOM)
+    })
+
+    const controller = new AbortController()
+    if (viewSourceRef.current === ViewSource.none) {
+      fetchApproximateCenter(controller.signal).then((center) => {
+        if (center && !removed) {
+          placeView(ViewSource.approximate, center, APPROXIMATE_ZOOM)
         }
-
-        navigator.geolocation.getCurrentPosition((position) => {
-          if (removed) {
-            return
-          }
-
-          const lngLat: [number, number] = [
-            position.coords.longitude,
-            position.coords.latitude,
-          ]
-          showUserLocation(lngLat)
-
-          // A focused garden wins over the user's position.
-          if (!initialFocus.current) {
-            map.jumpTo({ center: lngLat, zoom: LOCATED_ZOOM })
-          }
-        })
       })
-      .catch(() => {})
+    }
 
     return () => {
       removed = true
+      controller.abort()
+      for (const type of ["pointerdown", "wheel", "keydown"]) {
+        container.removeEventListener(type, onUserInput)
+      }
       resizeObserver.disconnect()
       map.remove()
       mapRef.current = null
       userMarkerRef.current = null
       markers.clear()
     }
-  }, [renderMarkers, showUserLocation])
+  }, [renderMarkers, showUserLocation, placeView])
 
   React.useEffect(() => {
     const map = mapRef.current
@@ -407,6 +474,7 @@ export default function GardenMap({
     }
 
     pendingGardenIdRef.current = focus.gardenId
+    viewSourceRef.current = ViewSource.focus
     mapRef.current.jumpTo({
       center: [focus.lng, focus.lat],
       zoom: LOCATED_ZOOM,
@@ -417,6 +485,19 @@ export default function GardenMap({
     ownIdsRef.current = new Set(myGardens.map((garden) => garden.id))
     renderMarkers()
   }, [myGardens, renderMarkers])
+
+  // Without their position, a signed-in user's garden says where they are.
+  React.useEffect(() => {
+    const garden = myGardens[0]
+
+    if (garden) {
+      placeView(
+        ViewSource.ownGarden,
+        garden.location.coordinates,
+        OWN_GARDEN_ZOOM
+      )
+    }
+  }, [myGardens, placeView])
 
   React.useEffect(() => {
     selectedIdRef.current = selectedGarden?.id ?? null
@@ -522,6 +603,8 @@ export default function GardenMap({
       return
     }
 
+    // Asked for: from now on, only the user moves the map.
+    userMovedRef.current = true
     setLocating(true)
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -549,8 +632,14 @@ export default function GardenMap({
     <>
       <div ref={containerRef} className="size-full" />
       <MapControls
-        onZoomIn={() => mapRef.current?.zoomIn()}
-        onZoomOut={() => mapRef.current?.zoomOut()}
+        onZoomIn={() => {
+          userMovedRef.current = true
+          mapRef.current?.zoomIn()
+        }}
+        onZoomOut={() => {
+          userMovedRef.current = true
+          mapRef.current?.zoomOut()
+        }}
         onLocate={locate}
         locating={locating}
       />
