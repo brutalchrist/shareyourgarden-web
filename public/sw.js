@@ -6,7 +6,8 @@
 // - `/_next/static/`: cache first, since their names change with their content.
 // - Other files (icons, the manifest): the cached copy, refreshed in the
 //   background.
-// - Page data for client-side navigation (`?_rsc=`): the network only.
+// - Page data for client-side navigation (`?_rsc=`) and edge functions
+//   (`/api/`): the network only.
 //
 // Bump VERSION to drop every cache on the next visit.
 const VERSION = "v1"
@@ -53,6 +54,8 @@ self.addEventListener("fetch", (event) => {
   // Page data for client-side navigation must match the deployed build; when
   // it fails, the router falls back to loading the page, handled below.
   if (url.searchParams.has("_rsc")) return
+  // Edge functions answer per visitor (`/api/geo`: their position).
+  if (url.pathname.startsWith("/api/")) return
 
   if (request.mode === "navigate") {
     event.respondWith(page(request, url))
