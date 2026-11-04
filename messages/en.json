@@ -311,12 +311,15 @@
   },
   "PushNotifications": {
     "label": "Turn on notifications",
+    "disable": "Turn off notifications",
+    "menu": "Notifications",
+    "close": "Got it",
+    "enabled": "Notifications on",
+    "enabledHint": "You can turn them off anytime from your account menu.",
     "state": {
-      "unsupported": "This browser doesn't support notifications.",
       "ios-install": "On iPhone and iPad, first add the app to your home screen: tap Share, then “Add to Home Screen”. Open it from there to turn them on.",
       "denied": "You blocked notifications. To get them, allow them for this site in your browser or phone settings.",
-      "off": "Get notified on this device when someone writes to you, even with the app closed.",
-      "on": "We'll notify you on this device when someone writes to you. Notifications show who wrote and about which garden, never the message."
+      "off": "Get notified on this device when someone writes to you, even with the app closed."
     },
     "enableError": "Couldn't turn on notifications. Please try again.",
     "disableError": "Couldn't turn off notifications. Please try again."

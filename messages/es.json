@@ -311,12 +311,15 @@
   },
   "PushNotifications": {
     "label": "Activar notificaciones",
+    "disable": "Desactivar notificaciones",
+    "menu": "Notificaciones",
+    "close": "Entendido",
+    "enabled": "Notificaciones activadas",
+    "enabledHint": "Puedes desactivarlas cuando quieras desde el menú de tu cuenta.",
     "state": {
-      "unsupported": "Este navegador no permite notificaciones.",
       "ios-install": "En iPhone y iPad, primero agrega la app a tu pantalla de inicio: toca Compartir y luego «Agregar a inicio». Ábrela desde ahí para activarlas.",
       "denied": "Bloqueaste las notificaciones. Para recibirlas, permítelas para este sitio en los ajustes del navegador o del teléfono.",
-      "off": "Recibe un aviso en este dispositivo cuando te escriban, aunque la app esté cerrada.",
-      "on": "Te avisaremos en este dispositivo cuando te escriban. Los avisos muestran quién escribe y sobre qué huerta, nunca el mensaje."
+      "off": "Recibe un aviso en este dispositivo cuando te escriban, aunque la app esté cerrada."
     },
     "enableError": "No se pudieron activar las notificaciones. Inténtalo de nuevo.",
     "disableError": "No se pudieron desactivar las notificaciones. Inténtalo de nuevo."
