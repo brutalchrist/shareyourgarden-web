@@ -1,6 +1,7 @@
 {
   "Metadata": {
-    "title": "ShareYourGarden"
+    "title": "ShareYourGarden",
+    "description": "Comparte lo que crece en tu huerto y encuentra huertos cerca de ti."
   },
   "NotFound": {
     "metaTitle": "Página no encontrada",
@@ -294,5 +295,18 @@
     "readOnlyGardenDeleted": "{garden} ya no existe. La conversación quedó en solo lectura.",
     "readOnlyLabel": "Solo lectura",
     "tooManyMessages": "Estás enviando mensajes muy rápido. Espera un momento."
+  },
+  "Offline": {
+    "metaTitle": "Sin conexión",
+    "title": "Estás sin conexión",
+    "description": "Revisa tu conexión a internet. Cuando vuelva, reintenta para cargar la página.",
+    "retry": "Reintentar"
+  },
+  "Install": {
+    "title": "Instala ShareYourGarden",
+    "description": "Ábrelo desde tu pantalla de inicio, como una app.",
+    "iosDescription": "Toca Compartir y luego «Agregar a inicio».",
+    "install": "Instalar",
+    "dismiss": "Ahora no"
   }
 }
