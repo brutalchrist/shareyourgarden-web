@@ -12,8 +12,6 @@ import Supercluster from "supercluster"
 import { useMyGardens } from "@/components/my-gardens-provider"
 import { GardenDrawer } from "@/components/map/garden-drawer"
 import { MapControls } from "@/components/map/map-controls"
-import { MapEmptyState } from "@/components/map/map-empty-state"
-import { MapSearch } from "@/components/map/map-search"
 import { mapStyleUrl, transformMapStyle } from "@/components/map/map-style"
 import {
   clusterIcon,
@@ -25,9 +23,9 @@ import {
   type GardenIconOptions,
   type MarkerContent,
 } from "@/components/map/marker-icon"
+import type { MapFilter } from "@/components/map/map-view"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { getGardensFromBounds } from "@/lib/gardens"
-import { useProductLabels, type ProductType } from "@/lib/products"
 import type { Garden } from "@/lib/types"
 
 // Fallback view when geolocation is unavailable or denied.
@@ -70,7 +68,16 @@ interface MarkerEntry {
   activate: () => void
 }
 
-export default function GardenMap({ focus }: { focus: MapFocus | null }) {
+export default function GardenMap({
+  focus,
+  filter: { searchText, productType },
+  onEmptyChange,
+}: {
+  focus: MapFocus | null
+  filter: MapFilter
+  // Whether the gardens in view, once filtered, are none.
+  onEmptyChange: (isEmpty: boolean) => void
+}) {
   const t = useTranslations("MapControls")
   const tMap = useTranslations("GardenMap")
   const isMobile = useIsMobile()
@@ -98,13 +105,9 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   const [selectedGarden, setSelectedGarden] = React.useState<Garden | null>(
     null
   )
-  const [isEmpty, setIsEmpty] = React.useState(false)
   const [locating, setLocating] = React.useState(false)
-  const [searchText, setSearchText] = React.useState("")
-  const [productType, setProductType] = React.useState<ProductType | null>(null)
   // Read by renderMarkers, so a filtered garden shows the filtered type.
   const productTypeRef = React.useRef(productType)
-  const { productTypeLabel } = useProductLabels()
   // Refetch the markers when the user creates, edits or deletes a garden.
   const { gardens: myGardens } = useMyGardens()
 
@@ -345,22 +348,34 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
     // effect), when the map has already been removed.
     let removed = false
 
-    navigator.geolocation?.getCurrentPosition((position) => {
-      if (removed) {
-        return
-      }
+    // Start at the user's position only if they already allowed it: a
+    // permission prompt on arrival, before they know why, is mostly refused.
+    // Otherwise the locate button asks.
+    navigator.permissions
+      ?.query({ name: "geolocation" })
+      .then((status) => {
+        if (removed || status.state !== "granted") {
+          return
+        }
 
-      const lngLat: [number, number] = [
-        position.coords.longitude,
-        position.coords.latitude,
-      ]
-      showUserLocation(lngLat)
+        navigator.geolocation.getCurrentPosition((position) => {
+          if (removed) {
+            return
+          }
 
-      // A focused garden wins over the user's position.
-      if (!initialFocus.current) {
-        map.jumpTo({ center: lngLat, zoom: LOCATED_ZOOM })
-      }
-    })
+          const lngLat: [number, number] = [
+            position.coords.longitude,
+            position.coords.latitude,
+          ]
+          showUserLocation(lngLat)
+
+          // A focused garden wins over the user's position.
+          if (!initialFocus.current) {
+            map.jumpTo({ center: lngLat, zoom: LOCATED_ZOOM })
+          }
+        })
+      })
+      .catch(() => {})
 
     return () => {
       removed = true
@@ -453,7 +468,7 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
               garden.products.some((product) => product.type === productType)
             )
           : found
-        setIsEmpty(gardens.length === 0)
+        onEmptyChange(gardens.length === 0)
 
         const pending = gardens.find(
           (garden) => garden.id === pendingGardenIdRef.current
@@ -499,7 +514,7 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
       })
 
     return () => controller.abort()
-  }, [bounds, searchText, productType, myGardens, renderMarkers])
+  }, [bounds, searchText, productType, myGardens, renderMarkers, onEmptyChange])
 
   function locate() {
     if (!navigator.geolocation) {
@@ -533,21 +548,6 @@ export default function GardenMap({ focus }: { focus: MapFocus | null }) {
   return (
     <>
       <div ref={containerRef} className="size-full" />
-      <MapSearch
-        searchText={searchText}
-        onSearchTextChange={setSearchText}
-        productType={productType}
-        onProductTypeChange={setProductType}
-      >
-        {isEmpty && (
-          <MapEmptyState
-            query={
-              searchText.trim() ||
-              (productType ? productTypeLabel(productType) : "")
-            }
-          />
-        )}
-      </MapSearch>
       <MapControls
         onZoomIn={() => mapRef.current?.zoomIn()}
         onZoomOut={() => mapRef.current?.zoomOut()}
