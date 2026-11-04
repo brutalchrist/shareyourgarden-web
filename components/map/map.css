@@ -12,7 +12,7 @@
   background: color-mix(in oklch, var(--background) 75%, transparent);
   backdrop-filter: blur(4px);
   color: var(--muted-foreground);
-  font-size: 0.625rem;
+  font-size: 0.75rem;
 }
 
 .maplibregl-map .maplibregl-ctrl-attrib a {
