@@ -5,3 +5,15 @@
 [build.environment]
   NODE_VERSION = "22"
   NEXT_PUBLIC_API_URL = "https://shareyourgarden-backend.onrender.com"
+
+# The browser checks for a new service worker on every visit; never serve it
+# from a cache, or updates to it take up to a day to arrive.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"

@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist_Mono, Inter } from "next/font/google"
 import { notFound } from "next/navigation"
 import { hasLocale, NextIntlClientProvider } from "next-intl"
@@ -7,8 +7,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import "../globals.css"
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
+import { InstallPrompt } from "@/components/install-prompt"
 import { MessagesProvider } from "@/components/messages/messages-provider"
 import { MyGardensProvider } from "@/components/my-gardens-provider"
+import { ServiceWorker } from "@/components/service-worker"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -40,9 +42,21 @@ export async function generateMetadata({
 
   return {
     title: t("title"),
+    description: t("description"),
     // Netlify sets `URL` to the site's address at build time.
     metadataBase: new URL(process.env.URL ?? "http://localhost:3000"),
+    // Opened from the iOS home screen, it runs without Safari's toolbars.
+    appleWebApp: { capable: true, title: t("title") },
+    icons: { apple: "/icons/apple-touch-icon.png" },
   }
+}
+
+// Tints the browser and installed app's bars to match the page background.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 }
 
 export default async function RootLayout({
@@ -77,6 +91,8 @@ export default async function RootLayout({
                   <TooltipProvider>
                     <AppShell>{children}</AppShell>
                     <Toaster position="top-center" richColors />
+                    <InstallPrompt />
+                    <ServiceWorker />
                   </TooltipProvider>
                 </MessagesProvider>
               </MyGardensProvider>
