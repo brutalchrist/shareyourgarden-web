@@ -5,6 +5,7 @@ import * as React from "react"
 import { ApiError } from "@/lib/api"
 import { getCurrentUser, signInWithGoogle } from "@/lib/auth"
 import { clearToken, getToken, setToken } from "@/lib/auth-token"
+import { disablePush } from "@/lib/push"
 import type { User } from "@/lib/types"
 
 type AuthStatus = "loading" | "authenticated" | "anonymous"
@@ -54,6 +55,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signOut = React.useCallback(() => {
+    // Pushes to this browser would otherwise still go to the previous user.
+    disablePush().catch((error) => console.error(error))
     clearToken()
     window.google?.accounts.id.disableAutoSelect()
     setUser(null)

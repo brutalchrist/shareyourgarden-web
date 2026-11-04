@@ -49,6 +49,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { usePageVisible } from "@/hooks/use-page-visible"
+import { usePushMessages } from "@/hooks/use-push"
 import { ApiError } from "@/lib/api"
 import { toast } from "sonner"
 import {
@@ -167,6 +168,12 @@ export function ConversationThread({
     lastServerIdRef.current = lastServerId
   })
 
+  // Polls right away when a push says this conversation has a new message.
+  const pollNowRef = React.useRef<() => void>(undefined)
+  usePushMessages((id) => {
+    if (id === conversationId) pollNowRef.current?.()
+  })
+
   React.useEffect(() => {
     if (status !== "ready" || !visible) {
       return
@@ -204,10 +211,16 @@ export function ConversationThread({
 
     // Also restarts when the tab comes back to the front.
     timer = setTimeout(poll, POLL_MIN_MS)
+    pollNowRef.current = () => {
+      clearTimeout(timer)
+      delay = POLL_MIN_MS
+      poll()
+    }
 
     return () => {
       controller.abort()
       clearTimeout(timer)
+      pollNowRef.current = undefined
     }
   }, [conversationId, status, visible])
 

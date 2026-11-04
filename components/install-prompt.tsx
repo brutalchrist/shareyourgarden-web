@@ -4,6 +4,8 @@ import * as React from "react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
+import { isInstalled, isIos } from "@/lib/platform"
+
 // Chromium's install event, not in TypeScript's DOM types.
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>
@@ -15,21 +17,6 @@ const DISMISS_DAYS = 30
 // Let the visitor see the page before asking.
 const DELAY_MS = 10_000
 const TOAST_ID = "install-prompt"
-
-function isInstalled() {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    ("standalone" in navigator && navigator.standalone === true)
-  )
-}
-
-// iPadOS reports itself as a Mac; touch tells them apart.
-function isIos() {
-  return (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1)
-  )
-}
 
 function isPhone() {
   return window.matchMedia("(pointer: coarse) and (max-width: 767px)").matches

@@ -9,6 +9,9 @@
 // - Page data for client-side navigation (`?_rsc=`) and edge functions
 //   (`/api/`): the network only.
 //
+// It also shows push notifications for new messages (see `lib/push.ts`) and
+// keeps the app icon's badge at the unread count.
+//
 // Bump VERSION to drop every cache on the next visit.
 const VERSION = "v1"
 const PAGES = `pages-${VERSION}`
@@ -134,4 +137,113 @@ async function trim(cache) {
   for (const key of keys.slice(0, Math.max(0, keys.length - MAX_ASSETS))) {
     await cache.delete(key)
   }
+}
+
+// Push payloads never carry the message text, only who wrote and about which
+// garden: `{ type: "message", conversationId, senderName, gardenName, locale,
+// unread }`.
+const NOTIFICATION_TITLE = {
+  es: (name) => `Nuevo mensaje de ${name}`,
+  en: (name) => `New message from ${name}`,
+}
+const FALLBACK_SENDER = { es: "alguien", en: "someone" }
+
+self.addEventListener("push", (event) => {
+  event.waitUntil(notify(event))
+})
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close()
+  event.waitUntil(openApp(event.notification.data?.url))
+})
+
+async function notify(event) {
+  let data = {}
+  try {
+    data = event.data?.json() ?? {}
+  } catch {}
+
+  const locale = LOCALES.includes(data.locale) ? data.locale : DEFAULT_LOCALE
+  const id = typeof data.conversationId === "string" ? data.conversationId : ""
+  // Same format as `messagesHref` in `lib/conversations.ts`.
+  const url = id
+    ? `/${locale}/messages/?c=${encodeURIComponent(id)}`
+    : `/${locale}/messages/`
+
+  if (typeof data.unread === "number") await setBadge(data.unread)
+
+  // Open windows refresh their unread counts and inbox.
+  const windows = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  })
+  for (const client of windows) {
+    client.postMessage({ type: "push", conversationId: id })
+  }
+
+  // Already reading that conversation: the page shows the message itself.
+  // Safari stops delivering pushes that show no notification, so it always
+  // gets one.
+  if (id && !isApple() && windows.some((client) => isReading(client, id))) {
+    return
+  }
+
+  const sender = data.senderName || FALLBACK_SENDER[locale]
+  await self.registration.showNotification(NOTIFICATION_TITLE[locale](sender), {
+    body: data.gardenName ?? "",
+    icon: "/icons/icon-192.png",
+    lang: locale,
+    // One notification per conversation, replaced by the next message.
+    tag: id ? `conversation-${id}` : "messages",
+    renotify: true,
+    data: { url },
+  })
+}
+
+async function setBadge(unread) {
+  const { navigator } = self
+  if (!("setAppBadge" in navigator)) return
+  try {
+    if (unread > 0) await navigator.setAppBadge(unread)
+    else await navigator.clearAppBadge()
+  } catch {}
+}
+
+// Safari on any Apple device, including the app installed from it, whose user
+// agent has no "Safari".
+function isApple() {
+  const agent = self.navigator.userAgent
+  return /AppleWebKit/.test(agent) && !/Chrome|Chromium|Android/.test(agent)
+}
+
+function isReading(client, conversationId) {
+  const url = new URL(client.url)
+  return (
+    client.visibilityState === "visible" &&
+    /^\/[a-z]{2}\/messages\/$/.test(url.pathname) &&
+    url.searchParams.get("c") === conversationId
+  )
+}
+
+// Focuses a window of the app and takes it to the conversation, or opens one.
+async function openApp(path = `/${DEFAULT_LOCALE}/messages/`) {
+  const url = new URL(path, self.location.origin).href
+  const windows = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  })
+  const client =
+    windows.find((client) => client.visibilityState === "visible") ?? windows[0]
+
+  if (client) {
+    await client.focus()
+    if (client.url === url) return
+    try {
+      await client.navigate(url)
+      return
+    } catch {
+      // Not controlled by this worker; fall through to a new window.
+    }
+  }
+  await self.clients.openWindow(url)
 }
