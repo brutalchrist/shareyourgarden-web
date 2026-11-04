@@ -80,14 +80,19 @@ export function transformMapStyle(
       }
 
       const recolor = RECOLORED[layer.id]
-      layers.push(
-        recolor
-          ? ({
-              ...layer,
-              paint: { ...layer.paint, [recolor[0]]: palette[recolor[1]] },
-            } as LayerSpecification)
-          : layer
-      )
+      if (recolor) {
+        const paint: Record<string, unknown> = {
+          ...layer.paint,
+          [recolor[0]]: palette[recolor[1]],
+        }
+        // A pattern would hide the new color. The dark style's woods also
+        // name one, "wood-pattern", that its sprite lacks, which MapLibre
+        // warns about on every load.
+        delete paint["fill-pattern"]
+        layers.push({ ...layer, paint } as LayerSpecification)
+      } else {
+        layers.push(layer)
+      }
 
       // Low 3D buildings right above the flat ones, under every label.
       if (buildings && layer.id === "building") {
