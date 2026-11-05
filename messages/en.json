@@ -212,7 +212,7 @@
     "stepOf": "Step {current} of {total}",
     "edit": "Edit",
     "updateProducts": "Update",
-    "noDescription": "No description",
+    "addDescription": "Add pickup times and how to reach you",
     "unsaved": "Unsaved",
     "reviewSection": "Check this section",
     "soldOut": "Sold out",

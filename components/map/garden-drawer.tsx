@@ -269,7 +269,7 @@ function ProductItem({
       </ItemContent>
       <ItemActions>
         <Badge
-          variant={product.quantity === 0 ? "outline" : "secondary"}
+          variant={product.quantity === 0 ? "outline" : "brand"}
           className="tabular-nums"
         >
           {formatQuantity(product.quantity, product.unit)}
