@@ -457,23 +457,27 @@ function EditOverview({
             )
           }
         >
-          <ItemDescription>
-            {!draft.coordinates ? (
-              t("noLocation")
-            ) : place === undefined ? (
-              <Skeleton className="h-4 w-40" />
-            ) : place ? (
-              // "2 Sur 1240, Talca": enough to recognize, short enough to fit.
-              [place.name, place.locality]
-                .filter((part, i, parts) => part && parts.indexOf(part) === i)
-                .join(", ")
-            ) : (
-              // Without an address, at least where on the globe.
-              <span className="tabular-nums">
-                {`${lat!.toFixed(5)}, ${lng!.toFixed(5)}`}
-              </span>
-            )}
-          </ItemDescription>
+          {/* Outside the description: a Skeleton is a <div>, which a <p>
+              can't hold. */}
+          {draft.coordinates && place === undefined ? (
+            <Skeleton className="h-5 w-40" />
+          ) : (
+            <ItemDescription>
+              {!draft.coordinates ? (
+                t("noLocation")
+              ) : place ? (
+                // "2 Sur 1240, Talca": enough to recognize, short enough to fit.
+                [place.name, place.locality]
+                  .filter((part, i, parts) => part && parts.indexOf(part) === i)
+                  .join(", ")
+              ) : (
+                // Without an address, at least where on the globe.
+                <span className="tabular-nums">
+                  {`${lat!.toFixed(5)}, ${lng!.toFixed(5)}`}
+                </span>
+              )}
+            </ItemDescription>
+          )}
         </SectionItem>
 
         <SectionItem
