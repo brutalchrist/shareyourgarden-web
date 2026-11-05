@@ -7,6 +7,7 @@ export interface Person {
   name: string
   // Only sent to the garden's owner.
   email?: string
+  picture?: string
 }
 
 export interface ProductImage {
@@ -74,6 +75,7 @@ export function toGarden(data: any): Garden {
     owner: {
       name: data?.owner?.name ?? "",
       email: data?.owner?.email ?? undefined,
+      picture: data?.owner?.picture ?? undefined,
     },
     ownerId: data?.ownerId ?? undefined,
     updatedAt: data?.updatedAt ?? undefined,

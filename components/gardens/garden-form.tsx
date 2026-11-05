@@ -21,6 +21,7 @@ import {
 } from "@/components/gardens/use-image-uploads"
 import { AddressSearch } from "@/components/map/address-search"
 import type { Coordinates } from "@/components/map/location-picker"
+import { PRODUCT_TYPE_ICONS } from "@/components/product-type-icon"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -55,7 +56,6 @@ import {
   isProductType,
   isProductUnit,
   PRODUCT_IMAGES_MAX,
-  PRODUCT_TYPE_ICONS,
   PRODUCT_TYPES,
   PRODUCT_UNITS,
   useProductLabels,
@@ -64,7 +64,7 @@ import {
 } from "@/lib/products"
 import type { Garden, GardenInput } from "@/lib/types"
 
-// Leaflet touches `window` on import, so the picker only renders on the client.
+// MapLibre needs `window` and WebGL, so the picker only renders on the client.
 const LocationPicker = dynamic(
   () => import("@/components/map/location-picker"),
   {

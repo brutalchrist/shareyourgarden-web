@@ -8,9 +8,15 @@ import {
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
+import * as React from "react"
 
 import { useAuth } from "@/components/auth-provider"
 import { LanguageSubmenu } from "@/components/language-menu"
+import {
+  PushHelpDialog,
+  PushMenuItem,
+  type PushHelpState,
+} from "@/components/push-menu"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +33,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { UserAvatar } from "@/components/user-avatar"
+import { usePushToggle } from "@/hooks/use-push"
 
 // Based on the `NavUser` from shadcn's dashboard-01 block.
 export function NavUser() {
@@ -35,6 +42,8 @@ export function NavUser() {
   const { isMobile } = useSidebar()
   const { resolvedTheme, setTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
+  const push = usePushToggle()
+  const [pushHelp, setPushHelp] = React.useState<PushHelpState | null>(null)
 
   if (!user) {
     return null
@@ -57,7 +66,10 @@ export function NavUser() {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton size="lg" className="aria-expanded:bg-sidebar-accent" />
+              <SidebarMenuButton
+                size="lg"
+                className="aria-expanded:bg-sidebar-accent"
+              />
             }
           >
             <UserAvatar user={user} className="rounded-lg" />
@@ -88,6 +100,7 @@ export function NavUser() {
               {isDark ? t("lightAppearance") : t("darkAppearance")}
             </DropdownMenuItem>
             <LanguageSubmenu />
+            <PushMenuItem push={push} onHelp={setPushHelp} />
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>
               <LogOutIcon />
@@ -95,6 +108,7 @@ export function NavUser() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <PushHelpDialog state={pushHelp} onClose={() => setPushHelp(null)} />
       </SidebarMenuItem>
     </SidebarMenu>
   )

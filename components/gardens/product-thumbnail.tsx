@@ -5,7 +5,8 @@ import { SproutIcon } from "lucide-react"
 import { cn } from "cn"
 
 import { Badge } from "@/components/ui/badge"
-import { isProductType, PRODUCT_TYPE_ICONS } from "@/lib/products"
+import { PRODUCT_TYPE_ICONS } from "@/components/product-type-icon"
+import { isProductType } from "@/lib/products"
 import type { Product } from "@/lib/types"
 
 /**

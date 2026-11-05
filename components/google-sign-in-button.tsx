@@ -57,13 +57,13 @@ export function GoogleSignInButton({
       return
     }
 
-    // Icon-only button on phones so the header doesn't overflow.
-    const compact = !window.matchMedia("(min-width: 640px)").matches
+    // The short "Sign in" fits the header on phones too, now that the search
+    // lives on the map.
     google.accounts.id.renderButton(container, {
-      type: compact ? "icon" : "standard",
+      type: "standard",
       theme,
       size: "medium",
-      text: "signin_with",
+      text: "signin",
       shape: "pill",
       locale,
     })
@@ -103,7 +103,7 @@ export function GoogleSignInButton({
       {/* Google's iframe is light; a dark color-scheme around it makes Chrome paint it an opaque white box. */}
       <div
         ref={containerRef}
-        className="h-8 [color-scheme:light] sm:min-w-[180px]"
+        className="h-8 [color-scheme:light]"
       />
     </div>
   )

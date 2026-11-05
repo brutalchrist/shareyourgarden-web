@@ -1,13 +1,3 @@
-import {
-  AppleIcon,
-  BeanIcon,
-  CarrotIcon,
-  Flower2Icon,
-  LeafIcon,
-  ShovelIcon,
-  SproutIcon,
-  type LucideIcon,
-} from "lucide-react"
 import { useFormatter, useTranslations } from "next-intl"
 
 // Product types and units travel and persist as stable codes, so the interface
@@ -23,16 +13,6 @@ export const PRODUCT_TYPES = [
   "supply",
 ] as const
 export type ProductType = (typeof PRODUCT_TYPES)[number]
-
-export const PRODUCT_TYPE_ICONS: Record<ProductType, LucideIcon> = {
-  vegetable: CarrotIcon,
-  fruit: AppleIcon,
-  herb: LeafIcon,
-  flower: Flower2Icon,
-  seed: BeanIcon,
-  seedbed: SproutIcon,
-  supply: ShovelIcon,
-}
 
 // Photos per product; the backend enforces the same limit.
 export const PRODUCT_IMAGES_MAX = 3

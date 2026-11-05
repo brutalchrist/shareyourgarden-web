@@ -1,6 +1,7 @@
 {
   "Metadata": {
-    "title": "ShareYourGarden"
+    "title": "ShareYourGarden",
+    "description": "Share what grows in your garden and find gardens near you."
   },
   "NotFound": {
     "metaTitle": "Page not found",
@@ -9,8 +10,7 @@
     "backToMap": "Go to the map"
   },
   "Header": {
-    "searchLabel": "Search products",
-    "searchPlaceholder": "tomato",
+    "shareGarden": "Share your garden",
     "unreadMessages": "{count, plural, one {# unread conversation} other {# unread conversations}}"
   },
   "Sidebar": {
@@ -50,12 +50,34 @@
   },
   "GardenDrawer": {
     "close": "Close",
-    "products": "Products",
-    "owner": "Owner",
-    "name": "Name",
-    "noProducts": "No products",
-    "ownerInfo": "Owner info",
-    "viewPhotos": "View {count, plural, one {# photo} other {# photos}}"
+    "byOwner": "By {name}",
+    "updated": "Updated {when}",
+    "available": "Available",
+    "productCount": "{count, plural, one {# product} other {# products}}",
+    "noProducts": "No products yet",
+    "noProductsDescription": "This garden hasn't listed anything yet.",
+    "openPhotos": "View {count, plural, one {the photo} other {the # photos}} of {name}"
+  },
+  "MapControls": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "locate": "Go to my location",
+    "locateError": "We couldn't get your location. Check your browser permissions."
+  },
+  "GardenMap": {
+    "productCount": "{count, plural, =0 {no products} one {# product} other {# products}}",
+    "emptyTitle": "No gardens in this area",
+    "emptySearchTitle": "No gardens with “{query}” in this area",
+    "emptyDescription": "Zoom out or move the map to see more.",
+    "emptyCta": "Share your garden",
+    "clusterLabel": "{count} gardens nearby"
+  },
+  "MapSearch": {
+    "label": "Search gardens and products",
+    "placeholder": "Search tomatoes, lemons, basil…",
+    "clear": "Clear search",
+    "shortcut": "Press / to search",
+    "typesLabel": "Filter by product type"
   },
   "AddressSearch": {
     "placeholder": "Search for an address or place",
@@ -319,5 +341,33 @@
     "readOnlyGardenDeleted": "{garden} no longer exists. This conversation is read-only.",
     "readOnlyLabel": "Read-only",
     "tooManyMessages": "You're sending messages too fast. Wait a moment."
+  },
+  "Offline": {
+    "metaTitle": "Offline",
+    "title": "You are offline",
+    "description": "Check your internet connection. Once it is back, retry to load the page.",
+    "retry": "Retry"
+  },
+  "Install": {
+    "title": "Install ShareYourGarden",
+    "description": "Open it from your home screen, like an app.",
+    "iosDescription": "Tap Share, then “Add to Home Screen”.",
+    "install": "Install",
+    "dismiss": "Not now"
+  },
+  "PushNotifications": {
+    "label": "Turn on notifications",
+    "disable": "Turn off notifications",
+    "menu": "Notifications",
+    "close": "Got it",
+    "enabled": "Notifications on",
+    "enabledHint": "You can turn them off anytime from your account menu.",
+    "state": {
+      "ios-install": "On iPhone and iPad, first add the app to your home screen: tap Share, then “Add to Home Screen”. Open it from there to turn them on.",
+      "denied": "You blocked notifications. To get them, allow them for this site in your browser or phone settings.",
+      "off": "Get notified on this device when someone writes to you, even with the app closed."
+    },
+    "enableError": "Couldn't turn on notifications. Please try again.",
+    "disableError": "Couldn't turn off notifications. Please try again."
   }
 }

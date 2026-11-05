@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -150,6 +151,37 @@ function SidebarProvider({
   )
 }
 
+// Closes the mobile sheet once the page a link opened has rendered, rather
+// than on the click, so it never uncovers the page being left.
+function CloseOnNavigation() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const { setOpenMobile } = useSidebar()
+  const location = `${pathname}?${searchParams}`
+  const lastLocation = React.useRef(location)
+
+  // Only on an actual change: never on mount, which would close it as it opens.
+  React.useEffect(() => {
+    if (lastLocation.current !== location) {
+      lastLocation.current = location
+      setOpenMobile(false)
+    }
+  }, [location, setOpenMobile])
+
+  return null
+}
+
+// Trailing slashes aside, as the static export adds them.
+function isCurrentPage(link: HTMLAnchorElement) {
+  const strip = (path: string) => path.replace(/\/$/, "")
+
+  return (
+    link.origin === window.location.origin &&
+    strip(link.pathname) === strip(window.location.pathname) &&
+    link.search === window.location.search
+  )
+}
+
 function Sidebar({
   side = "left",
   variant = "sidebar",
@@ -183,27 +215,46 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-        <SheetContent
-          dir={dir}
-          data-sidebar="sidebar"
-          data-slot="sidebar"
-          data-mobile="true"
-          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
-          }
-          side={side}
-        >
-          <SheetHeader className="sr-only">
-            <SheetTitle>{t("sheetTitle")}</SheetTitle>
-            <SheetDescription>{t("sheetDescription")}</SheetDescription>
-          </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
-        </SheetContent>
-      </Sheet>
+      <>
+        {/* Outside the sheet's content, which only mounts once it opens. */}
+        <React.Suspense>
+          <CloseOnNavigation />
+        </React.Suspense>
+        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+          <SheetContent
+            dir={dir}
+            data-sidebar="sidebar"
+            data-slot="sidebar"
+            data-mobile="true"
+            className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            style={
+              {
+                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+              } as React.CSSProperties
+            }
+            side={side}
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>{t("sheetTitle")}</SheetTitle>
+              <SheetDescription>{t("sheetDescription")}</SheetDescription>
+            </SheetHeader>
+            {/* A link to the page already open won't navigate, so it closes the
+              sheet right away. Menus and other buttons keep it open. */}
+            <div
+              className="flex h-full w-full flex-col"
+              onClick={(event) => {
+                const link = (event.target as HTMLElement).closest("a[href]")
+
+                if (link instanceof HTMLAnchorElement && isCurrentPage(link)) {
+                  setOpenMobile(false)
+                }
+              }}
+            >
+              {children}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </>
     )
   }
 

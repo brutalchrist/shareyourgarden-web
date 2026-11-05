@@ -1,6 +1,7 @@
 {
   "Metadata": {
-    "title": "ShareYourGarden"
+    "title": "ShareYourGarden",
+    "description": "Comparte lo que crece en tu huerto y encuentra huertos cerca de ti."
   },
   "NotFound": {
     "metaTitle": "Página no encontrada",
@@ -9,8 +10,7 @@
     "backToMap": "Ir al mapa"
   },
   "Header": {
-    "searchLabel": "Buscar productos",
-    "searchPlaceholder": "tomate",
+    "shareGarden": "Comparte tu huerto",
     "unreadMessages": "{count, plural, one {# conversación sin leer} other {# conversaciones sin leer}}"
   },
   "Sidebar": {
@@ -50,12 +50,34 @@
   },
   "GardenDrawer": {
     "close": "Cerrar",
-    "products": "Productos",
-    "owner": "Dueño",
-    "name": "Nombre",
-    "noProducts": "Sin productos",
-    "ownerInfo": "Datos del dueño",
-    "viewPhotos": "Ver {count, plural, one {# foto} other {# fotos}}"
+    "byOwner": "De {name}",
+    "updated": "Actualizado {when}",
+    "available": "Disponible",
+    "productCount": "{count, plural, one {# producto} other {# productos}}",
+    "noProducts": "Sin productos por ahora",
+    "noProductsDescription": "Este huerto todavía no publica lo que ofrece.",
+    "openPhotos": "Ver {count, plural, one {la foto} other {las # fotos}} de {name}"
+  },
+  "MapControls": {
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "locate": "Ir a mi ubicación",
+    "locateError": "No pudimos obtener tu ubicación. Revisa los permisos del navegador."
+  },
+  "GardenMap": {
+    "productCount": "{count, plural, =0 {sin productos} one {# producto} other {# productos}}",
+    "emptyTitle": "No hay huertos en esta zona",
+    "emptySearchTitle": "No hay huertos con «{query}» en esta zona",
+    "emptyDescription": "Aleja el mapa o muévete para ver más.",
+    "emptyCta": "Comparte tu huerto",
+    "clusterLabel": "{count} huertos cercanos"
+  },
+  "MapSearch": {
+    "label": "Buscar huertos y productos",
+    "placeholder": "Busca tomates, limones, albahaca…",
+    "clear": "Borrar búsqueda",
+    "shortcut": "Pulsa / para buscar",
+    "typesLabel": "Filtrar por tipo de producto"
   },
   "AddressSearch": {
     "placeholder": "Busca una dirección o lugar",
@@ -319,5 +341,33 @@
     "readOnlyGardenDeleted": "{garden} ya no existe. La conversación quedó en solo lectura.",
     "readOnlyLabel": "Solo lectura",
     "tooManyMessages": "Estás enviando mensajes muy rápido. Espera un momento."
+  },
+  "Offline": {
+    "metaTitle": "Sin conexión",
+    "title": "Estás sin conexión",
+    "description": "Revisa tu conexión a internet. Cuando vuelva, reintenta para cargar la página.",
+    "retry": "Reintentar"
+  },
+  "Install": {
+    "title": "Instala ShareYourGarden",
+    "description": "Ábrelo desde tu pantalla de inicio, como una app.",
+    "iosDescription": "Toca Compartir y luego «Agregar a inicio».",
+    "install": "Instalar",
+    "dismiss": "Ahora no"
+  },
+  "PushNotifications": {
+    "label": "Activar notificaciones",
+    "disable": "Desactivar notificaciones",
+    "menu": "Notificaciones",
+    "close": "Entendido",
+    "enabled": "Notificaciones activadas",
+    "enabledHint": "Puedes desactivarlas cuando quieras desde el menú de tu cuenta.",
+    "state": {
+      "ios-install": "En iPhone y iPad, primero agrega la app a tu pantalla de inicio: toca Compartir y luego «Agregar a inicio». Ábrela desde ahí para activarlas.",
+      "denied": "Bloqueaste las notificaciones. Para recibirlas, permítelas para este sitio en los ajustes del navegador o del teléfono.",
+      "off": "Recibe un aviso en este dispositivo cuando te escriban, aunque la app esté cerrada."
+    },
+    "enableError": "No se pudieron activar las notificaciones. Inténtalo de nuevo.",
+    "disableError": "No se pudieron desactivar las notificaciones. Inténtalo de nuevo."
   }
 }
