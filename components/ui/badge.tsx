@@ -11,6 +11,11 @@ const badgeVariants = cva(
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
         secondary:
           "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+        // A soft tint of the brand green, for what is available. The text stays
+        // the foreground color: brand green on its own tint is too faint for
+        // the badge's small text.
+        brand:
+          "bg-brand/15 text-foreground dark:bg-brand/25 [a]:hover:bg-brand/25",
         destructive:
           "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
         outline:

@@ -212,7 +212,7 @@
     "stepOf": "Paso {current} de {total}",
     "edit": "Editar",
     "updateProducts": "Actualizar",
-    "noDescription": "Sin descripción",
+    "addDescription": "Agrega horarios y cómo contactarte",
     "unsaved": "Sin guardar",
     "reviewSection": "Revisa esta sección",
     "soldOut": "Agotado",
