@@ -29,7 +29,7 @@ export function GardenPageLayout({
   const { status } = useAuth()
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div data-slot="garden-page-scroll" className="h-full overflow-y-auto">
       <div className="mx-auto flex min-h-full max-w-3xl flex-col">
         <header className="flex items-start gap-3 px-4 pt-6 md:px-6">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -45,7 +45,7 @@ export function GardenPageLayout({
             <div className="flex shrink-0 items-center gap-2">{actions}</div>
           )}
         </header>
-        <div className="flex-1">
+        <div className="flex flex-1 flex-col">
           {status === "loading" ? (
             <GardenFormSkeleton />
           ) : status === "anonymous" ? (

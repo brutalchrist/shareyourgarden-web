@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import { useAuth } from "@/components/auth-provider"
 import { ButtonLink } from "@/components/button-link"
 import { DeleteGardenDialog } from "@/components/gardens/delete-garden-dialog"
-import { GardenForm } from "@/components/gardens/garden-form"
+import { GardenForm } from "@/components/gardens/form/garden-form"
 import {
   GardenFormSkeleton,
   GardenPageLayout,
@@ -159,6 +159,7 @@ export function EditGarden() {
               } catch (error) {
                 console.error(error)
                 toast.error(t("error"))
+                throw error
               }
             }}
             extraActions={

@@ -10,6 +10,7 @@ import {
   PencilIcon,
   PlusIcon,
   RotateCwIcon,
+  ShoppingBasketIcon,
   SproutIcon,
   Trash2Icon,
 } from "lucide-react"
@@ -151,6 +152,16 @@ function GardensMenu() {
                 side={isMobile ? "bottom" : "right"}
                 align={isMobile ? "end" : "start"}
               >
+                {/* What changes most once a garden is up: straight there. */}
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(gardenEditHref(garden.id, "products"))
+                  }
+                >
+                  <ShoppingBasketIcon />
+                  {t("updateProducts")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => router.push(gardenMapHref(garden))}
                 >

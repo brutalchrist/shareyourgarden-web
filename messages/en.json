@@ -32,7 +32,8 @@
     "edit": "Edit",
     "delete": "Delete",
     "addFirst": "Add your first garden",
-    "viewMessages": "View messages"
+    "viewMessages": "View messages",
+    "updateProducts": "Update products"
   },
   "UserMenu": {
     "lightAppearance": "Light appearance",
@@ -205,7 +206,22 @@
         "disabled": "Photos are not available right now.",
         "failed": "Upload failed. Try again."
       }
-    }
+    },
+    "next": "Next",
+    "back": "Back",
+    "stepOf": "Step {current} of {total}",
+    "edit": "Edit",
+    "updateProducts": "Update",
+    "noDescription": "No description",
+    "unsaved": "Unsaved",
+    "reviewSection": "Check this section",
+    "soldOut": "Sold out",
+    "stale": "Updated {when}. Still available?",
+    "quantityOf": "Quantity of {name}",
+    "decrease": "One less {name}",
+    "increase": "One more {name}",
+    "editProduct": "Edit {name}",
+    "productDone": "Done"
   },
   "ProductGallery": {
     "counter": "{current} / {total}",
@@ -242,7 +258,8 @@
       "g": "{amount} {count, plural, one {gram} other {grams}}",
       "bunch": "{amount} {count, plural, one {bunch} other {bunches}}",
       "l": "{amount} {count, plural, one {liter} other {liters}}"
-    }
+    },
+    "soldOut": "Sold out"
   },
   "ContactGarden": {
     "proposeExchange": "Propose an exchange",

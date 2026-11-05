@@ -55,8 +55,10 @@ export function deleteGarden(id: string): Promise<void> {
 
 // Query params instead of dynamic segments: the static export has no server to
 // render a page per garden id.
-export function gardenEditHref(id: string): string {
-  return `/gardens/edit/?${new URLSearchParams({ id })}`
+// `section` opens one part of the form: alone on phones, scrolled to on larger
+// screens.
+export function gardenEditHref(id: string, section?: "products"): string {
+  return `/gardens/edit/?${new URLSearchParams(section ? { id, section } : { id })}`
 }
 
 export function gardenMapHref(garden: Garden): string {

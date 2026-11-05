@@ -42,8 +42,10 @@ export function useProductLabels() {
     productUnitLabel: (unit: string) =>
       isProductUnit(unit) ? t(`units.${unit}`) : unit,
 
-    // "1 atado", "2,5 kilogramos".
+    // "1 atado", "2,5 kilogramos"; none left reads "Agotado".
     formatQuantity: (quantity: number, unit?: string) => {
+      if (quantity === 0) return t("soldOut")
+
       const amount = format.number(quantity, { maximumFractionDigits: 2 })
 
       if (!unit) return amount

@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
-import { GardenForm } from "@/components/gardens/garden-form"
+import { GardenForm } from "@/components/gardens/form/garden-form"
 import { GardenPageLayout } from "@/components/gardens/garden-page-layout"
 import { useMyGardens } from "@/components/my-gardens-provider"
 import { useRouter } from "@/i18n/navigation"
@@ -34,6 +34,7 @@ export function NewGarden() {
           } catch (error) {
             console.error(error)
             toast.error(t("error"))
+            throw error
           }
         }}
       />
