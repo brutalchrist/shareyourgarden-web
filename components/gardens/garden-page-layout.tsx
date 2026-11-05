@@ -36,7 +36,9 @@ export function GardenPageLayout({
             <SproutIcon className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-semibold">{title}</h1>
+            <h1 className="truncate font-heading text-xl font-semibold">
+              {title}
+            </h1>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
           {actions && status === "authenticated" && (

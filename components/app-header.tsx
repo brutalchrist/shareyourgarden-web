@@ -76,7 +76,9 @@ export function AppHeader({
             <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <SproutIcon className="size-4" />
             </span>
-            <span className="truncate">ShareYourGarden</span>
+            <span className="truncate font-heading font-semibold">
+              ShareYourGarden
+            </span>
           </Link>
         )}
         <div className="ml-auto flex shrink-0 items-center gap-2">

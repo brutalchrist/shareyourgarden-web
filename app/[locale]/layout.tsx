@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Geist_Mono, Inter } from "next/font/google"
+import { Bricolage_Grotesque, Geist_Mono, Inter } from "next/font/google"
 import { notFound } from "next/navigation"
 import { hasLocale, NextIntlClientProvider } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
@@ -19,6 +19,13 @@ import { routing } from "@/i18n/routing"
 import { cn } from "@/lib/utils"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
+
+// Titles and the wordmark: a friendlier grotesque that still reads well at
+// the small sizes of drawers and dialogs. Inter stays for everything else.
+const fontHeading = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-heading",
+})
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -80,7 +87,8 @@ export default async function RootLayout({
         "antialiased",
         fontMono.variable,
         "font-sans",
-        inter.variable
+        inter.variable,
+        fontHeading.variable
       )}
     >
       <body>
