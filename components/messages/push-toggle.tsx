@@ -1,7 +1,6 @@
 "use client"
 
-import * as React from "react"
-import { useLocale, useTranslations } from "next-intl"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import {
@@ -11,66 +10,27 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
-import { usePageVisible } from "@/hooks/use-page-visible"
-import {
-  disablePush,
-  enablePush,
-  getPushState,
-  type PushState,
-} from "@/lib/push"
+import { usePushToggle } from "@/hooks/use-push"
 
 /**
- * Turns push notifications for new messages on or off on this device. The
- * browser only asks for permission when the user flips the switch, never on
- * load. Hidden when the backend has push turned off.
+ * Offers push notifications for new messages where they make sense, under the
+ * conversations. Only while they could still be turned on: once on, or
+ * blocked, they're managed from the user menu (`PushMenuItem`), so this
+ * doesn't keep asking.
  */
 export function PushToggle() {
   const t = useTranslations("PushNotifications")
-  const locale = useLocale()
-  const visible = usePageVisible()
-  const [state, setState] = React.useState<PushState | null>(null)
-  const [busy, setBusy] = React.useState(false)
+  const { state, busy, toggle } = usePushToggle()
 
-  // Checked again on coming back, e.g. after allowing them in the settings.
-  React.useEffect(() => {
-    if (!visible) return
+  if (state !== "off" && state !== "ios-install") return null
 
-    let cancelled = false
-    getPushState()
-      .then((next) => {
-        if (!cancelled) setState(next)
-      })
-      .catch((error) => {
-        console.error(error)
-        if (!cancelled) setState("unavailable")
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [visible])
-
-  if (!state || state === "unavailable") return null
-
-  const toggle = async (on: boolean) => {
-    setBusy(true)
-    try {
-      if (on) {
-        setState(await enablePush(locale))
-      } else {
-        await disablePush()
-        setState("off")
-      }
-    } catch (error) {
-      console.error(error)
-      toast.error(t(on ? "enableError" : "disableError"))
-      setState(await getPushState().catch(() => state))
-    } finally {
-      setBusy(false)
+  const enable = async () => {
+    if ((await toggle(true)) === "on") {
+      toast.success(t("enabled"), { description: t("enabledHint") })
     }
   }
 
-  const disabled = busy || (state !== "on" && state !== "off")
+  const disabled = busy || state !== "off"
 
   return (
     <div className="border-t p-4">
@@ -81,9 +41,9 @@ export function PushToggle() {
         </FieldContent>
         <Switch
           id="push-notifications"
-          checked={state === "on"}
+          checked={false}
           disabled={disabled}
-          onCheckedChange={toggle}
+          onCheckedChange={(on) => on && enable()}
         />
       </Field>
     </div>

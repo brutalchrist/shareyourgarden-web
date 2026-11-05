@@ -97,21 +97,26 @@ export async function enablePush(locale: Locale): Promise<PushState> {
 // it. Also called on sign-out, so it captures the token before it goes.
 export async function disablePush(): Promise<void> {
   const token = getToken()
-  setPushActive(false)
-  if (!pushSupported()) return
-
-  const subscription = await currentSubscription()
-  if (!subscription) return
-
   try {
-    await apiDelete("/push/subscriptions", {
-      body: JSON.stringify({ endpoint: subscription.endpoint }),
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
+    if (!pushSupported()) return
+
+    const subscription = await currentSubscription()
+    if (!subscription) return
+
+    try {
+      await apiDelete("/push/subscriptions", {
+        body: JSON.stringify({ endpoint: subscription.endpoint }),
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+    } finally {
+      // Even if the backend missed it, a push to a dropped subscription fails
+      // and the backend removes it then.
+      await subscription.unsubscribe()
+    }
   } finally {
-    // Even if the backend missed it, a push to a dropped subscription fails
-    // and the backend removes it then.
-    await subscription.unsubscribe()
+    // Only once the subscription is gone, so whoever checks again on this
+    // change sees it off.
+    setPushActive(false)
   }
 }
 

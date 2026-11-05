@@ -7,11 +7,18 @@ import {
   Loader2Icon,
   LocateFixedIcon,
   PlusIcon,
+  ShieldCheckIcon,
   XIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 
 import { useAuth } from "@/components/auth-provider"
+import { ProductImagesField } from "@/components/gardens/product-images-field"
+import {
+  useImageUploads,
+  type DraftImage,
+} from "@/components/gardens/use-image-uploads"
 import { AddressSearch } from "@/components/map/address-search"
 import type { Coordinates } from "@/components/map/location-picker"
 import { PRODUCT_TYPE_ICONS } from "@/components/product-type-icon"
@@ -48,6 +55,7 @@ import {
 import {
   isProductType,
   isProductUnit,
+  PRODUCT_IMAGES_MAX,
   PRODUCT_TYPES,
   PRODUCT_UNITS,
   useProductLabels,
@@ -77,6 +85,8 @@ interface ProductDraft {
   type: ProductType | ""
   quantity: string
   unit: ProductUnit | ""
+  // The first one is the cover.
+  images: DraftImage[]
 }
 
 interface GardenDraft {
@@ -96,6 +106,7 @@ type ErrorCode =
   | "typeRequired"
   | "unitRequired"
   | "quantityInvalid"
+  | "imagesPending"
   | "geolocationUnsupported"
   | "geolocationFailed"
 
@@ -108,6 +119,7 @@ function newProduct(): ProductDraft {
     type: "vegetable",
     quantity: "1",
     unit: "unit",
+    images: [],
   }
 }
 
@@ -139,6 +151,15 @@ function toDraft(garden?: Garden): GardenDraft {
           : isProductUnit(product.unit)
             ? product.unit
             : "",
+      images: product.images.map((image) => ({
+        localId: image.id,
+        id: image.id,
+        url: image.thumbUrl,
+        fullUrl: image.url,
+        status: "done" as const,
+        width: image.width,
+        height: image.height,
+      })),
     })),
   }
 }
@@ -169,6 +190,9 @@ function validate(draft: GardenDraft): Errors {
     if (product.quantity.trim() === "" || !(quantity >= 0)) {
       errors[`product.${product.key}.quantity`] = "quantityInvalid"
     }
+    if (product.images.some((image) => image.status !== "done")) {
+      errors[`product.${product.key}.images`] = "imagesPending"
+    }
   })
 
   return errors
@@ -185,6 +209,7 @@ function toInput(draft: GardenDraft): GardenInput {
       type: product.type,
       quantity: Number(product.quantity),
       unit: product.unit,
+      images: product.images.map((image) => ({ id: image.id! })),
     })),
   }
 }
@@ -202,8 +227,34 @@ function snapshot(draft: GardenDraft) {
       product.type,
       product.quantity.trim(),
       product.unit,
+      product.images.map((image) => image.id ?? image.localId),
     ]),
   })
+}
+
+// What survives in the stored draft: blob URLs and unfinished uploads die
+// with the page, so only uploaded photos are kept, with their public preview.
+function storableDraft(draft: GardenDraft): GardenDraft {
+  return {
+    ...draft,
+    products: draft.products.map((product) => ({
+      ...product,
+      images: product.images
+        .filter((image) => image.status === "done")
+        .map((image) => ({
+          ...image,
+          url: image.previewUrl ?? image.url,
+          fullUrl: image.fullUrl?.startsWith("blob:")
+            ? undefined
+            : image.fullUrl,
+        })),
+    })),
+  }
+}
+
+function isImageFile(file: File) {
+  // HEIC photos sometimes come without a type; processing tells if they work.
+  return file.type.startsWith("image/") || /\.(heic|heif)$/i.test(file.name)
 }
 
 export function GardenForm({
@@ -245,7 +296,7 @@ export function GardenForm({
 
   React.useEffect(() => {
     if (changed) {
-      saveGardenDraft(garden?.id, savedSnapshot, draft)
+      saveGardenDraft(garden?.id, savedSnapshot, storableDraft(draft))
     } else {
       discardGardenDraft(garden?.id)
     }
@@ -288,11 +339,113 @@ export function GardenForm({
   }, [draft.products])
 
   function removeProduct(key: string) {
+    draft.products
+      .find((product) => product.key === key)
+      ?.images.forEach((image) => uploads.cancel(image.localId))
     setDraft((draft) => ({
       ...draft,
       products: draft.products.filter((product) => product.key !== key),
     }))
   }
+
+  const updateImage = React.useCallback(
+    (localId: string, changes: Partial<DraftImage>) =>
+      setDraft((draft) => ({
+        ...draft,
+        products: draft.products.map((product) =>
+          product.images.some((image) => image.localId === localId)
+            ? {
+                ...product,
+                images: product.images.map((image) =>
+                  image.localId === localId ? { ...image, ...changes } : image
+                ),
+              }
+            : product
+        ),
+      })),
+    []
+  )
+  const uploads = useImageUploads(updateImage)
+
+  function patchImages(
+    key: string,
+    change: (images: DraftImage[]) => DraftImage[]
+  ) {
+    setDraft((draft) => ({
+      ...draft,
+      products: draft.products.map((product) =>
+        product.key === key
+          ? { ...product, images: change(product.images) }
+          : product
+      ),
+    }))
+  }
+
+  function addImages(product: ProductDraft, files: File[]) {
+    const images = files.filter(isImageFile)
+    if (images.length < files.length) {
+      toast.error(t("photos.notImage"))
+    }
+    const remaining = PRODUCT_IMAGES_MAX - product.images.length
+    if (images.length === 0) return
+    if (remaining <= 0) {
+      toast.error(t("photos.full", { max: PRODUCT_IMAGES_MAX }))
+      return
+    }
+    if (images.length > remaining) {
+      toast.warning(
+        t("photos.tooManyFiles", { max: PRODUCT_IMAGES_MAX, count: remaining })
+      )
+    }
+    const added = images.slice(0, remaining).map(uploads.add)
+    patchImages(product.key, (current) => [...current, ...added])
+  }
+
+  function removeImage(product: ProductDraft, localId: string, name: string) {
+    const index = product.images.findIndex((image) => image.localId === localId)
+    const image = product.images[index]
+    if (!image) return
+
+    uploads.cancel(localId)
+    patchImages(product.key, (images) =>
+      images.filter((other) => other.localId !== localId)
+    )
+    // Only a finished upload can come back; nothing is deleted until saving.
+    if (image.status === "done") {
+      toast(t("photos.removed", { name }), {
+        action: {
+          label: t("photos.undo"),
+          onClick: () =>
+            patchImages(product.key, (images) =>
+              images.length >= PRODUCT_IMAGES_MAX ||
+              images.some((other) => other.localId === localId)
+                ? images
+                : [...images.slice(0, index), image, ...images.slice(index)]
+            ),
+        },
+      })
+    }
+  }
+
+  function makeCover(product: ProductDraft, localId: string) {
+    patchImages(product.key, (images) => [
+      ...images.filter((image) => image.localId === localId),
+      ...images.filter((image) => image.localId !== localId),
+    ])
+  }
+
+  function expireImage(product: ProductDraft, localId: string) {
+    patchImages(product.key, (images) =>
+      images.filter((image) => image.localId !== localId)
+    )
+    toast.warning(t("photos.expired"))
+  }
+
+  const uploading = draft.products.some((product) =>
+    product.images.some(
+      (image) => image.status === "processing" || image.status === "uploading"
+    )
+  )
 
   function locateMe() {
     if (!navigator.geolocation) {
@@ -324,7 +477,9 @@ export function GardenForm({
     if (Object.keys(validate(draft)).length > 0) {
       requestAnimationFrame(() =>
         formRef.current
-          ?.querySelector<HTMLElement>("[aria-invalid=true]")
+          ?.querySelector<HTMLElement>(
+            "[aria-invalid=true], [data-focus-invalid]"
+          )
           ?.focus()
       )
       return
@@ -479,6 +634,10 @@ export function GardenForm({
         <FieldSet>
           <FieldLegend>{t("products")}</FieldLegend>
           <FieldDescription>{t("productsDescription")}</FieldDescription>
+          <FieldDescription className="flex items-start gap-1.5">
+            <ShieldCheckIcon className="mt-0.5 size-3.5 shrink-0" />
+            {t("photos.help", { max: PRODUCT_IMAGES_MAX })}
+          </FieldDescription>
           {draft.products.length === 0 ? (
             <div className="flex flex-col items-center gap-3 rounded-md border border-dashed p-6 text-center">
               <p className="text-sm text-muted-foreground">{t("noProducts")}</p>
@@ -497,6 +656,13 @@ export function GardenForm({
                   errors={errors}
                   onChange={(changes) => patchProduct(product.key, changes)}
                   onRemove={() => removeProduct(product.key)}
+                  onAddImages={(files) => addImages(product, files)}
+                  onRemoveImage={(localId, name) =>
+                    removeImage(product, localId, name)
+                  }
+                  onRetryImage={uploads.retry}
+                  onMakeCover={(localId) => makeCover(product, localId)}
+                  onImageExpired={(localId) => expireImage(product, localId)}
                 />
               ))}
               {draft.products.length < PRODUCTS_MAX && (
@@ -533,9 +699,12 @@ export function GardenForm({
           </Button>
           {/* Saving an existing garden only makes sense once something
               changed; a new one shows what's missing instead. */}
-          <Button type="submit" disabled={pending || (!!garden && !changed)}>
-            {pending && <Loader2Icon className="animate-spin" />}
-            {submitLabel}
+          <Button
+            type="submit"
+            disabled={pending || uploading || (!!garden && !changed)}
+          >
+            {(pending || uploading) && <Loader2Icon className="animate-spin" />}
+            {uploading ? t("photos.uploadingSubmit") : submitLabel}
           </Button>
         </div>
       </div>
@@ -549,12 +718,22 @@ function ProductRow({
   errors,
   onChange,
   onRemove,
+  onAddImages,
+  onRemoveImage,
+  onRetryImage,
+  onMakeCover,
+  onImageExpired,
 }: {
   index: number
   product: ProductDraft
   errors: Errors
   onChange: (changes: Partial<ProductDraft>) => void
   onRemove: () => void
+  onAddImages: (files: File[]) => void
+  onRemoveImage: (localId: string, productName: string) => void
+  onRetryImage: (localId: string) => void
+  onMakeCover: (localId: string) => void
+  onImageExpired: (localId: string) => void
 }) {
   const t = useTranslations("GardenForm")
   const errorMessage = useErrorMessage()
@@ -564,12 +743,44 @@ function ProductRow({
   const quantityError = errorMessage(errors[`product.${product.key}.quantity`])
   const typeError = errorMessage(errors[`product.${product.key}.type`])
   const unitError = errorMessage(errors[`product.${product.key}.unit`])
+  const imagesError = errorMessage(errors[`product.${product.key}.images`])
+  const productName =
+    product.name.trim() || t("productGroup", { number: index + 1 })
+  // Counts nested dragenter/dragleave pairs so children don't flicker it.
+  const dragDepth = React.useRef(0)
+  const [dragging, setDragging] = React.useState(false)
+  const canAddImages = product.images.length < PRODUCT_IMAGES_MAX
+  const hasFiles = (event: React.DragEvent) =>
+    event.dataTransfer.types.includes("Files")
 
   return (
     <div
       role="group"
       aria-label={t("productGroup", { number: index + 1 })}
-      className="relative grid grid-cols-2 gap-3 rounded-md border p-3 pr-11 sm:grid-cols-[minmax(0,1fr)_9.5rem_6rem_8rem]"
+      onDragEnter={(event) => {
+        if (!hasFiles(event) || !canAddImages) return
+        event.preventDefault()
+        dragDepth.current += 1
+        setDragging(true)
+      }}
+      onDragOver={(event) => {
+        if (!hasFiles(event) || !canAddImages) return
+        event.preventDefault()
+        event.dataTransfer.dropEffect = "copy"
+      }}
+      onDragLeave={() => {
+        dragDepth.current = Math.max(0, dragDepth.current - 1)
+        if (dragDepth.current === 0) setDragging(false)
+      }}
+      onDrop={(event) => {
+        if (!hasFiles(event)) return
+        event.preventDefault()
+        dragDepth.current = 0
+        setDragging(false)
+        onAddImages([...event.dataTransfer.files])
+      }}
+      data-dragging={dragging || undefined}
+      className="relative grid grid-cols-2 gap-3 rounded-md border p-3 pr-11 transition-shadow data-dragging:border-transparent data-dragging:bg-muted/40 data-dragging:ring-2 data-dragging:ring-primary/40 sm:grid-cols-[minmax(0,1fr)_9.5rem_6rem_8rem]"
     >
       <Field
         data-invalid={!!nameError || undefined}
@@ -660,6 +871,19 @@ function ProductRow({
         </Select>
         <FieldError>{unitError}</FieldError>
       </Field>
+      <div className="col-span-full">
+        <ProductImagesField
+          productName={productName}
+          images={product.images}
+          dragging={dragging}
+          error={imagesError}
+          onAdd={onAddImages}
+          onRemove={(localId) => onRemoveImage(localId, productName)}
+          onRetry={onRetryImage}
+          onMakeCover={onMakeCover}
+          onExpired={onImageExpired}
+        />
+      </div>
       <Button
         type="button"
         variant="ghost"

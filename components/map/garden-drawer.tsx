@@ -4,8 +4,9 @@ import * as React from "react"
 import { ClockIcon, SproutIcon, XIcon } from "lucide-react"
 import { useFormatter, useNow, useTranslations } from "next-intl"
 
+import { ProductGallery } from "@/components/gardens/product-gallery"
+import { ProductThumbnail } from "@/components/gardens/product-thumbnail"
 import { ContactGarden } from "@/components/messages/contact-garden"
-import { PRODUCT_TYPE_ICONS } from "@/components/product-type-icon"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,7 +36,7 @@ import {
 } from "@/components/ui/item"
 import { Separator } from "@/components/ui/separator"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { isProductType, useProductLabels } from "@/lib/products"
+import { useProductLabels } from "@/lib/products"
 import type { Garden, Product } from "@/lib/types"
 
 export function GardenDrawer({
@@ -46,12 +47,16 @@ export function GardenDrawer({
   onClose: () => void
 }) {
   const t = useTranslations("GardenDrawer")
+  const { formatQuantity, productTypeLabel } = useProductLabels()
   const isMobile = useIsMobile()
 
   // Keep showing the last garden while the drawer animates closed.
   const [displayed, setDisplayed] = React.useState(garden)
+  // The product whose photos are open in the gallery.
+  const [gallery, setGallery] = React.useState<Product | null>(null)
   if (garden && garden !== displayed) {
     setDisplayed(garden)
+    setGallery(null)
   }
 
   return (
@@ -67,7 +72,7 @@ export function GardenDrawer({
       disablePointerDismissal={!isMobile}
     >
       {/* Keep the width and inset in sync with DRAWER_WIDTH_REM in GardenMap. */}
-      <DrawerContent className="data-[swipe-axis=x]:rounded-xl data-[swipe-axis=x]:border data-[swipe-axis=x]:shadow-xl data-[swipe-axis=x]:[--drawer-inset:0.75rem] data-[swipe-axis=x]:[--drawer-content-width:min(calc(100%-1.5rem),26rem)]!">
+      <DrawerContent className="data-[swipe-axis=x]:rounded-xl data-[swipe-axis=x]:border data-[swipe-axis=x]:shadow-xl data-[swipe-axis=x]:[--drawer-content-width:min(calc(100%-1.5rem),26rem)]! data-[swipe-axis=x]:[--drawer-inset:0.75rem]">
         {displayed && (
           <>
             <DrawerHeader className="relative gap-3 bg-linear-to-b from-brand/10 to-transparent p-5 pb-4 text-left! md:gap-3">
@@ -133,7 +138,11 @@ export function GardenDrawer({
               ) : (
                 <ItemGroup className="gap-2">
                   {displayed.products.map((product, index) => (
-                    <ProductItem key={index} product={product} />
+                    <ProductItem
+                      key={index}
+                      product={product}
+                      onOpenPhotos={() => setGallery(product)}
+                    />
                   ))}
                 </ItemGroup>
               )}
@@ -143,6 +152,27 @@ export function GardenDrawer({
             <DrawerFooter className="border-t bg-muted/30 p-4">
               <ContactGarden key={displayed.id} garden={displayed} />
             </DrawerFooter>
+
+            <ProductGallery
+              open={gallery !== null}
+              onOpenChange={(open) => !open && setGallery(null)}
+              title={gallery?.name ?? ""}
+              description={
+                gallery
+                  ? [
+                      productTypeLabel(gallery.type),
+                      formatQuantity(gallery.quantity, gallery.unit),
+                      displayed.name,
+                    ].join(" · ")
+                  : undefined
+              }
+              images={(gallery?.images ?? []).map((image) => ({
+                url: image.url,
+                thumbUrl: image.thumbUrl,
+                width: image.width,
+                height: image.height,
+              }))}
+            />
           </>
         )}
       </DrawerContent>
@@ -188,16 +218,42 @@ function GardenMeta({ garden }: { garden: Garden }) {
   )
 }
 
-function ProductItem({ product }: { product: Product }) {
+function ProductItem({
+  product,
+  onOpenPhotos,
+}: {
+  product: Product
+  onOpenPhotos: () => void
+}) {
+  const t = useTranslations("GardenDrawer")
   const { formatQuantity, productTypeLabel } = useProductLabels()
-  const Icon = isProductType(product.type)
-    ? PRODUCT_TYPE_ICONS[product.type]
-    : SproutIcon
+  const hasPhotos = product.images.length > 0
 
   return (
-    <Item role="listitem" variant="outline" size="sm" className="bg-card">
-      <ItemMedia className="size-9 rounded-lg bg-brand/10 text-brand">
-        <Icon className="size-4" />
+    <Item
+      role="listitem"
+      variant="outline"
+      size="sm"
+      className="relative bg-card has-[button:hover]:bg-muted/50"
+    >
+      {hasPhotos && (
+        // Covers the row so the whole product opens its photos, while the
+        // row stays a list item.
+        <button
+          type="button"
+          onClick={onOpenPhotos}
+          aria-label={t("openPhotos", {
+            name: product.name,
+            count: product.images.length,
+          })}
+          className="absolute inset-0 z-10 rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        />
+      )}
+      <ItemMedia>
+        <ProductThumbnail
+          product={product}
+          className="size-11 rounded-lg bg-brand/10 text-brand outline-0"
+        />
       </ItemMedia>
       <ItemContent className="min-w-0 gap-0.5">
         <ItemTitle>{product.name}</ItemTitle>
