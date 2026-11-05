@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import dynamic from "next/dynamic"
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -30,6 +31,7 @@ import {
   useGardenDraft,
   type GardenDraftState,
 } from "@/components/gardens/form/use-garden-draft"
+import { usePlaceName } from "@/components/gardens/form/use-place-name"
 import { useSectionParam } from "@/components/gardens/form/use-section-param"
 import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -48,6 +50,7 @@ import {
   ItemContent,
   ItemDescription,
   ItemFooter,
+  ItemHeader,
   ItemTitle,
 } from "@/components/ui/item"
 import {
@@ -56,12 +59,19 @@ import {
   ProgressValue,
 } from "@/components/ui/progress"
 import { Spinner } from "@/components/ui/spinner"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { discardGardenDraft } from "@/lib/garden-drafts"
 import { useProductLabels } from "@/lib/products"
 import type { Garden, GardenInput } from "@/lib/types"
 import { cn } from "@/lib/utils"
+
+// MapLibre needs `window` and WebGL, so the preview only renders on the client.
+const LocationPreview = dynamic(
+  () => import("@/components/map/location-preview"),
+  { ssr: false, loading: () => <Skeleton className="h-32 w-full" /> }
+)
 
 // One page on larger screens. On phones, a new garden is filled in three
 // steps, and an existing one opens on an overview whose sections are edited one
@@ -393,6 +403,7 @@ function EditOverview({
     Object.keys(form.errors).some((key) => sectionOf(key) === section)
 
   const [lng, lat] = draft.coordinates ?? []
+  const place = usePlaceName(draft.coordinates)
 
   return (
     <FieldGroup>
@@ -416,10 +427,10 @@ function EditOverview({
           changed={changedIn("info")}
           invalid={invalidIn("info")}
         >
+          {/* The name is the page's title: the card shows what it doesn't,
+              or asks for it. */}
           <ItemDescription>
-            {draft.name || "—"}
-            {" · "}
-            {draft.description || t("noDescription")}
+            {draft.description || t("addDescription")}
           </ItemDescription>
         </SectionItem>
 
@@ -428,11 +439,28 @@ function EditOverview({
           onOpen={onOpen}
           changed={changedIn("location")}
           invalid={invalidIn("location")}
+          header={
+            draft.coordinates && (
+              <LocationPreview coordinates={draft.coordinates} />
+            )
+          }
         >
-          <ItemDescription className="tabular-nums">
-            {draft.coordinates
-              ? `${lat!.toFixed(5)}, ${lng!.toFixed(5)}`
-              : t("noLocation")}
+          <ItemDescription>
+            {!draft.coordinates ? (
+              t("noLocation")
+            ) : place === undefined ? (
+              <Skeleton className="h-4 w-40" />
+            ) : place ? (
+              // "2 Sur 1240, Talca": enough to recognize, short enough to fit.
+              [place.name, place.locality]
+                .filter((part, i, parts) => part && parts.indexOf(part) === i)
+                .join(", ")
+            ) : (
+              // Without an address, at least where on the globe.
+              <span className="tabular-nums">
+                {`${lat!.toFixed(5)}, ${lng!.toFixed(5)}`}
+              </span>
+            )}
           </ItemDescription>
         </SectionItem>
 
@@ -453,7 +481,7 @@ function EditOverview({
                   return (
                     <Badge
                       key={product.key}
-                      variant={soldOut ? "outline" : "secondary"}
+                      variant={soldOut ? "outline" : "brand"}
                     >
                       {product.name || "—"}
                       {Number.isFinite(quantity) &&
@@ -474,7 +502,9 @@ function EditOverview({
   )
 }
 
-// A section of the overview: what it holds, and a tap to edit it.
+// A section of the overview: what it holds, and a tap to edit it. A button
+// covers the whole card, as in the map's garden drawer, so content with its own
+// links (the map's attribution) can sit on top without nesting them in it.
 function SectionItem({
   section,
   action,
@@ -482,6 +512,7 @@ function SectionItem({
   changed,
   invalid,
   onOpen,
+  header,
   footer,
   children,
 }: {
@@ -491,19 +522,35 @@ function SectionItem({
   changed: boolean
   invalid: boolean
   onOpen: (section: Section) => void
+  header?: React.ReactNode
   footer?: React.ReactNode
   children?: React.ReactNode
 }) {
   const t = useTranslations("GardenForm")
+  const title = t(section)
+  const label = action ?? t("edit")
 
   return (
     <Item
       variant="outline"
-      render={<button type="button" onClick={() => onOpen(section)} />}
+      className="relative has-[>button:hover]:bg-muted/50"
     >
+      <button
+        type="button"
+        onClick={() => onOpen(section)}
+        aria-label={`${label}: ${title}`}
+        className="absolute inset-0 z-10 rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      />
+      {header && (
+        // Above the button only for the map's own links; taps elsewhere on
+        // it fall through to the button.
+        <ItemHeader className="pointer-events-none relative z-20">
+          {header}
+        </ItemHeader>
+      )}
       <ItemContent className="min-w-0">
         <ItemTitle>
-          {t(section)}
+          {title}
           {count !== undefined && (
             <span className="text-muted-foreground tabular-nums">
               · {count}
@@ -515,9 +562,7 @@ function SectionItem({
         {children}
       </ItemContent>
       <ItemActions>
-        <span className="text-sm text-muted-foreground">
-          {action ?? t("edit")}
-        </span>
+        <span className="text-sm text-muted-foreground">{label}</span>
         <ChevronRightIcon />
       </ItemActions>
       {footer && <ItemFooter>{footer}</ItemFooter>}
