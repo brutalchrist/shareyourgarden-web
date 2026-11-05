@@ -5,10 +5,9 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   ChevronRightIcon,
-  ClockIcon,
   HistoryIcon,
 } from "lucide-react"
-import { useFormatter, useNow, useTranslations } from "next-intl"
+import { useTranslations } from "next-intl"
 
 import {
   sectionOf,
@@ -63,9 +62,6 @@ import { discardGardenDraft } from "@/lib/garden-drafts"
 import { useProductLabels } from "@/lib/products"
 import type { Garden, GardenInput } from "@/lib/types"
 import { cn } from "@/lib/utils"
-
-// Past this, the overview asks whether the products are still available.
-const STALE_DAYS = 14
 
 // One page on larger screens. On phones, a new garden is filled in three
 // steps, and an existing one opens on an overview whose sections are edited one
@@ -370,8 +366,6 @@ function EditOverview({
   onSubmit: (input: GardenInput) => Promise<void>
 }) {
   const t = useTranslations("GardenForm")
-  const format = useFormatter()
-  const now = useNow({ updateInterval: 60_000 })
   const { formatQuantity } = useProductLabels()
   const { draft } = form
   const saved = React.useMemo(() => toDraft(garden), [garden])
@@ -398,10 +392,6 @@ function EditOverview({
   const invalidIn = (section: Section) =>
     Object.keys(form.errors).some((key) => sectionOf(key) === section)
 
-  const updatedAt = garden.updatedAt ? new Date(garden.updatedAt) : null
-  const stale =
-    updatedAt &&
-    now.getTime() - updatedAt.getTime() > STALE_DAYS * 24 * 60 * 60 * 1000
   const [lng, lat] = draft.coordinates ?? []
 
   return (
@@ -479,15 +469,6 @@ function EditOverview({
             <ItemDescription>{t("noProducts")}</ItemDescription>
           )}
         </SectionItem>
-
-        {stale && !changedIn("products") && draft.products.length > 0 && (
-          <Alert>
-            <ClockIcon />
-            <AlertDescription>
-              {t("stale", { when: format.relativeTime(updatedAt, now) })}
-            </AlertDescription>
-          </Alert>
-        )}
       </div>
     </FieldGroup>
   )

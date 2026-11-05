@@ -216,7 +216,6 @@
     "unsaved": "Unsaved",
     "reviewSection": "Check this section",
     "soldOut": "Sold out",
-    "stale": "Updated {when}. Still available?",
     "quantityOf": "Quantity of {name}",
     "decrease": "One less {name}",
     "increase": "One more {name}",
