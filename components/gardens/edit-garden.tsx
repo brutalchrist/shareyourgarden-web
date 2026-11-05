@@ -176,12 +176,32 @@ export function EditGarden() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="max-sm:hidden"
                   render={<Link href={gardenMapHref(garden)} />}
                   nativeButton={false}
                 >
-                  <MapPinIcon />
+                  <MapPinIcon data-icon="inline-start" />
                   {t("viewOnMap")}
+                </Button>
+              </>
+            }
+            overviewActions={
+              <>
+                <ButtonLink
+                  variant="outline"
+                  size="lg"
+                  href={gardenMapHref(garden)}
+                >
+                  <MapPinIcon data-icon="inline-start" />
+                  {t("viewOnMap")}
+                </ButtonLink>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="lg"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2Icon data-icon="inline-start" />
+                  {t("delete")}
                 </Button>
               </>
             }
