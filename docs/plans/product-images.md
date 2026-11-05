@@ -14,23 +14,25 @@
 
 ### 1.1 Dónde se agregan las fotos
 
-**Dentro de cada `ProductRow`, debajo de los campos**, como una fila de 3 casillas cuadradas. No va en un paso aparte ni en un modal: la foto es un atributo del producto y el usuario ya está en ese contexto.
+**Dentro de cada `ProductRow`, debajo de los campos**, como una fila de hasta 3 tarjetas `Attachment` verticales dentro de un `AttachmentGroup`. No va en un paso aparte ni en un modal: la foto es un atributo del producto y el usuario ya está en ese contexto.
 
 ```
 ┌ Producto ─────────────────────────────────────────── ✕ ┐
 │ [Tomates cherry        ] [🥕 Verdura ▾] [ 2 ] [kg ▾]    │
 │                                                        │
 │ ┌──────┐ ┌──────┐ ┌ ─ ─ ─┐                             │
-│ │ foto │ │ foto │ │  ＋   │   Fotos · 2/3              │
-│ │Portada│ │   ⋯ │ │      │                              │
+│ │ foto │ │ foto ⋯│ │  ＋   │                             │
+│ │Portada│ │Foto 2│ │Agregar│                            │
+│ │      │ │Subiendo│ │ 2/3 │                             │
 │ └──────┘ └──────┘ └ ─ ─ ─┘                             │
 └────────────────────────────────────────────────────────┘
 ```
 
-- **Casillas de 64 px (72 px en `sm+`), con `rounded-md` y `aspect-square`.** Las miniaturas se recortan al centro (`object-cover`) para que la fila se vea pareja aunque las fotos tengan proporciones distintas.
-- **La casilla vacía es un botón con borde punteado** (`border-dashed`, el mismo estilo que el estado vacío de productos) y un `ImagePlusIcon`. Solo aparece si quedan cupos. El contador "2/3" va al lado en `text-muted-foreground tabular-nums`.
-- **La primera foto es la portada**, marcada con un `Badge` pequeño ("Portada"). Es la que se ve en listados y en el drawer.
-- **Menú `⋯` por foto** (`DropdownMenu`, aparece al pasar el cursor o con foco, y siempre visible en táctil): "Usar como portada" y "Quitar". Reordenar arrastrando no vale la pena con 3 fotos: es difícil en táctil y poco accesible. "Usar como portada" cubre el único orden que importa.
+- **Cada foto es un `Attachment` con `orientation="vertical"` y `size="sm"`.** `AttachmentMedia variant="image"` lleva la miniatura recortada al centro (`aspect-square object-cover`), para que la fila se vea pareja aunque las fotos tengan proporciones distintas. `AttachmentTitle` dice "Portada" o "Foto 2", y `AttachmentDescription` dice el estado ("Subiendo…", "Lista" o el error).
+- **La casilla para agregar es otro `Attachment` con `state="idle"`.** Lleva un `ImagePlusIcon` en `AttachmentMedia` (variante `icon`), el título "Agregar foto", el contador "2/3" como descripción y un borde punteado (`border-dashed`, el mismo estilo que el estado vacío de productos). Su `AttachmentTrigger` abre el selector de archivos. Solo aparece si quedan cupos. Así tiene el mismo tamaño y ritmo que las fotos, sin estilos propios.
+- **La primera foto es la portada.** Es la que se ve en listados y en el drawer.
+- **Acciones por foto, en `AttachmentActions`**: un `AttachmentAction` con `XIcon` para quitar y otro con `EllipsisIcon` que abre un `DropdownMenu` con "Usar como portada" (solo si no lo es). Reordenar arrastrando no vale la pena con 3 fotos: es difícil en táctil y poco accesible. "Usar como portada" cubre el único orden que importa.
+- **`AttachmentTrigger` en cada foto lista** abre la misma galería del mapa (§1.4), para que el dueño vea cómo quedó.
 - **Escritorio**: se pueden soltar archivos sobre la fila del producto. El borde de la fila se resalta (`ring-2 ring-primary/40`) mientras se arrastra encima.
 - **Móvil**: la casilla abre el selector nativo con `accept="image/*"`, que ya ofrece cámara y galería. No usar `capture`, porque obliga a usar la cámara.
 - **Selección múltiple**: se aceptan varias fotos de una vez. Si se eligen más de las que caben, se toman las primeras y un toast lo explica ("Solo caben 3 fotos por producto; agregamos 1").
@@ -40,13 +42,14 @@
 
 La subida empieza **en cuanto se elige la foto**, no al guardar. Así, al pulsar "Guardar" ya está casi todo arriba y el guardado es instantáneo.
 
-Cada casilla tiene estos estados:
+Cada foto usa la prop `state` de `Attachment`, que ya trae los estilos (shimmer mientras trabaja y tratamiento destructivo en error):
 
-| Estado | Cómo se ve |
-| --- | --- |
-| Procesando / subiendo | Vista previa local (`URL.createObjectURL` de la versión reducida) con un velo `bg-background/60` y un `Spinner` centrado. |
-| Lista | La miniatura, sin velo. Se anuncia en una región `aria-live="polite"`: "Foto agregada a Tomates cherry". |
-| Error | Velo con `ring-destructive`, `RotateCcwIcon` "Reintentar" y la opción "Quitar" en el menú. El mensaje concreto va en un `Tooltip` y en `sr-only`. |
+| `state` | Cuándo | Cómo se ve |
+| --- | --- | --- |
+| `processing` | Reduciendo la foto en el navegador | Vista previa local (`URL.createObjectURL`) y "Preparando…". |
+| `uploading` | PUT a R2 en curso | "Subiendo…". No muestra porcentaje: con ~200 KB la barra saltaría de 0 a 100. |
+| `done` | Subida lista | Sin descripción, o "Portada". Se anuncia en una región `aria-live="polite"`: "Foto agregada a Tomates cherry". |
+| `error` | Falló el procesamiento o la subida | El motivo en `AttachmentDescription` (no solo el color, como pide la guía del componente) y un `AttachmentAction` con `RotateCcwIcon` "Reintentar" junto al de quitar. |
 
 - **Mientras haya fotos subiendo, "Guardar" muestra un `Spinner` y dice "Subiendo fotos…"**, deshabilitado. Si hay fotos con error, el guardado falla con el mismo patrón de validación del formulario: foco en la primera casilla con error y el mensaje "Reintenta o quita las fotos que no se subieron".
 - **Quitar una foto no pide confirmación.** Nada se borra de verdad hasta guardar, y "Cancelar" o "Descartar cambios" la recuperan. Se muestra un toast "Foto quitada · Deshacer" (sonner) para que sea reversible sin modal.
@@ -78,10 +81,12 @@ Cada casilla tiene estos estados:
 
 ### 1.5 Accesibilidad
 
-- La casilla vacía es un `<button>` con `aria-label` "Agregar foto a Tomates cherry (2 de 3)". El `<input type="file">` queda oculto (`sr-only`), no con `display: none`, para que siga accesible.
+- El `AttachmentTrigger` de la casilla para agregar lleva `aria-label` "Agregar foto a Tomates cherry (2 de 3)". El `<input type="file">` queda oculto (`sr-only`), no con `display: none`, para que siga accesible.
+- Todos los `AttachmentAction` son íconos, así que cada uno lleva `aria-label` con el nombre: "Quitar foto 2 de Tomates cherry", "Reintentar…", "Más opciones…". El trigger de cada foto: "Ver foto 2 de Tomates cherry". El trigger queda detrás de las acciones, así que ambos se enfocan y se pulsan por separado.
 - Cada miniatura lleva un `alt` automático: "Foto 1 de Tomates cherry". Pedir texto alternativo al dueño agregaría fricción para poco beneficio en un catálogo de este tipo.
+- El `AttachmentGroup` lleva `role="group"` y `aria-label` "Fotos de Tomates cherry".
 - El menú `⋯` funciona con teclado (Base UI ya lo resuelve). La galería atrapa el foco (`Dialog`) y anuncia "Foto 2 de 3".
-- Velos y bordes de error con contraste suficiente en modo claro y oscuro.
+- El estado de error se entiende por el texto, no solo por el color.
 
 ---
 
@@ -91,11 +96,10 @@ Cada casilla tiene estos estados:
 
 | Componente | Uso |
 | --- | --- |
-| `Button` | Casilla "Agregar foto" (`variant="outline"` con `border-dashed`), "Reintentar" y la navegación de la galería. |
-| `Badge` | "Portada" y "+2". |
-| `DropdownMenu` | Menú `⋯` de cada foto. |
-| `Spinner` | Fotos subiendo y botón "Guardar" ocupado. |
-| `Tooltip` | Detalle del error en escritorio. |
+| `Button` | Navegación de la galería. |
+| `Badge` | "+2" sobre la miniatura del drawer. |
+| `DropdownMenu` | Menú `⋯` de cada foto ("Usar como portada"). |
+| `Spinner` | Botón "Guardar" ocupado. |
 | `Skeleton` | Miniaturas mientras cargan en el drawer. |
 | `Item` (`ItemMedia`, `ItemContent`, `ItemTitle`, `ItemDescription`, `ItemActions`) | Lista de productos del drawer. |
 | `Field` (`FieldDescription`, `FieldError`) | Texto de ayuda y errores de la sección de fotos. |
@@ -104,9 +108,21 @@ Cada casilla tiene estos estados:
 ### 2.2 A agregar con el CLI
 
 ```bash
-pnpm dlx shadcn@latest add dialog carousel
+pnpm dlx shadcn@latest add attachment dialog carousel
 ```
 
+- **`attachment`**: cada foto del formulario y la casilla para agregar. Partes que se usan:
+
+  | Parte | Uso |
+  | --- | --- |
+  | `AttachmentGroup` | La fila de fotos de cada producto (scroll horizontal con snap si el ancho no alcanza). |
+  | `Attachment` | `orientation="vertical"`, `size="sm"` y `state` según la subida (§1.2). |
+  | `AttachmentMedia` | `variant="image"` con el `<img>`, o `variant="icon"` con `ImagePlusIcon` en la casilla para agregar. |
+  | `AttachmentTitle` / `AttachmentDescription` | "Portada" o "Foto 2", y el estado o el error. |
+  | `AttachmentActions` / `AttachmentAction` | Quitar, reintentar y el `⋯` (como `render` del `DropdownMenuTrigger`). |
+  | `AttachmentTrigger` | Abre la galería en las fotos listas y el selector de archivos en la casilla para agregar. |
+
+  El componente no trae selector de archivos, zona para soltar ni lógica de subida. Eso vive en `ProductImagesField` y `use-image-uploads`.
 - **`dialog`**: contenedor de la galería.
 - **`carousel`**: usa `embla-carousel-react` (unos 7 kB gzip). Hay que confirmar que el registro tenga la variante para el estilo `base-vega`. Si no, la galería se arma con `Dialog` y un contenedor con `scroll-snap-type: x mandatory`, sin dependencias.
 
@@ -307,7 +323,7 @@ export interface ProductImage {
 
 | Archivo | Responsabilidad |
 | --- | --- |
-| `product-images-field.tsx` | Casillas, input oculto, drag & drop, menú `⋯`, estados (subiendo, lista, error), región `aria-live` y toasts. Recibe `images` y `onChange` del `ProductRow`. |
+| `product-images-field.tsx` | `AttachmentGroup` con un `Attachment` por foto más la casilla para agregar. Input oculto, drag & drop sobre la fila del producto, acciones, menú `⋯`, mapeo del estado de cada subida a la prop `state`, región `aria-live` y toasts. Recibe `images` y `onChange` del `ProductRow`. |
 | `use-image-uploads.ts` | Cola de subidas por formulario. Limita a 2 subidas simultáneas, cancela con `AbortController` al quitar una foto y libera los `ObjectURL` al desmontar. Expone `pendingCount` y `errorCount` para el botón "Guardar". |
 | `product-thumbnail.tsx` | Portada o ícono del tipo con fondo `bg-muted`. Maneja `onError`. Se usa en el drawer y, más adelante, en el compositor rápido. |
 | `product-gallery.tsx` | `Dialog` + `Carousel` con contador, pie de foto y foco de vuelta a la miniatura de origen. |
@@ -315,7 +331,7 @@ export interface ProductImage {
 ### 5.4 Cambios en componentes existentes
 
 - **`components/gardens/garden-form.tsx`**:
-  - `ProductDraft` gana `images: DraftImage[]`, con `{ localId, id?, url, status: "uploading" | "done" | "error", error? }`.
+  - `ProductDraft` gana `images: DraftImage[]`, con `{ localId, id?, url, status: "processing" | "uploading" | "done" | "error", error? }`. `status` usa los mismos valores que la prop `state` de `Attachment`, así que se pasa directo.
   - `toDraft` carga las fotos existentes como `done`, con `url = thumbUrl`.
   - `toInput` envía solo los `id` de las fotos `done`. `validate` agrega el error `imagesPending` si hay fotos subiendo o con error.
   - `snapshot` incluye los `id` en orden, así agregar, quitar o cambiar la portada cuenta como cambio.
@@ -340,7 +356,7 @@ export interface ProductImage {
    - `images` en `Product`, con copia, validación y limpieza en `create`, `update` y `remove`.
    - Tests unitarios y e2e con el storage simulado.
    - Variables en Render.
-2. **Web: subir fotos**: `image-processing`, `uploads`, `ProductImagesField`, `use-image-uploads` y la integración en `GardenForm` y en los borradores.
+2. **Web: subir fotos**: agregar `attachment`; `image-processing`, `uploads`, `ProductImagesField`, `use-image-uploads` y la integración en `GardenForm` y en los borradores.
 3. **Web: ver fotos**: `ProductThumbnail`, la lista de productos en el drawer y `ProductGallery` (requiere agregar `dialog` y `carousel`).
 4. **Más adelante (fuera del alcance)**:
    - Miniaturas en los chips del compositor rápido de mensajes.
