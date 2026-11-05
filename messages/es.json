@@ -32,7 +32,8 @@
     "edit": "Editar",
     "delete": "Eliminar",
     "addFirst": "Agrega tu primer huerto",
-    "viewMessages": "Ver mensajes"
+    "viewMessages": "Ver mensajes",
+    "updateProducts": "Actualizar productos"
   },
   "UserMenu": {
     "lightAppearance": "Aspecto claro",
@@ -205,7 +206,22 @@
         "disabled": "Las fotos no están disponibles en este momento.",
         "failed": "No se pudo subir. Reintenta."
       }
-    }
+    },
+    "next": "Siguiente",
+    "back": "Atrás",
+    "stepOf": "Paso <b>{current} de {total}</b>",
+    "edit": "Editar",
+    "updateProducts": "Actualizar",
+    "noDescription": "Sin descripción",
+    "unsaved": "Sin guardar",
+    "reviewSection": "Revisa esta sección",
+    "soldOut": "Agotado",
+    "stale": "Actualizado {when}. ¿Siguen disponibles?",
+    "quantityOf": "Cantidad de {name}",
+    "decrease": "Restar uno a {name}",
+    "increase": "Sumar uno a {name}",
+    "editProduct": "Editar {name}",
+    "productDone": "Listo"
   },
   "ProductGallery": {
     "counter": "{current} / {total}",
