@@ -216,7 +216,6 @@
     "unsaved": "Sin guardar",
     "reviewSection": "Revisa esta sección",
     "soldOut": "Agotado",
-    "stale": "Actualizado {when}. ¿Siguen disponibles?",
     "quantityOf": "Cantidad de {name}",
     "decrease": "Restar uno a {name}",
     "increase": "Sumar uno a {name}",
