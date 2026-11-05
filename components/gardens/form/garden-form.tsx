@@ -82,13 +82,17 @@ export function GardenForm({
   onSubmit,
   onCancel,
   extraActions,
+  overviewActions,
 }: {
   garden?: Garden
   submitLabel: string
   // Rejects when saving failed, after telling the user.
   onSubmit: (input: GardenInput) => Promise<void>
   onCancel: () => void
+  // Beside the save button on larger screens.
   extraActions?: React.ReactNode
+  // At the end of the overview on phones, out of the way of everyday edits.
+  overviewActions?: React.ReactNode
 }) {
   const t = useTranslations("GardenForm")
   const isMobile = useIsMobile()
@@ -272,29 +276,35 @@ export function GardenForm({
     footer = submitButton("flex-1", "lg")
   } else {
     content = (
-      <EditOverview
-        garden={garden}
-        form={form}
-        onOpen={nav.open}
-        onSubmit={onSubmit}
-      />
-    )
-    footer = (
       <>
-        {extraActions}
-        {form.changed && (
-          <div className="ml-auto flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={form.discardChanges}
-              disabled={pending}
-            >
-              {t("discard")}
-            </Button>
-            {submitButton()}
-          </div>
+        <EditOverview
+          garden={garden}
+          form={form}
+          onOpen={nav.open}
+          onSubmit={onSubmit}
+        />
+        {overviewActions && (
+          <>
+            <FieldSeparator />
+            <div className="flex flex-col gap-2">{overviewActions}</div>
+          </>
         )}
+      </>
+    )
+    // Only with something to save: the bar then means it.
+    footer = form.changed && (
+      <>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-28"
+          onClick={form.discardChanges}
+          disabled={pending}
+        >
+          {t("discard")}
+        </Button>
+        {submitButton("flex-1", "lg")}
       </>
     )
   }
@@ -317,9 +327,11 @@ export function GardenForm({
         {content}
       </FieldGroup>
 
-      <div className="sticky bottom-0 z-10 flex items-center gap-2 border-t bg-background/95 p-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-6">
-        {footer}
-      </div>
+      {footer && (
+        <div className="sticky bottom-0 z-10 flex items-center gap-2 border-t bg-background/95 p-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-6">
+          {footer}
+        </div>
+      )}
     </form>
   )
 }
