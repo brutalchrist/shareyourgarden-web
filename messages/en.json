@@ -37,7 +37,8 @@
   "UserMenu": {
     "lightAppearance": "Light appearance",
     "darkAppearance": "Dark appearance",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "welcomeTour": "Welcome tour"
   },
   "LanguageMenu": {
     "label": "Language",
@@ -320,5 +321,54 @@
     },
     "enableError": "Couldn't turn on notifications. Please try again.",
     "disableError": "Couldn't turn off notifications. Please try again."
+  },
+  "WelcomeTour": {
+    "skip": "Skip",
+    "start": "Get started",
+    "next": "Next",
+    "back": "Back",
+    "explore": "Explore the map",
+    "createGarden": "Create my garden",
+    "progress": "Step {current} of {total}",
+    "goToStep": "Go to step {number}",
+    "beta": "You're in the beta. If something doesn't work, <link>let us know</link>.",
+    "feedbackSubject": "ShareYourGarden beta feedback",
+    "steps": {
+      "welcome": {
+        "title": "Welcome, {name}",
+        "titleNoName": "Welcome",
+        "body": "A network of neighbors sharing what they grow: vegetables, seeds, seedlings and supplies."
+      },
+      "map": {
+        "title": "Find gardens near you",
+        "body": "Each pin is a garden. Search for a product or filter by type."
+      },
+      "exchange": {
+        "title": "Propose an exchange",
+        "body": "Tap a garden, pick what you'd like and write to them. Your email is never shown."
+      },
+      "messages": {
+        "title": "Sort it out in messages",
+        "body": "Replies arrive in Messages. You can also turn on notifications there."
+      },
+      "share": {
+        "title": "Share your garden",
+        "body": "Post what you have to spare and your neighbors will find you."
+      }
+    },
+    "scenes": {
+      "search": "tomato",
+      "garden": "Los Aromos Garden",
+      "product1": "Cherry tomato",
+      "amount1": "3 kg",
+      "product2": "Basil",
+      "amount2": "6 bunches",
+      "propose": "Propose an exchange",
+      "incoming": "Hi {name}! I'll save you 1 kg. Got any seeds to swap?",
+      "incomingNoName": "Hi! I'll save you 1 kg. Got any seeds to swap?",
+      "outgoing": "Yes! I'll bring seedlings on Saturday 🌱",
+      "myGarden": "{name}'s garden",
+      "myGardenNoName": "My garden"
+    }
   }
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  CompassIcon,
   EllipsisVerticalIcon,
   LogOutIcon,
   MoonIcon,
@@ -11,6 +12,7 @@ import { useTheme } from "next-themes"
 
 import { useAuth } from "@/components/auth-provider"
 import { LanguageSubmenu } from "@/components/language-menu"
+import { useWelcomeTour } from "@/components/onboarding/welcome-tour-provider"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +36,7 @@ export function NavUser() {
   const { user, signOut } = useAuth()
   const { isMobile } = useSidebar()
   const { resolvedTheme, setTheme } = useTheme()
+  const { openTour } = useWelcomeTour()
   const isDark = resolvedTheme === "dark"
 
   if (!user) {
@@ -57,7 +60,10 @@ export function NavUser() {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton size="lg" className="aria-expanded:bg-sidebar-accent" />
+              <SidebarMenuButton
+                size="lg"
+                className="aria-expanded:bg-sidebar-accent"
+              />
             }
           >
             <UserAvatar user={user} className="rounded-lg" />
@@ -77,6 +83,13 @@ export function NavUser() {
                   {details}
                 </div>
               </DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={openTour}>
+                <CompassIcon />
+                {t("welcomeTour")}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             {/* Toggles to the opposite appearance and keeps the menu open. */}

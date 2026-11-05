@@ -15,6 +15,8 @@ interface AuthContextValue {
   status: AuthStatus
   signInWithCredential: (credential: string) => Promise<void>
   signOut: () => void
+  // Merges fields into the signed-in user, e.g. after `PATCH /users/me`.
+  updateUser: (changes: Partial<User>) => void
 }
 
 const AuthContext = React.createContext<AuthContextValue | null>(null)
@@ -63,9 +65,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus("anonymous")
   }, [])
 
+  const updateUser = React.useCallback((changes: Partial<User>) => {
+    setUser((current) => (current ? { ...current, ...changes } : current))
+  }, [])
+
   const value = React.useMemo(
-    () => ({ user, status, signInWithCredential, signOut }),
-    [user, status, signInWithCredential, signOut]
+    () => ({ user, status, signInWithCredential, signOut, updateUser }),
+    [user, status, signInWithCredential, signOut, updateUser]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -69,6 +69,8 @@ export interface User {
   email: string
   name?: string
   picture?: string
+  // When the welcome tour was finished or skipped (ISO date); null if not seen.
+  onboardingCompletedAt?: string | null
 }
 
 export interface AuthResponse {

@@ -4,6 +4,7 @@ import * as React from "react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
+import { useWelcomeTour } from "@/components/onboarding/welcome-tour-provider"
 import { isInstalled, isIos } from "@/lib/platform"
 
 // Chromium's install event, not in TypeScript's DOM types.
@@ -41,6 +42,21 @@ function rememberDismissed() {
 // offer their own install dialog; iOS has none, so it explains the steps.
 export function InstallPrompt() {
   const t = useTranslations("Install")
+  const { open: tourOpen } = useWelcomeTour()
+  // Two calls to action at once cancel each other out: while the welcome tour
+  // is open, the prompt waits for it to close.
+  const tourOpenRef = React.useRef(tourOpen)
+  const deferred = React.useRef<(() => void) | null>(null)
+
+  React.useEffect(() => {
+    tourOpenRef.current = tourOpen
+    if (tourOpen || !deferred.current) return
+
+    const showDeferred = deferred.current
+    deferred.current = null
+    const timer = window.setTimeout(showDeferred, 1500)
+    return () => window.clearTimeout(timer)
+  }, [tourOpen])
 
   React.useEffect(() => {
     if (isInstalled() || !isPhone() || wasDismissed()) return
@@ -48,7 +64,11 @@ export function InstallPrompt() {
     let timer: number | undefined
 
     function show(description: string, onInstall?: () => void) {
-      timer = window.setTimeout(() => {
+      timer = window.setTimeout(function showToast() {
+        if (tourOpenRef.current) {
+          deferred.current = showToast
+          return
+        }
         toast(t("title"), {
           id: TOAST_ID,
           description,
