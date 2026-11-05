@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { Loader2Icon, LocateFixedIcon } from "lucide-react"
+import { LocateFixedIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { useAuth } from "@/components/auth-provider"
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Spinner } from "@/components/ui/spinner"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { UserAvatar } from "@/components/user-avatar"
@@ -157,9 +158,9 @@ export function LocationSection({ form }: { form: GardenDraftState }) {
             disabled={location.locating}
           >
             {location.locating ? (
-              <Loader2Icon className="animate-spin" />
+              <Spinner data-icon="inline-start" />
             ) : (
-              <LocateFixedIcon />
+              <LocateFixedIcon data-icon="inline-start" />
             )}
             {t("useMyLocation")}
           </Button>

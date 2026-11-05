@@ -5,9 +5,8 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   ChevronRightIcon,
+  ClockIcon,
   HistoryIcon,
-  Loader2Icon,
-  MapPinIcon,
 } from "lucide-react"
 import { useFormatter, useNow, useTranslations } from "next-intl"
 
@@ -33,6 +32,7 @@ import {
   type GardenDraftState,
 } from "@/components/gardens/form/use-garden-draft"
 import { useSectionParam } from "@/components/gardens/form/use-section-param"
+import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,6 +43,20 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field"
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemTitle,
+} from "@/components/ui/item"
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress"
+import { Spinner } from "@/components/ui/spinner"
 import { Switch } from "@/components/ui/switch"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { discardGardenDraft } from "@/lib/garden-drafts"
@@ -152,15 +166,16 @@ export function GardenForm({
     onCancel()
   }
 
-  const submitButton = (className?: string) => (
+  const submitButton = (className?: string, size?: "lg") => (
     <Button
       type="submit"
+      size={size}
       className={className}
       // Saving an existing garden only makes sense once something changed; a
       // new one shows what's missing instead.
       disabled={pending || form.uploading || (!!garden && !form.changed)}
     >
-      {(pending || form.uploading) && <Loader2Icon className="animate-spin" />}
+      {(pending || form.uploading) && <Spinner data-icon="inline-start" />}
       {form.uploading ? t("photos.uploadingSubmit") : submitLabel}
     </Button>
   )
@@ -206,27 +221,29 @@ export function GardenForm({
           <Button
             type="button"
             variant="outline"
-            className="h-11 w-28 rounded-full"
+            size="lg"
+            className="w-28"
             onClick={() => nav.back(SECTIONS[index - 1])}
           >
-            <ArrowLeftIcon />
+            <ArrowLeftIcon data-icon="inline-start" />
             {t("back")}
           </Button>
         )}
         {next ? (
           <Button
             type="button"
-            className="h-11 flex-1 rounded-full"
+            size="lg"
+            className="flex-1"
             onClick={() => {
               if (form.check([step])) nav.open(next)
               else focusFirstError()
             }}
           >
             {t("next")}
-            <ArrowRightIcon />
+            <ArrowRightIcon data-icon="inline-end" />
           </Button>
         ) : (
-          submitButton("h-11 flex-1 rounded-full")
+          submitButton("flex-1", "lg")
         )}
       </>
     )
@@ -237,16 +254,16 @@ export function GardenForm({
           type="button"
           variant="ghost"
           size="sm"
-          className="-ml-2 self-start text-muted-foreground"
+          className="-ml-2 max-w-full self-start"
           onClick={() => nav.back(null)}
         >
-          <ArrowLeftIcon />
-          <span className="max-w-60 truncate">{garden.name}</span>
+          <ArrowLeftIcon data-icon="inline-start" />
+          <span className="truncate">{garden.name}</span>
         </Button>
         <SectionFields section={section} form={form} />
       </>
     )
-    footer = submitButton("h-11 flex-1 rounded-full")
+    footer = submitButton("flex-1", "lg")
   } else {
     content = (
       <EditOverview
@@ -332,42 +349,12 @@ function StepIndicator({ current }: { current: Section }) {
   const index = SECTIONS.indexOf(current)
 
   return (
-    <div className="-mx-4 -mt-4 border-b px-4 pt-3 pb-3">
-      <p className="text-xs text-muted-foreground">
-        {t.rich("stepOf", {
-          current: index + 1,
-          total: SECTIONS.length,
-          b: (chunks) => (
-            <span className="font-semibold text-brand">{chunks}</span>
-          ),
-        })}
-      </p>
-      <ol className="mt-2 grid grid-cols-3 gap-1.5">
-        {SECTIONS.map((section, i) => (
-          <li
-            key={section}
-            aria-current={i === index ? "step" : undefined}
-            className="flex flex-col gap-1.5"
-          >
-            <span
-              aria-hidden
-              className={cn(
-                "h-1 rounded-full bg-border",
-                i <= index && "bg-brand"
-              )}
-            />
-            <span
-              className={cn(
-                "truncate text-xs text-muted-foreground",
-                i === index && "font-medium text-foreground"
-              )}
-            >
-              {t(section)}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
+    <Progress value={((index + 1) / SECTIONS.length) * 100}>
+      <ProgressLabel>{t(current)}</ProgressLabel>
+      <ProgressValue>
+        {() => t("stepOf", { current: index + 1, total: SECTIONS.length })}
+      </ProgressValue>
+    </Progress>
   )
 }
 
@@ -418,8 +405,8 @@ function EditOverview({
   const [lng, lat] = draft.coordinates ?? []
 
   return (
-    <div className="flex flex-col gap-3">
-      <Field orientation="horizontal" className="rounded-xl border p-3">
+    <FieldGroup>
+      <Field orientation="horizontal">
         <FieldContent>
           <FieldLabel htmlFor="garden-active">{t("visible")}</FieldLabel>
           <FieldDescription>{t("visibleDescription")}</FieldDescription>
@@ -432,83 +419,89 @@ function EditOverview({
         />
       </Field>
 
-      <SectionCard
-        section="info"
-        onOpen={onOpen}
-        changed={changedIn("info")}
-        invalid={invalidIn("info")}
-      >
-        <span className="block truncate font-medium text-foreground">
-          {draft.name || "—"}
-        </span>
-        <span className="line-clamp-2">
-          {draft.description || t("noDescription")}
-        </span>
-      </SectionCard>
+      <div className="flex flex-col gap-3">
+        <SectionItem
+          section="info"
+          onOpen={onOpen}
+          changed={changedIn("info")}
+          invalid={invalidIn("info")}
+        >
+          <ItemDescription>
+            {draft.name || "—"}
+            {" · "}
+            {draft.description || t("noDescription")}
+          </ItemDescription>
+        </SectionItem>
 
-      <SectionCard
-        section="location"
-        onOpen={onOpen}
-        changed={changedIn("location")}
-        invalid={invalidIn("location")}
-      >
-        <span className="flex items-center gap-1.5 tabular-nums">
-          <MapPinIcon className="size-3.5 shrink-0" />
-          {draft.coordinates
-            ? `${lat!.toFixed(5)}, ${lng!.toFixed(5)}`
-            : t("noLocation")}
-        </span>
-      </SectionCard>
+        <SectionItem
+          section="location"
+          onOpen={onOpen}
+          changed={changedIn("location")}
+          invalid={invalidIn("location")}
+        >
+          <ItemDescription className="tabular-nums">
+            {draft.coordinates
+              ? `${lat!.toFixed(5)}, ${lng!.toFixed(5)}`
+              : t("noLocation")}
+          </ItemDescription>
+        </SectionItem>
 
-      <SectionCard
-        section="products"
-        action={t("updateProducts")}
-        count={draft.products.length}
-        onOpen={onOpen}
-        changed={changedIn("products")}
-        invalid={invalidIn("products")}
-      >
-        {draft.products.length === 0 ? (
-          t("noProducts")
-        ) : (
-          <span className="flex flex-wrap gap-1.5">
-            {draft.products.map((product) => {
-              const quantity = Number(product.quantity)
-              const soldOut = product.quantity.trim() !== "" && quantity === 0
-              return (
-                <span
-                  key={product.key}
-                  className={cn(
-                    "rounded-full bg-brand/10 px-2.5 py-0.5 text-xs text-foreground",
-                    soldOut && "bg-muted text-muted-foreground line-through"
-                  )}
-                >
-                  {product.name || "—"}
-                  {!soldOut &&
-                    Number.isFinite(quantity) &&
-                    ` · ${formatQuantity(quantity, product.unit || undefined)}`}
-                </span>
-              )
-            })}
-          </span>
-        )}
+        <SectionItem
+          section="products"
+          action={t("updateProducts")}
+          count={draft.products.length}
+          onOpen={onOpen}
+          changed={changedIn("products")}
+          invalid={invalidIn("products")}
+          footer={
+            draft.products.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {draft.products.map((product) => {
+                  const quantity = Number(product.quantity)
+                  const soldOut =
+                    product.quantity.trim() !== "" && quantity === 0
+                  return (
+                    <Badge
+                      key={product.key}
+                      variant={soldOut ? "outline" : "secondary"}
+                    >
+                      {product.name || "—"}
+                      {Number.isFinite(quantity) &&
+                        ` · ${formatQuantity(quantity, product.unit || undefined)}`}
+                    </Badge>
+                  )
+                })}
+              </div>
+            )
+          }
+        >
+          {draft.products.length === 0 && (
+            <ItemDescription>{t("noProducts")}</ItemDescription>
+          )}
+        </SectionItem>
+
         {stale && !changedIn("products") && draft.products.length > 0 && (
-          <span className="mt-2 block rounded-md bg-amber-500/10 px-2.5 py-1.5 text-xs text-amber-800 dark:text-amber-300">
-            {t("stale", { when: format.relativeTime(updatedAt, now) })}
-          </span>
+          <Alert>
+            <ClockIcon />
+            <AlertDescription>
+              {t("stale", { when: format.relativeTime(updatedAt, now) })}
+            </AlertDescription>
+          </Alert>
         )}
-      </SectionCard>
-    </div>
+      </div>
+    </FieldGroup>
   )
 }
 
-function SectionCard({
+// A section of the overview: what it holds, and a tap to edit it.
+function SectionItem({
   section,
   action,
   count,
   changed,
   invalid,
   onOpen,
+  footer,
   children,
 }: {
   section: Section
@@ -517,44 +510,37 @@ function SectionCard({
   changed: boolean
   invalid: boolean
   onOpen: (section: Section) => void
-  children: React.ReactNode
+  footer?: React.ReactNode
+  children?: React.ReactNode
 }) {
   const t = useTranslations("GardenForm")
-  const title = t(section)
 
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(section)}
-      className={cn(
-        "flex w-full flex-col gap-1.5 rounded-xl border p-3 text-left transition-colors outline-none hover:bg-muted/40 focus-visible:ring-3 focus-visible:ring-ring/50",
-        invalid && "border-destructive/60"
-      )}
+    <Item
+      variant="outline"
+      render={<button type="button" onClick={() => onOpen(section)} />}
     >
-      <span className="flex w-full items-center gap-2">
-        <span className="font-heading text-base font-semibold">{title}</span>
-        {count !== undefined && (
-          <span className="text-sm text-muted-foreground tabular-nums">
-            · {count}
-          </span>
-        )}
-        {changed && (
-          <Badge variant="secondary" className="rounded-full">
-            {t("unsaved")}
-          </Badge>
-        )}
-        <span className="ml-auto flex items-center gap-0.5 text-sm font-medium text-muted-foreground">
+      <ItemContent className="min-w-0">
+        <ItemTitle>
+          {t(section)}
+          {count !== undefined && (
+            <span className="text-muted-foreground tabular-nums">
+              · {count}
+            </span>
+          )}
+          {changed && <Badge variant="secondary">{t("unsaved")}</Badge>}
+          {invalid && <Badge variant="destructive">{t("reviewSection")}</Badge>}
+        </ItemTitle>
+        {children}
+      </ItemContent>
+      <ItemActions>
+        <span className="text-sm text-muted-foreground">
           {action ?? t("edit")}
-          <ChevronRightIcon className="size-4" />
         </span>
-      </span>
-      <span className="text-sm text-muted-foreground">{children}</span>
-      {invalid && (
-        <span className="text-xs font-medium text-destructive">
-          {t("reviewSection")}
-        </span>
-      )}
-    </button>
+        <ChevronRightIcon />
+      </ItemActions>
+      {footer && <ItemFooter>{footer}</ItemFooter>}
+    </Item>
   )
 }
 
@@ -562,16 +548,15 @@ function RestoredNotice({ onDiscard }: { onDiscard: () => void }) {
   const t = useTranslations("GardenForm")
 
   return (
-    <div
-      role="status"
-      className="flex items-center gap-2 rounded-md border bg-muted/50 px-3 py-2 text-sm"
-    >
-      <HistoryIcon className="size-4 shrink-0 text-muted-foreground" />
-      <span className="flex-1">{t("restored")}</span>
-      <Button type="button" variant="ghost" size="sm" onClick={onDiscard}>
-        {t("discard")}
-      </Button>
-    </div>
+    <Alert role="status">
+      <HistoryIcon />
+      <AlertDescription>{t("restored")}</AlertDescription>
+      <AlertAction>
+        <Button type="button" variant="ghost" size="sm" onClick={onDiscard}>
+          {t("discard")}
+        </Button>
+      </AlertAction>
+    </Alert>
   )
 }
 
@@ -590,7 +575,8 @@ function CancelButton({
     <Button
       type="button"
       variant={wide ? "outline" : "ghost"}
-      className={cn(wide && "h-11 w-28 rounded-full")}
+      size={wide ? "lg" : undefined}
+      className={cn(wide && "w-28")}
       onClick={onClick}
       disabled={disabled}
     >

@@ -8,6 +8,7 @@ import { ProductGallery } from "@/components/gardens/product-gallery"
 import { ProductThumbnail } from "@/components/gardens/product-thumbnail"
 import { ContactGarden } from "@/components/messages/contact-garden"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -137,13 +138,20 @@ export function GardenDrawer({
                 </Empty>
               ) : (
                 <ItemGroup className="gap-2">
-                  {displayed.products.map((product, index) => (
-                    <ProductItem
-                      key={index}
-                      product={product}
-                      onOpenPhotos={() => setGallery(product)}
-                    />
-                  ))}
+                  {/* What's available first; sold out at the end. The sort is
+                      stable, so the owner's order holds otherwise. */}
+                  {[...displayed.products]
+                    .sort(
+                      (a, b) =>
+                        Number(a.quantity === 0) - Number(b.quantity === 0)
+                    )
+                    .map((product, index) => (
+                      <ProductItem
+                        key={index}
+                        product={product}
+                        onOpenPhotos={() => setGallery(product)}
+                      />
+                    ))}
                 </ItemGroup>
               )}
             </section>
@@ -260,9 +268,12 @@ function ProductItem({
         <ItemDescription>{productTypeLabel(product.type)}</ItemDescription>
       </ItemContent>
       <ItemActions>
-        <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium tabular-nums">
+        <Badge
+          variant={product.quantity === 0 ? "outline" : "secondary"}
+          className="tabular-nums"
+        >
           {formatQuantity(product.quantity, product.unit)}
-        </span>
+        </Badge>
       </ItemActions>
     </Item>
   )

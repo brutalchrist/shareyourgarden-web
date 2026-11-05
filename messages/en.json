@@ -209,7 +209,7 @@
     },
     "next": "Next",
     "back": "Back",
-    "stepOf": "Step <b>{current} of {total}</b>",
+    "stepOf": "Step {current} of {total}",
     "edit": "Edit",
     "updateProducts": "Update",
     "noDescription": "No description",
@@ -258,7 +258,8 @@
       "g": "{amount} {count, plural, one {gram} other {grams}}",
       "bunch": "{amount} {count, plural, one {bunch} other {bunches}}",
       "l": "{amount} {count, plural, one {liter} other {liters}}"
-    }
+    },
+    "soldOut": "Sold out"
   },
   "ContactGarden": {
     "proposeExchange": "Propose an exchange",

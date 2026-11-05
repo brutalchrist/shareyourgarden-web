@@ -209,7 +209,7 @@
     },
     "next": "Siguiente",
     "back": "Atrás",
-    "stepOf": "Paso <b>{current} de {total}</b>",
+    "stepOf": "Paso {current} de {total}",
     "edit": "Editar",
     "updateProducts": "Actualizar",
     "noDescription": "Sin descripción",
@@ -258,7 +258,8 @@
       "g": "{amount} {count, plural, one {gramo} other {gramos}}",
       "bunch": "{amount} {count, plural, one {atado} other {atados}}",
       "l": "{amount} {count, plural, one {litro} other {litros}}"
-    }
+    },
+    "soldOut": "Agotado"
   },
   "ContactGarden": {
     "proposeExchange": "Proponer intercambio",

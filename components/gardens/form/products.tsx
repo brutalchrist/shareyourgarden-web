@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import {
-  ChevronDownIcon,
   MinusIcon,
+  PencilIcon,
   PlusIcon,
   ShieldCheckIcon,
   XIcon,
@@ -22,7 +22,14 @@ import { useErrorMessage } from "@/components/gardens/form/sections"
 import type { GardenDraftState } from "@/components/gardens/form/use-garden-draft"
 import { ProductImagesField } from "@/components/gardens/product-images-field"
 import { PRODUCT_TYPE_ICONS } from "@/components/product-type-icon"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+} from "@/components/ui/empty"
 import {
   Field,
   FieldDescription,
@@ -33,13 +40,26 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
 import {
   PRODUCT_IMAGES_MAX,
   PRODUCT_TYPES,
@@ -88,13 +108,17 @@ export function ProductsSection({
         {t("photos.help", { max: PRODUCT_IMAGES_MAX })}
       </FieldDescription>
       {draft.products.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-md border border-dashed p-6 text-center">
-          <p className="text-sm text-muted-foreground">{t("noProducts")}</p>
-          <Button type="button" variant="outline" onClick={add}>
-            <PlusIcon />
-            {t("addProduct")}
-          </Button>
-        </div>
+        <Empty className="border p-6">
+          <EmptyHeader>
+            <EmptyDescription>{t("noProducts")}</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button type="button" variant="outline" onClick={add}>
+              <PlusIcon data-icon="inline-start" />
+              {t("addProduct")}
+            </Button>
+          </EmptyContent>
+        </Empty>
       ) : (
         <div className="flex flex-col gap-3">
           {draft.products.map((product, index) =>
@@ -123,12 +147,11 @@ export function ProductsSection({
             <Button
               type="button"
               variant="outline"
-              className={cn(
-                compact ? "h-12 w-full border-dashed" : "self-start"
-              )}
+              size={compact ? "lg" : "default"}
+              className={compact ? "w-full" : "self-start"}
               onClick={add}
             >
-              <PlusIcon />
+              <PlusIcon data-icon="inline-start" />
               {t("addProduct")}
             </Button>
           )}
@@ -190,56 +213,46 @@ function ProductCard({
     .join(" · ")
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-3 rounded-xl border p-2.5 transition-opacity",
-        soldOut && "bg-muted/40"
-      )}
-    >
-      <button
-        type="button"
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        onClick={() => onOpenChange(true)}
-        aria-expanded={false}
-        aria-controls={detailsId}
-        aria-label={t("editProduct", { name })}
-      >
-        <span
-          className={cn(
-            "flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand/10 text-brand",
-            soldOut && "opacity-60 grayscale"
-          )}
+    <Item variant="outline" size="sm">
+      <ItemMedia variant={cover ? "image" : "icon"}>
+        {cover ? (
+          // eslint-disable-next-line @next/next/no-img-element -- static export: no image optimizer
+          <img src={cover.url} alt="" />
+        ) : (
+          TypeIcon && <TypeIcon />
+        )}
+      </ItemMedia>
+      <ItemContent className="min-w-0">
+        <ItemTitle>{name}</ItemTitle>
+        <ItemDescription>
+          {soldOut ? <Badge variant="outline">{t("soldOut")}</Badge> : details}
+        </ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        <QuantityStepper
+          name={name}
+          quantity={product.quantity}
+          onChange={(quantity) =>
+            form.products.patch(product.key, { quantity })
+          }
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => onOpenChange(true)}
+          aria-expanded={false}
+          aria-controls={detailsId}
+          aria-label={t("editProduct", { name })}
         >
-          {cover ? (
-            // eslint-disable-next-line @next/next/no-img-element -- static export: no image optimizer
-            <img src={cover.url} alt="" className="size-full object-cover" />
-          ) : (
-            TypeIcon && <TypeIcon className="size-5" />
-          )}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium">{name}</span>
-          <span className="block truncate text-xs text-muted-foreground">
-            {soldOut ? (
-              <span className="font-medium text-amber-700 dark:text-amber-400">
-                {t("soldOut")}
-              </span>
-            ) : (
-              details
-            )}
-          </span>
-        </span>
-        <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
-      </button>
-      <QuantityStepper
-        name={name}
-        quantity={product.quantity}
-        onChange={(quantity) => form.products.patch(product.key, { quantity })}
-      />
-    </div>
+          <PencilIcon />
+        </Button>
+      </ItemActions>
+    </Item>
   )
 }
 
+// − / + around the quantity, which can also be typed.
 function QuantityStepper({
   name,
   quantity,
@@ -251,42 +264,39 @@ function QuantityStepper({
 }) {
   const t = useTranslations("GardenForm")
   const value = Number(quantity)
-  const valid = quantity.trim() !== "" && value >= 0
 
   return (
-    <div
-      role="group"
-      aria-label={t("quantityOf", { name })}
-      className="flex shrink-0 items-center rounded-full border"
-    >
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="size-9 rounded-full"
-        onClick={() => onChange(stepQuantity(quantity, -1))}
-        disabled={valid && value <= 0}
-        aria-label={t("decrease", { name })}
-      >
-        <MinusIcon />
-      </Button>
-      <output
-        aria-live="polite"
-        className="min-w-8 text-center text-sm font-semibold tabular-nums"
-      >
-        {valid ? quantity : "–"}
-      </output>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="size-9 rounded-full"
-        onClick={() => onChange(stepQuantity(quantity, 1))}
-        aria-label={t("increase", { name })}
-      >
-        <PlusIcon />
-      </Button>
-    </div>
+    <InputGroup className="w-28">
+      <InputGroupAddon>
+        <InputGroupButton
+          size="icon-sm"
+          onClick={() => onChange(stepQuantity(quantity, -1))}
+          disabled={quantity.trim() !== "" && value <= 0}
+          aria-label={t("decrease", { name })}
+        >
+          <MinusIcon />
+        </InputGroupButton>
+      </InputGroupAddon>
+      <InputGroupInput
+        type="number"
+        inputMode="decimal"
+        min={0}
+        step="any"
+        value={quantity}
+        onChange={(event) => onChange(event.target.value)}
+        aria-label={t("quantityOf", { name })}
+        className="text-center tabular-nums"
+      />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton
+          size="icon-sm"
+          onClick={() => onChange(stepQuantity(quantity, 1))}
+          aria-label={t("increase", { name })}
+        >
+          <PlusIcon />
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
   )
 }
 
