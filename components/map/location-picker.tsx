@@ -4,6 +4,7 @@ import * as React from "react"
 import { Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl"
 import "maplibre-gl/dist/maplibre-gl.css"
 import "@/components/map/map.css"
+import "@/components/map/worker"
 import { useTheme } from "next-themes"
 
 import { mapStyleUrl, transformMapStyle } from "@/components/map/map-style"
