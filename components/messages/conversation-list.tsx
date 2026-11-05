@@ -79,7 +79,7 @@ export function ConversationList({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-col gap-3 border-b p-4">
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
+        <h2 className="font-heading text-lg font-semibold">{t("title")}</h2>
         <Filters role={role} gardenId={gardenId} activeId={activeId} />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">

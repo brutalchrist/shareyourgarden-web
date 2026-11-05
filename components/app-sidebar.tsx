@@ -49,7 +49,9 @@ export function AppSidebar() {
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <SproutIcon className="size-4" />
               </div>
-              <span className="truncate font-medium">ShareYourGarden</span>
+              <span className="truncate font-heading font-semibold">
+                ShareYourGarden
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
