@@ -10,6 +10,7 @@ import { AuthProvider } from "@/components/auth-provider"
 import { InstallPrompt } from "@/components/install-prompt"
 import { MessagesProvider } from "@/components/messages/messages-provider"
 import { MyGardensProvider } from "@/components/my-gardens-provider"
+import { WelcomeTourProvider } from "@/components/onboarding/welcome-tour-provider"
 import { ServiceWorker } from "@/components/service-worker"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
@@ -89,10 +90,12 @@ export default async function RootLayout({
               <MyGardensProvider>
                 <MessagesProvider>
                   <TooltipProvider>
-                    <AppShell>{children}</AppShell>
-                    <Toaster position="top-center" richColors />
-                    <InstallPrompt />
-                    <ServiceWorker />
+                    <WelcomeTourProvider>
+                      <AppShell>{children}</AppShell>
+                      <Toaster position="top-center" richColors />
+                      <InstallPrompt />
+                      <ServiceWorker />
+                    </WelcomeTourProvider>
                   </TooltipProvider>
                 </MessagesProvider>
               </MyGardensProvider>

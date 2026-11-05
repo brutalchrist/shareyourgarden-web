@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  CompassIcon,
   EllipsisVerticalIcon,
   LogOutIcon,
   MoonIcon,
@@ -12,6 +13,7 @@ import * as React from "react"
 
 import { useAuth } from "@/components/auth-provider"
 import { LanguageSubmenu } from "@/components/language-menu"
+import { useWelcomeTour } from "@/components/onboarding/welcome-tour-provider"
 import {
   PushHelpDialog,
   PushMenuItem,
@@ -41,6 +43,7 @@ export function NavUser() {
   const { user, signOut } = useAuth()
   const { isMobile } = useSidebar()
   const { resolvedTheme, setTheme } = useTheme()
+  const { openTour } = useWelcomeTour()
   const isDark = resolvedTheme === "dark"
   const push = usePushToggle()
   const [pushHelp, setPushHelp] = React.useState<PushHelpState | null>(null)
@@ -89,6 +92,13 @@ export function NavUser() {
                   {details}
                 </div>
               </DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={openTour}>
+                <CompassIcon />
+                {t("welcomeTour")}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             {/* Toggles to the opposite appearance and keeps the menu open. */}

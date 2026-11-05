@@ -37,7 +37,8 @@
   "UserMenu": {
     "lightAppearance": "Aspecto claro",
     "darkAppearance": "Aspecto oscuro",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "welcomeTour": "Ver tour de bienvenida"
   },
   "LanguageMenu": {
     "label": "Idioma",
@@ -369,5 +370,54 @@
     },
     "enableError": "No se pudieron activar las notificaciones. Inténtalo de nuevo.",
     "disableError": "No se pudieron desactivar las notificaciones. Inténtalo de nuevo."
+  },
+  "WelcomeTour": {
+    "skip": "Saltar",
+    "start": "Comenzar",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "explore": "Explorar el mapa",
+    "createGarden": "Crear mi huerto",
+    "progress": "Paso {current} de {total}",
+    "goToStep": "Ir al paso {number}",
+    "beta": "Estás en la beta. Si algo no funciona, <link>cuéntanos</link>.",
+    "feedbackSubject": "Feedback beta ShareYourGarden",
+    "steps": {
+      "welcome": {
+        "title": "Te damos la bienvenida, {name}",
+        "titleNoName": "Te damos la bienvenida",
+        "body": "Una red de vecinos que comparten lo que cultivan: verduras, semillas, almácigos e insumos."
+      },
+      "map": {
+        "title": "Encuentra huertos cerca de ti",
+        "body": "Cada pin es un huerto. Busca un producto o filtra por tipo."
+      },
+      "exchange": {
+        "title": "Propón un intercambio",
+        "body": "Toca un huerto, elige lo que te interesa y escríbele. Tu correo nunca se muestra."
+      },
+      "messages": {
+        "title": "Coordina por mensajes",
+        "body": "Las respuestas llegan a Mensajes. Desde ahí también puedes activar las notificaciones."
+      },
+      "share": {
+        "title": "Comparte tu huerto",
+        "body": "Publica lo que te sobra y tus vecinos te encontrarán."
+      }
+    },
+    "scenes": {
+      "search": "tomate",
+      "garden": "Huerta Los Aromos",
+      "product1": "Tomate cherry",
+      "amount1": "3 kg",
+      "product2": "Albahaca",
+      "amount2": "6 atados",
+      "propose": "Proponer intercambio",
+      "incoming": "¡Hola {name}! Te guardo 1 kg. ¿Tienes semillas para cambiar?",
+      "incomingNoName": "¡Hola! Te guardo 1 kg. ¿Tienes semillas para cambiar?",
+      "outgoing": "¡Sí! Te llevo almácigos el sábado 🌱",
+      "myGarden": "Huerto de {name}",
+      "myGardenNoName": "Mi huerto"
+    }
   }
 }
