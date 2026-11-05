@@ -10,11 +10,22 @@ export interface Person {
   picture?: string
 }
 
+export interface ProductImage {
+  id: string
+  url: string
+  thumbUrl: string
+  // Of the full-size image.
+  width: number
+  height: number
+}
+
 export interface Product {
   name: string
   type: string
   quantity: number
   unit?: string
+  // The first one is the cover.
+  images: ProductImage[]
 }
 
 export interface Garden {
@@ -30,12 +41,18 @@ export interface Garden {
   updatedAt?: string
 }
 
+// Photos are sent by id: uploads from `POST /uploads/images` or photos the
+// product already had.
+export interface ProductInput extends Omit<Product, "images"> {
+  images: { id: string }[]
+}
+
 // What the owner sends when creating or updating a garden. The owner itself is
 // taken from the authenticated user by the backend.
 export type GardenInput = Pick<
   Garden,
-  "name" | "description" | "active" | "location" | "products"
->
+  "name" | "description" | "active" | "location"
+> & { products: ProductInput[] }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function toGarden(data: any): Garden {
@@ -53,6 +70,7 @@ export function toGarden(data: any): Garden {
       type: product?.type ?? "",
       quantity: product?.quantity ?? 0,
       unit: product?.unit ?? undefined,
+      images: (product?.images ?? []).map(toProductImage),
     })),
     owner: {
       name: data?.owner?.name ?? "",
@@ -61,6 +79,16 @@ export function toGarden(data: any): Garden {
     },
     ownerId: data?.ownerId ?? undefined,
     updatedAt: data?.updatedAt ?? undefined,
+  }
+}
+
+function toProductImage(data: any): ProductImage {
+  return {
+    id: data?.id ?? "",
+    url: data?.url ?? "",
+    thumbUrl: data?.thumbUrl ?? data?.url ?? "",
+    width: data?.width ?? 0,
+    height: data?.height ?? 0,
   }
 }
 

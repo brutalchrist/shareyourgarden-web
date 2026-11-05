@@ -14,6 +14,9 @@ export const PRODUCT_TYPES = [
 ] as const
 export type ProductType = (typeof PRODUCT_TYPES)[number]
 
+// Photos per product; the backend enforces the same limit.
+export const PRODUCT_IMAGES_MAX = 3
+
 export const PRODUCT_UNITS = ["unit", "kg", "g", "bunch", "l"] as const
 export type ProductUnit = (typeof PRODUCT_UNITS)[number]
 

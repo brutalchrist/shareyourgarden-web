@@ -55,7 +55,8 @@
     "available": "Available",
     "productCount": "{count, plural, one {# product} other {# products}}",
     "noProducts": "No products yet",
-    "noProductsDescription": "This garden hasn't listed anything yet."
+    "noProductsDescription": "This garden hasn't listed anything yet.",
+    "openPhotos": "View {count, plural, one {the photo} other {the # photos}} of {name}"
   },
   "MapControls": {
     "zoomIn": "Zoom in",
@@ -166,8 +167,53 @@
       "unitRequired": "Choose a unit.",
       "quantityInvalid": "Invalid quantity.",
       "geolocationUnsupported": "Your browser can't share your location.",
-      "geolocationFailed": "We couldn't get your location. Mark it on the map."
+      "geolocationFailed": "We couldn't get your location. Mark it on the map.",
+      "imagesPending": "Retry or remove the photos that weren't uploaded."
+    },
+    "photos": {
+      "help": "You can add up to {max} photos per product. We remove the location saved in photos.",
+      "group": "Photos of {name}",
+      "photo": "Photo {number}",
+      "photoAlt": "Photo {number} of {name}",
+      "cover": "Cover",
+      "add": "Add photo",
+      "addLabel": "Add a photo to {name} ({count} of {max})",
+      "count": "{count} of {max}",
+      "dropShort": "Drop here",
+      "processing": "Preparing…",
+      "uploading": "Uploading…",
+      "details": "{format} · {size}",
+      "dimensions": "{width}×{height}",
+      "view": "View photo {number} of {name}",
+      "viewShort": "View photo",
+      "more": "More options for photo {number} of {name}",
+      "makeCover": "Use as cover",
+      "remove": "Remove photo {number} of {name}",
+      "retry": "Retry photo {number} of {name}",
+      "removed": "Photo removed from {name}",
+      "undo": "Undo",
+      "notImage": "Only images can be added.",
+      "full": "This product already has {max} photos.",
+      "tooManyFiles": "Only {max} photos fit per product: {count, plural, one {added #} other {added #}}.",
+      "expired": "An unsaved photo expired. Add it again.",
+      "uploadingSubmit": "Uploading photos…",
+      "errors": {
+        "unreadable": "Unsupported format. Try JPG or PNG.",
+        "tooLarge": "The photo is too large (max. 25 MB).",
+        "tooMany": "You uploaded many photos in a row. Try again in a few minutes.",
+        "disabled": "Photos are not available right now.",
+        "failed": "Upload failed. Try again."
+      }
     }
+  },
+  "ProductGallery": {
+    "counter": "{current} / {total}",
+    "close": "Close",
+    "photo": "Photo {number} of {total}",
+    "photoAlt": "Photo {number} of {name}",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "goTo": "Show photo {number}"
   },
   "Sheet": {
     "close": "Close"

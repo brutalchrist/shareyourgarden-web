@@ -55,7 +55,8 @@
     "available": "Disponible",
     "productCount": "{count, plural, one {# producto} other {# productos}}",
     "noProducts": "Sin productos por ahora",
-    "noProductsDescription": "Este huerto todavía no publica lo que ofrece."
+    "noProductsDescription": "Este huerto todavía no publica lo que ofrece.",
+    "openPhotos": "Ver {count, plural, one {la foto} other {las # fotos}} de {name}"
   },
   "MapControls": {
     "zoomIn": "Acercar",
@@ -166,8 +167,53 @@
       "unitRequired": "Elige una unidad.",
       "quantityInvalid": "Cantidad inválida.",
       "geolocationUnsupported": "Tu navegador no permite obtener la ubicación.",
-      "geolocationFailed": "No pudimos obtener tu ubicación. Márcala en el mapa."
+      "geolocationFailed": "No pudimos obtener tu ubicación. Márcala en el mapa.",
+      "imagesPending": "Reintenta o quita las fotos que no se subieron."
+    },
+    "photos": {
+      "help": "Puedes agregar hasta {max} fotos por producto. Quitamos la ubicación guardada en las fotos.",
+      "group": "Fotos de {name}",
+      "photo": "Foto {number}",
+      "photoAlt": "Foto {number} de {name}",
+      "cover": "Portada",
+      "add": "Agregar foto",
+      "addLabel": "Agregar foto a {name} ({count} de {max})",
+      "count": "{count} de {max}",
+      "dropShort": "Suelta aquí",
+      "processing": "Preparando…",
+      "uploading": "Subiendo…",
+      "details": "{format} · {size}",
+      "dimensions": "{width}×{height}",
+      "view": "Ver foto {number} de {name}",
+      "viewShort": "Ver foto",
+      "more": "Más opciones para la foto {number} de {name}",
+      "makeCover": "Usar como portada",
+      "remove": "Quitar foto {number} de {name}",
+      "retry": "Reintentar foto {number} de {name}",
+      "removed": "Foto quitada de {name}",
+      "undo": "Deshacer",
+      "notImage": "Solo se pueden agregar imágenes.",
+      "full": "Este producto ya tiene {max} fotos.",
+      "tooManyFiles": "Solo caben {max} fotos por producto: {count, plural, one {agregamos #} other {agregamos #}}.",
+      "expired": "Una foto sin guardar expiró. Vuelve a agregarla.",
+      "uploadingSubmit": "Subiendo fotos…",
+      "errors": {
+        "unreadable": "Formato no compatible. Prueba con JPG o PNG.",
+        "tooLarge": "La foto es demasiado grande (máx. 25 MB).",
+        "tooMany": "Subiste muchas fotos seguidas. Intenta en unos minutos.",
+        "disabled": "Las fotos no están disponibles en este momento.",
+        "failed": "No se pudo subir. Reintenta."
+      }
     }
+  },
+  "ProductGallery": {
+    "counter": "{current} / {total}",
+    "close": "Cerrar",
+    "photo": "Foto {number} de {total}",
+    "photoAlt": "Foto {number} de {name}",
+    "previous": "Foto anterior",
+    "next": "Foto siguiente",
+    "goTo": "Ver foto {number}"
   },
   "Sheet": {
     "close": "Cerrar"
