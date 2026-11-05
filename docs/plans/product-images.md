@@ -351,13 +351,21 @@ export interface ProductImage {
 ## 6. Fases
 
 0. **Infraestructura** (a mano, en Cloudflare): token ✅. Faltan CORS, regla de `tmp/`, acceso público, alertas de facturación y bucket de desarrollo.
-1. **Backend**:
-   - `StorageService`, `POST /uploads/images` y la colección `uploads`.
-   - `images` en `Product`, con copia, validación y limpieza en `create`, `update` y `remove`.
-   - Tests unitarios y e2e con el storage simulado.
-   - Variables en Render.
-2. **Web: subir fotos**: agregar `attachment`; `image-processing`, `uploads`, `ProductImagesField`, `use-image-uploads` y la integración en `GardenForm` y en los borradores.
-3. **Web: ver fotos**: `ProductThumbnail`, la lista de productos en el drawer y `ProductGallery` (requiere agregar `dialog` y `carousel`).
+1. **Backend** ✅: `StorageService`, `POST /uploads/images`, la colección `uploads`, `images` en `Product` con copia, validación y limpieza en `create`, `update` y `remove`, y tests. Falta configurar las variables en Render.
+   - Implementado en `src/storage/` y `src/uploads/`. Diferencias con lo planeado:
+     - Los registros de `uploads` no se borran al guardar: se marcan con `gardenId`. Así no se pueden usar dos veces y siguen contando para el límite de 30 por hora. El índice TTL los borra a las 24 h.
+     - `width` y `height` se guardan al reservar la subida, no al confirmarla.
+     - El cliente S3 usa `requestChecksumCalculation: "WHEN_REQUIRED"`. Sin eso, el SDK firma en la URL un CRC32 del cuerpo vacío y la subida desde el navegador falla.
+     - Si el storage no está configurado, las respuestas devuelven `images: []` en vez de URLs rotas.
+2. **Web: subir fotos** ✅: `attachment`, `lib/image-processing.ts`, `lib/uploads.ts`, `ProductImagesField`, `use-image-uploads` y la integración en `GardenForm` y en los borradores.
+   - Diferencias con lo planeado:
+     - Las tarjetas usan el tamaño `default` de `Attachment`, no `sm`: con `sm` la imagen queda en 32 px aunque la tarjeta sea vertical. En móvil miden 92 px para que quepan las tres.
+     - La etiqueta "Portada" va en la esquina inferior de la foto, para no chocar con las acciones.
+     - Bajo cada foto lista va el formato y el peso ("WebP · 13 kB") si se subió en esta sesión, o las dimensiones si ya estaba guardada.
+     - El menú `⋯` tiene "Usar como portada" (si no lo es) y "Ver foto".
+     - La cola de subidas es un objeto creado en el primer uso, fuera del render, para cumplir las reglas de React Compiler.
+3. **Web: ver fotos** ✅: `ProductThumbnail`, la lista de productos en el drawer y `ProductGallery` (con `dialog` y `carousel`).
+   - Diferencias con lo planeado: la galería se cierra con ✕ o Esc, no deslizando hacia abajo.
 4. **Más adelante (fuera del alcance)**:
    - Miniaturas en los chips del compositor rápido de mensajes.
    - Una foto de portada de la huerta en el encabezado del drawer.

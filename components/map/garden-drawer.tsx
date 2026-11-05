@@ -4,6 +4,8 @@ import * as React from "react"
 import { XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
+import { ProductGallery } from "@/components/gardens/product-gallery"
+import { ProductThumbnail } from "@/components/gardens/product-thumbnail"
 import { ContactGarden } from "@/components/messages/contact-garden"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,17 +17,18 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useProductLabels } from "@/lib/products"
-import type { Garden } from "@/lib/types"
+import type { Garden, Product } from "@/lib/types"
 
 export function GardenDrawer({
   garden,
@@ -40,8 +43,11 @@ export function GardenDrawer({
 
   // Keep showing the last garden while the drawer animates closed.
   const [displayed, setDisplayed] = React.useState(garden)
+  // The product whose photos are open in the gallery.
+  const [gallery, setGallery] = React.useState<Product | null>(null)
   if (garden && garden !== displayed) {
     setDisplayed(garden)
+    setGallery(null)
   }
 
   return (
@@ -79,39 +85,55 @@ export function GardenDrawer({
                 <TabsTrigger value="owner">{t("owner")}</TabsTrigger>
               </TabsList>
               <TabsContent value="products">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("name")}</TableHead>
-                      <TableHead>{t("type")}</TableHead>
-                      <TableHead>{t("quantity")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {displayed.products.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={3}
-                          className="text-center text-muted-foreground"
+                {displayed.products.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    {t("noProducts")}
+                  </p>
+                ) : (
+                  <ItemGroup className="-mx-2 gap-0.5">
+                    {displayed.products.map((product, index) => {
+                      const hasPhotos = product.images.length > 0
+
+                      return (
+                        <Item
+                          key={index}
+                          size="sm"
+                          className="px-2 py-2 [button]:text-left [button]:hover:bg-muted/60"
+                          // Rows with photos open them; the rest are plain.
+                          render={
+                            hasPhotos ? (
+                              <button
+                                type="button"
+                                onClick={() => setGallery(product)}
+                              />
+                            ) : undefined
+                          }
                         >
-                          {t("noProducts")}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      displayed.products.map((product, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{product.name}</TableCell>
-                          <TableCell>
-                            {productTypeLabel(product.type)}
-                          </TableCell>
-                          <TableCell>
+                          <ItemMedia>
+                            <ProductThumbnail product={product} />
+                          </ItemMedia>
+                          <ItemContent className="min-w-0 gap-0.5">
+                            <ItemTitle>{product.name}</ItemTitle>
+                            <ItemDescription>
+                              {productTypeLabel(product.type)}
+                              {hasPhotos && (
+                                <span className="sr-only">
+                                  {" · "}
+                                  {t("viewPhotos", {
+                                    count: product.images.length,
+                                  })}
+                                </span>
+                              )}
+                            </ItemDescription>
+                          </ItemContent>
+                          <ItemActions className="text-sm tabular-nums">
                             {formatQuantity(product.quantity, product.unit)}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                          </ItemActions>
+                        </Item>
+                      )
+                    })}
+                  </ItemGroup>
+                )}
               </TabsContent>
               <TabsContent value="owner">
                 <h3 className="mb-3 font-medium">{t("ownerInfo")}</h3>
@@ -126,6 +148,26 @@ export function GardenDrawer({
             <DrawerFooter className="border-t pt-4">
               <ContactGarden key={displayed.id} garden={displayed} />
             </DrawerFooter>
+            <ProductGallery
+              open={gallery !== null}
+              onOpenChange={(open) => !open && setGallery(null)}
+              title={gallery?.name ?? ""}
+              description={
+                gallery
+                  ? [
+                      productTypeLabel(gallery.type),
+                      formatQuantity(gallery.quantity, gallery.unit),
+                      displayed.name,
+                    ].join(" · ")
+                  : undefined
+              }
+              images={(gallery?.images ?? []).map((image) => ({
+                url: image.url,
+                thumbUrl: image.thumbUrl,
+                width: image.width,
+                height: image.height,
+              }))}
+            />
           </>
         )}
       </DrawerContent>
