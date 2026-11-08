@@ -32,6 +32,7 @@ import {
 } from "@/components/map/initial-view"
 import type { MapFilter } from "@/components/map/map-view"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { approximateGarden } from "@/lib/approximate-location"
 import { getGardensFromBounds } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
@@ -545,11 +546,15 @@ export default function GardenMap({
       .then((found) => {
         productTypeRef.current = productType
         // The backend searches by text only: the type is filtered here.
-        const gardens = productType
+        const matching = productType
           ? found.filter((garden) =>
               garden.products.some((product) => product.type === productType)
             )
           : found
+        // Only the owner sees the exact point; everyone else, an approximate one.
+        const gardens = matching.map((garden) =>
+          ownIdsRef.current.has(garden.id) ? garden : approximateGarden(garden)
+        )
         onEmptyChange(gardens.length === 0)
 
         const pending = gardens.find(
