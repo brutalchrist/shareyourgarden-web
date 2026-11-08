@@ -20,7 +20,7 @@ import { MessageComposer } from "@/components/messages/message-composer"
 import { ParticipantAvatar } from "@/components/messages/participant-avatar"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { ButtonLink } from "@/components/button-link"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Empty,
   EmptyContent,
@@ -58,6 +58,7 @@ import {
   markConversationRead,
   sendMessage,
 } from "@/lib/conversations"
+import { cn } from "@/lib/utils"
 import { getGarden, gardenMapHref } from "@/lib/gardens"
 import {
   buildThreadItems,
@@ -77,6 +78,8 @@ const fromApi = (message: ApiMessage): ThreadMessage => ({
   key: message.id,
   senderId: message.senderId,
   body: message.body,
+  sharedLocation: message.sharedLocation?.coordinates as
+    [number, number] | undefined,
   createdAt: new Date(message.createdAt),
   status: "sent",
 })
@@ -249,7 +252,7 @@ export function ConversationThread({
   }, [conversationId, updateConversation])
 
   const send = React.useCallback(
-    async (body: string, retryKey?: string) => {
+    async (body: string, retryKey?: string, shareLocation?: boolean) => {
       if (!user) return
 
       const key = retryKey ?? `pending-${crypto.randomUUID()}`
@@ -258,6 +261,7 @@ export function ConversationThread({
         key,
         senderId: user.id,
         body,
+        shareLocation,
         createdAt: new Date(),
         status: "sending",
       }
@@ -267,7 +271,7 @@ export function ConversationThread({
       ])
 
       try {
-        const sent = await sendMessage(conversationId, body)
+        const sent = await sendMessage(conversationId, body, shareLocation)
         setPending((current) =>
           current.filter((message) => message.key !== key)
         )
@@ -392,7 +396,9 @@ export function ConversationThread({
               <ThreadItems
                 items={items}
                 conversation={conversation}
-                onRetry={(message) => send(message.body, message.key)}
+                onRetry={(message) =>
+                  send(message.body, message.key, message.shareLocation)
+                }
               />
               {garden === null &&
                 conversation.readOnly !== "garden-deleted" && (
@@ -423,7 +429,12 @@ export function ConversationThread({
                 onChanged={reloadConversation}
               />
             ) : (
-              <ComposerWithScroll onSend={(body) => send(body)} />
+              <ComposerWithScroll
+                canShareLocation={conversation.role === "owner"}
+                onSend={(body, shareLocation) =>
+                  send(body, undefined, shareLocation)
+                }
+              />
             )}
           </div>
         </div>
@@ -432,13 +443,20 @@ export function ConversationThread({
   )
 }
 
-function ComposerWithScroll({ onSend }: { onSend: (body: string) => void }) {
+function ComposerWithScroll({
+  onSend,
+  canShareLocation,
+}: {
+  onSend: (body: string, shareLocation: boolean) => void
+  canShareLocation: boolean
+}) {
   const { scrollToEnd } = useMessageScroller()
 
   return (
     <MessageComposer
-      onSend={(body) => {
-        onSend(body)
+      canShareLocation={canShareLocation}
+      onSend={(body, shareLocation) => {
+        onSend(body, shareLocation)
         // Sending from anywhere in the history jumps to your message.
         requestAnimationFrame(() => scrollToEnd({ behavior: "smooth" }))
       }}
@@ -583,6 +601,12 @@ function ThreadItems({
                 {message.body}
               </BubbleContent>
             </Bubble>
+            {(message.sharedLocation || message.shareLocation) && (
+              <SharedLocation
+                coordinates={message.sharedLocation}
+                mine={mine}
+              />
+            )}
             {message.status === "failed" ? (
               <MessageFooter className="gap-1 text-destructive">
                 {t("notSent")} ·
@@ -611,6 +635,55 @@ function ThreadItems({
       </MessageScrollerItem>
     )
   })
+}
+
+// The exact point of the garden, shared by its owner in this message.
+function SharedLocation({
+  coordinates,
+  mine,
+}: {
+  // Missing while the message is still being sent.
+  coordinates?: [number, number]
+  mine: boolean
+}) {
+  const t = useTranslations("Messages")
+  const content = (
+    <>
+      <MapPinIcon />
+      {mine ? t("sharedLocationMine") : t("sharedLocation")}
+    </>
+  )
+
+  if (!coordinates) {
+    return (
+      <span
+        className={cn(
+          buttonVariants({ variant: "outline", size: "sm" }),
+          "pointer-events-none opacity-70",
+          mine && "self-end"
+        )}
+      >
+        {content}
+      </span>
+    )
+  }
+
+  const [lng, lat] = coordinates
+
+  return (
+    <a
+      href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=18/${lat}/${lng}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        buttonVariants({ variant: "outline", size: "sm" }),
+        mine && "self-end"
+      )}
+    >
+      {content}
+      <span className="sr-only">{t("opensInNewTab")}</span>
+    </a>
+  )
 }
 
 function DayLabel({ date }: { date: Date }) {

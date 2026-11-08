@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowUpIcon } from "lucide-react"
+import { ArrowUpIcon, MapPinIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import {
@@ -25,11 +25,15 @@ function prefersEnterToSend() {
 
 export function MessageComposer({
   onSend,
+  canShareLocation = false,
 }: {
-  onSend: (body: string) => void
+  onSend: (body: string, shareLocation: boolean) => void
+  // The garden's owner can attach its exact location to a message.
+  canShareLocation?: boolean
 }) {
   const t = useTranslations("Messages")
   const [body, setBody] = React.useState("")
+  const [shareLocation, setShareLocation] = React.useState(false)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   const tooLong = body.length > MESSAGE_MAX_LENGTH
@@ -43,8 +47,10 @@ export function MessageComposer({
 
   function submit() {
     if (!canSend) return
-    onSend(body.trim())
+    onSend(body.trim(), canShareLocation && shareLocation)
     setBody("")
+    // Sharing is a choice made for each message.
+    setShareLocation(false)
     textareaRef.current?.focus()
   }
 
@@ -78,6 +84,20 @@ export function MessageComposer({
           rows={1}
           className="max-h-40 min-h-10"
         />
+        {canShareLocation && (
+          <InputGroupAddon align="inline-start" className="self-end pb-1.5">
+            <InputGroupButton
+              type="button"
+              variant={shareLocation ? "secondary" : "ghost"}
+              size="icon-sm"
+              aria-pressed={shareLocation}
+              onClick={() => setShareLocation((current) => !current)}
+            >
+              <MapPinIcon />
+              <span className="sr-only">{t("shareLocation")}</span>
+            </InputGroupButton>
+          </InputGroupAddon>
+        )}
         <InputGroupAddon align="inline-end" className="self-end pb-1.5">
           <InputGroupButton
             type="submit"
@@ -91,6 +111,9 @@ export function MessageComposer({
         </InputGroupAddon>
       </InputGroup>
       <div className="flex items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
+        {shareLocation && (
+          <span className="text-foreground">{t("shareLocationActive")}</span>
+        )}
         <span className="max-md:hidden">
           {t.rich("sendHint", {
             kbd: (chunks) => <Kbd>{chunks}</Kbd>,

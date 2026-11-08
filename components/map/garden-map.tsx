@@ -32,7 +32,6 @@ import {
 } from "@/components/map/initial-view"
 import type { MapFilter } from "@/components/map/map-view"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { approximateGarden } from "@/lib/approximate-location"
 import { getGardensFromBounds } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
@@ -551,10 +550,14 @@ export default function GardenMap({
               garden.products.some((product) => product.type === productType)
             )
           : found
-        // Only the owner sees the exact point; everyone else, an approximate one.
-        const gardens = matching.map((garden) =>
-          ownIdsRef.current.has(garden.id) ? garden : approximateGarden(garden)
-        )
+        // The public list only has approximate points: the user's own gardens
+        // keep the exact one they already have.
+        const own = new Map(myGardens.map((garden) => [garden.id, garden]))
+        const gardens = matching.map((garden) => {
+          const mine = own.get(garden.id)
+
+          return mine ? { ...garden, location: mine.location } : garden
+        })
         onEmptyChange(gardens.length === 0)
 
         const pending = gardens.find(
