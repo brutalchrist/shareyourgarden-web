@@ -79,8 +79,7 @@ const fromApi = (message: ApiMessage): ThreadMessage => ({
   senderId: message.senderId,
   body: message.body,
   sharedLocation: message.sharedLocation?.coordinates as
-    | [number, number]
-    | undefined,
+    [number, number] | undefined,
   createdAt: new Date(message.createdAt),
   status: "sent",
 })
