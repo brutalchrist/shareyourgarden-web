@@ -2,6 +2,6 @@
 /es/*  /es/404/  404
 /en/*  /en/404/  404
 
-# Anything else lacks a locale (`/`, old `/map/` links): the root page picks one
+# Anything else lacks a locale (`/`, old links, the installed app's `/map/`): the root page picks one
 # in the browser and redirects, keeping the path and query.
 /*  /index.html  200

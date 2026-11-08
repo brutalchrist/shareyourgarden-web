@@ -440,5 +440,112 @@
       "myGarden": "Huerto de {name}",
       "myGardenNoName": "Mi huerto"
     }
+  },
+  "Landing": {
+    "metaDescription": "Una red de vecinos que comparten lo que cultivan. Encuentra huertos cerca de ti o publica lo que te sobra. Sin fines de lucro.",
+    "beta": "beta",
+    "skipToContent": "Saltar al contenido",
+    "nav": {
+      "label": "Secciones",
+      "howItWorks": "Cómo funciona",
+      "map": "Mapa",
+      "faq": "Preguntas"
+    },
+    "headerCta": "Explorar huertos",
+    "hero": {
+      "title": "Una red de vecinos que comparten lo que cultivan.",
+      "subtitle": "Encuentra verduras, semillas y almácigos cerca de ti, o publica lo que te sobra. Sin fines de lucro.",
+      "explore": "Explorar el mapa",
+      "share": "Compartir mi huerto",
+      "note": "No necesitas cuenta para ver el mapa."
+    },
+    "why": {
+      "title": "Un proyecto sin fines de lucro",
+      "body": "ShareYourGarden nace para que los vecinos se apoyen entre sí. Lo que sobra en un huerto le sirve a otro, y cada comunidad decide cómo compartir.",
+      "beta": "Estamos en beta. <link>Cuéntanos qué mejorarías</link>.",
+      "feedbackSubject": "Comentarios sobre ShareYourGarden"
+    },
+    "steps": {
+      "title": "Cómo funciona",
+      "search": {
+        "title": "Busca",
+        "body": "Encuentra huertos cerca en el mapa."
+      },
+      "connect": {
+        "title": "Conecta",
+        "body": "Escríbele al dueño y acuerden cómo compartirlo."
+      },
+      "grow": {
+        "title": "Cultiva",
+        "body": "Siembra, cosecha y comparte lo que crece."
+      }
+    },
+    "audiences": {
+      "title": "¿Qué te trae por aquí?",
+      "owner": {
+        "title": "Tengo un huerto",
+        "body": "Publica lo que te sobra y tus vecinos te encontrarán.",
+        "action": "Publicar mi huerto"
+      },
+      "seeker": {
+        "title": "Quiero cultivar",
+        "body": "Encuentra verduras, semillas y almácigos cerca de ti.",
+        "action": "Buscar un huerto"
+      }
+    },
+    "featured": {
+      "title": "Huertos cerca de ti",
+      "subtitle": "Esto es lo que tus vecinos están compartiendo.",
+      "products": "{count, plural, one {# producto disponible} other {# productos disponibles}}",
+      "loading": "Buscando huertos cerca de ti",
+      "emptyTitle": "Mira el mapa completo",
+      "emptyBody": "Todavía no encontramos huertos cerca de ti para mostrar aquí. En el mapa puedes buscar en otras zonas.",
+      "errorTitle": "No pudimos cargar los huertos",
+      "errorBody": "Puede tardar un poco la primera vez. Prueba de nuevo o ve al mapa.",
+      "retry": "Reintentar",
+      "openMap": "Abrir el mapa"
+    },
+    "trust": {
+      "title": "Tú decides con quién compartir",
+      "email": "Tu correo nunca se muestra.",
+      "block": "Puedes bloquear a quien no quieras que te escriba.",
+      "visibility": "Tú decides cuándo mostrar u ocultar tu huerto."
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "cost": {
+        "question": "¿Cuesta algo usar ShareYourGarden?",
+        "answer": "No. Es un proyecto sin fines de lucro y usarlo es gratis."
+      },
+      "account": {
+        "question": "¿Necesito una cuenta?",
+        "answer": "Para ver el mapa, no. Para escribirle a alguien o publicar tu huerto, sí: se entra con Google."
+      },
+      "data": {
+        "question": "¿Qué pasa con mis datos?",
+        "answer": "Tu correo no se muestra a otras personas. Quien ve tu huerto ve tu nombre, tu foto de Google y una zona aproximada en el mapa. La dirección exacta solo la compartes tú, por mensaje."
+      },
+      "coordinate": {
+        "question": "¿Cómo coordino lo que quiero compartir?",
+        "answer": "Por los mensajes de la app. Cada persona y cada comunidad decide cómo compartir, por ejemplo regalo o trueque; ustedes acuerdan lugar y día."
+      },
+      "safety": {
+        "question": "¿Cómo cuido mi seguridad al encontrarme con alguien?",
+        "answer": "Al principio, encuéntrense en un lugar público o de paso, avisa a alguien de confianza y no compartas datos sensibles por mensaje. Si algo no te gusta, bloquea a esa persona."
+      },
+      "phone": {
+        "question": "¿Funciona en el teléfono?",
+        "answer": "Sí. Se puede instalar como app y avisa cuando llega un mensaje."
+      }
+    },
+    "final": {
+      "title": "Hay un huerto esperándote.",
+      "subtitle": "Encuentra uno cerca o comparte el tuyo.",
+      "action": "Explorar huertos"
+    },
+    "footer": {
+      "rights": "© {year} ShareYourGarden",
+      "contact": "Contacto"
+    }
   }
 }

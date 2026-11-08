@@ -440,5 +440,112 @@
       "myGarden": "{name}'s garden",
       "myGardenNoName": "My garden"
     }
+  },
+  "Landing": {
+    "metaDescription": "A network of neighbors who share what they grow. Find gardens near you or post what you have to spare. Non-profit.",
+    "beta": "beta",
+    "skipToContent": "Skip to content",
+    "nav": {
+      "label": "Sections",
+      "howItWorks": "How it works",
+      "map": "Map",
+      "faq": "Questions"
+    },
+    "headerCta": "Explore gardens",
+    "hero": {
+      "title": "A network of neighbors who share what they grow.",
+      "subtitle": "Find vegetables, seeds and seedlings near you, or post what you have to spare. Non-profit.",
+      "explore": "Explore the map",
+      "share": "Share my garden",
+      "note": "You don't need an account to see the map."
+    },
+    "why": {
+      "title": "A non-profit project",
+      "body": "ShareYourGarden exists so neighbors can support each other. What one garden has to spare can help another, and each community decides how to share.",
+      "beta": "We're in beta. <link>Tell us what you'd improve</link>.",
+      "feedbackSubject": "Feedback on ShareYourGarden"
+    },
+    "steps": {
+      "title": "How it works",
+      "search": {
+        "title": "Search",
+        "body": "Find gardens nearby on the map."
+      },
+      "connect": {
+        "title": "Connect",
+        "body": "Write to the owner and agree on how to share."
+      },
+      "grow": {
+        "title": "Grow",
+        "body": "Sow, harvest and share what grows."
+      }
+    },
+    "audiences": {
+      "title": "What brings you here?",
+      "owner": {
+        "title": "I have a garden",
+        "body": "Post what you have to spare and your neighbors will find you.",
+        "action": "Post my garden"
+      },
+      "seeker": {
+        "title": "I want to grow",
+        "body": "Find vegetables, seeds and seedlings near you.",
+        "action": "Find a garden"
+      }
+    },
+    "featured": {
+      "title": "Gardens near you",
+      "subtitle": "This is what your neighbors are sharing.",
+      "products": "{count, plural, one {# product available} other {# products available}}",
+      "loading": "Looking for gardens near you",
+      "emptyTitle": "See the full map",
+      "emptyBody": "We haven't found gardens near you to show here yet. On the map you can look in other areas.",
+      "errorTitle": "We couldn't load the gardens",
+      "errorBody": "It can take a moment the first time. Try again or go to the map.",
+      "retry": "Try again",
+      "openMap": "Open the map"
+    },
+    "trust": {
+      "title": "You decide who you share with",
+      "email": "Your email is never shown.",
+      "block": "You can block anyone you don't want to hear from.",
+      "visibility": "You decide when to show or hide your garden."
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "cost": {
+        "question": "Does ShareYourGarden cost anything?",
+        "answer": "No. It's a non-profit project and it's free to use."
+      },
+      "account": {
+        "question": "Do I need an account?",
+        "answer": "Not to see the map. To write to someone or post your garden, yes: you sign in with Google."
+      },
+      "data": {
+        "question": "What happens to my data?",
+        "answer": "Your email isn't shown to other people. Anyone who sees your garden sees your name, your Google photo and an approximate area on the map. Only you share the exact address, by message."
+      },
+      "coordinate": {
+        "question": "How do I arrange what I want to share?",
+        "answer": "Through the app's messages. Each person and each community decides how to share, for example as a gift or a swap; you agree on the place and day."
+      },
+      "safety": {
+        "question": "How do I stay safe when meeting someone?",
+        "answer": "At first, meet in a public or busy place, tell someone you trust and don't share sensitive details by message. If something feels off, block that person."
+      },
+      "phone": {
+        "question": "Does it work on my phone?",
+        "answer": "Yes. You can install it as an app and it lets you know when a message arrives."
+      }
+    },
+    "final": {
+      "title": "There's a garden waiting for you.",
+      "subtitle": "Find one nearby or share yours.",
+      "action": "Explore gardens"
+    },
+    "footer": {
+      "rights": "© {year} ShareYourGarden",
+      "contact": "Contact"
+    }
   }
 }

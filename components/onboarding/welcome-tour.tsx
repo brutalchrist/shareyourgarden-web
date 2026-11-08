@@ -33,12 +33,11 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { feedbackHref } from "@/lib/feedback"
 import type { User } from "@/lib/types"
 
 // How the tour was left: `create-garden` also takes them to the garden form.
 export type TourOutcome = "completed" | "skipped" | "create-garden"
-
-const FEEDBACK_EMAIL = "sgonzalez@debianchile.cl"
 
 const STEPS: readonly {
   id: "welcome" | "map" | "exchange" | "messages" | "share"
@@ -238,7 +237,7 @@ function TourBody({
               link: (chunks) => (
                 <a
                   className="font-medium text-foreground underline underline-offset-3"
-                  href={`mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(t("feedbackSubject"))}`}
+                  href={feedbackHref(t("feedbackSubject"))}
                 >
                   {chunks}
                 </a>
