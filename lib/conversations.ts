@@ -125,14 +125,16 @@ export async function listMessages(
   return { messages: data.messages.map(toMessage), hasMore: data.hasMore }
 }
 
+// `shareLocation` attaches the garden's exact point; only its owner can.
 export async function sendMessage(
   conversationId: string,
-  body: string
+  body: string,
+  shareLocation?: boolean
 ): Promise<Message> {
   return toMessage(
     await apiPost<unknown>(
       `/conversations/${encodeURIComponent(conversationId)}/messages`,
-      { body }
+      shareLocation ? { body, shareLocation } : { body }
     )
   )
 }

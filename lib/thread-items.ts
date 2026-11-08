@@ -12,6 +12,10 @@ export interface ThreadMessage {
   key: string
   senderId: string
   body: string
+  // [lng, lat] of the exact point shared with this message, if any.
+  sharedLocation?: [number, number]
+  // Set while sending: the message asks to share it, so a retry does too.
+  shareLocation?: boolean
   createdAt: Date
   status: DeliveryStatus
 }

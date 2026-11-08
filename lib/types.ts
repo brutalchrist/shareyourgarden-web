@@ -177,6 +177,8 @@ export interface Message {
   conversationId: string
   senderId: string
   body: string
+  // The garden's exact point, when its owner shared it with this message.
+  sharedLocation?: Location
   createdAt: string
 }
 
@@ -186,6 +188,9 @@ export function toMessage(data: any): Message {
     conversationId: data?.conversationId ?? "",
     senderId: data?.senderId ?? "",
     body: data?.body ?? "",
+    sharedLocation: data?.sharedLocation?.coordinates
+      ? { type: "Point", coordinates: data.sharedLocation.coordinates }
+      : undefined,
     createdAt: data?.createdAt ?? "",
   }
 }
