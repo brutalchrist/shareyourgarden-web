@@ -547,5 +547,13 @@
       "rights": "© {year} ShareYourGarden",
       "contact": "Contacto"
     }
+  },
+  "Beta": {
+    "badge": "beta",
+    "label": "Estamos en beta: más información",
+    "title": "Estamos en beta",
+    "description": "ShareYourGarden recién empieza: algunas cosas pueden fallar o cambiar. Si algo no funciona o se te ocurre una mejora, cuéntanos.",
+    "feedback": "Enviar comentarios",
+    "feedbackSubject": "Comentarios beta ShareYourGarden"
   }
 }

@@ -3,6 +3,7 @@
 import { MapIcon, MessagesSquareIcon, SproutIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
+import { BetaBadge } from "@/components/beta-badge"
 import { useMessages } from "@/components/messages/messages-provider"
 import { UnreadIndicator } from "@/components/messages/unread-indicator"
 import { NavGardens } from "@/components/nav-gardens"
@@ -46,13 +47,18 @@ export function AppSidebar() {
               render={<Link href="/map" />}
               tooltip="ShareYourGarden"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-brand text-brand-foreground">
                 <SproutIcon className="size-4" />
               </div>
               <span className="truncate font-heading font-semibold">
                 ShareYourGarden
               </span>
             </SidebarMenuButton>
+            {/* Over the button's free end, outside the link; hidden when the
+                sidebar folds to icons. */}
+            <div className="absolute top-1/2 right-2 -translate-y-1/2 group-data-[collapsible=icon]:hidden">
+              <BetaBadge />
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

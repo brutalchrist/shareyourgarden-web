@@ -547,5 +547,13 @@
       "rights": "© {year} ShareYourGarden",
       "contact": "Contact"
     }
+  },
+  "Beta": {
+    "badge": "beta",
+    "label": "We're in beta: learn more",
+    "title": "We're in beta",
+    "description": "ShareYourGarden is just getting started: some things may break or change. If something doesn't work or you have an idea, let us know.",
+    "feedback": "Send feedback",
+    "feedbackSubject": "ShareYourGarden beta feedback"
   }
 }
