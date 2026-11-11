@@ -6,8 +6,10 @@ import { routing } from "@/i18n/routing"
 // Written once at build time for the static export.
 export const dynamic = "force-static"
 
-// One manifest for every locale: the installed app opens `/`, which picks the
-// language in the browser like any other path without one.
+// One manifest for every locale: the installed app opens `/map/`, which picks
+// the language in the browser like any other path without one. `/` is the
+// landing page, for visitors rather than people who installed the app. The id
+// stays `/` so existing installs are the same app.
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const t = await getTranslations({
     locale: routing.defaultLocale,
@@ -20,7 +22,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     short_name: t("title"),
     description: t("description"),
     lang: routing.defaultLocale,
-    start_url: "/",
+    start_url: "/map/",
     scope: "/",
     display: "standalone",
     background_color: "#ffffff",

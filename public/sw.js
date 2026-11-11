@@ -20,8 +20,10 @@ const ASSETS = `assets-${VERSION}`
 const LOCALES = ["es", "en"]
 const DEFAULT_LOCALE = "es"
 const OFFLINE_PAGES = LOCALES.map((locale) => `/${locale}/offline/`)
+// `/map/` is where the installed app opens (`app/manifest.ts`).
 const PRECACHE = [
   "/",
+  "/map/",
   ...OFFLINE_PAGES,
   "/icons/icon-192.png",
   "/icons/apple-touch-icon.png",
