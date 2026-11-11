@@ -9,6 +9,16 @@ import { useAuth } from "@/components/auth-provider"
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
+// Narrower than Tailwind's `sm`, the header's button is Google's round icon:
+// the brand, its "beta" badge and the language button need the room.
+const COMPACT_QUERY = "(max-width: 639px)"
+
+function subscribeCompact(onChange: () => void) {
+  const query = window.matchMedia(COMPACT_QUERY)
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+
 export function GoogleSignInButton({
   fullWidth = false,
 }: {
@@ -25,6 +35,11 @@ export function GoogleSignInButton({
     () => typeof window !== "undefined" && Boolean(window.google?.accounts.id)
   )
   const [error, setError] = React.useState(false)
+  const compact = React.useSyncExternalStore(
+    subscribeCompact,
+    () => window.matchMedia(COMPACT_QUERY).matches,
+    () => false
+  )
 
   React.useEffect(() => {
     const container = containerRef.current
@@ -57,8 +72,20 @@ export function GoogleSignInButton({
       return
     }
 
-    // The short "Sign in" fits the header on phones too, now that the search
-    // lives on the map.
+    // A re-render replaces the previous button.
+    container.replaceChildren()
+
+    if (compact) {
+      google.accounts.id.renderButton(container, {
+        type: "icon",
+        theme,
+        size: "medium",
+        shape: "circle",
+        locale,
+      })
+      return
+    }
+
     google.accounts.id.renderButton(container, {
       type: "standard",
       theme,
@@ -67,7 +94,14 @@ export function GoogleSignInButton({
       shape: "pill",
       locale,
     })
-  }, [scriptReady, resolvedTheme, locale, signInWithCredential, fullWidth])
+  }, [
+    scriptReady,
+    resolvedTheme,
+    locale,
+    signInWithCredential,
+    fullWidth,
+    compact,
+  ])
 
   if (!GOOGLE_CLIENT_ID) {
     return null
@@ -101,10 +135,7 @@ export function GoogleSignInButton({
       />
       {error && <span className="text-sm text-destructive">{t("error")}</span>}
       {/* Google's iframe is light; a dark color-scheme around it makes Chrome paint it an opaque white box. */}
-      <div
-        ref={containerRef}
-        className="h-8 [color-scheme:light]"
-      />
+      <div ref={containerRef} className="h-8 [color-scheme:light]" />
     </div>
   )
 }

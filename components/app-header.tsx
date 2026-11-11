@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { PlusIcon, SproutIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
+import { BetaBadge } from "@/components/beta-badge"
 import { ButtonLink } from "@/components/button-link"
 import { useMessages } from "@/components/messages/messages-provider"
 import { useMyGardens } from "@/components/my-gardens-provider"
@@ -69,17 +70,21 @@ export function AppHeader({
             </React.Suspense>
           </>
         ) : (
-          <Link
-            href="/map"
-            className="flex items-center gap-2 rounded-md font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <SproutIcon className="size-4" />
-            </span>
-            <span className="truncate font-heading font-semibold">
-              ShareYourGarden
-            </span>
-          </Link>
+          <div className="flex min-w-0 items-center gap-2">
+            <Link
+              href="/map"
+              className="flex min-w-0 items-center gap-2 rounded-md font-medium outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand text-brand-foreground">
+                <SproutIcon className="size-4" />
+              </span>
+              <span className="truncate font-heading font-semibold">
+                ShareYourGarden
+              </span>
+            </Link>
+            {/* Beside the link, not in it: it's a button of its own. */}
+            <BetaBadge />
+          </div>
         )}
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {showSidebarTrigger && pathname.startsWith("/map") && (

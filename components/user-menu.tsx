@@ -10,8 +10,8 @@ export function UserMenu() {
   const { status } = useAuth()
 
   if (status === "loading") {
-    // Room for the language button and Google's.
-    return <div className="h-8 w-[150px]" aria-hidden />
+    // Room for the language button and Google's, round on phones.
+    return <div className="h-8 w-18 sm:w-[150px]" aria-hidden />
   }
 
   if (status === "authenticated") {
