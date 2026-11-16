@@ -86,8 +86,11 @@
     "label": "Search address",
     "minLength": "Type at least {min} letters.",
     "loading": "Searching…",
-    "error": "We couldn't search. Try again or tap the map.",
-    "noResults": "No results. Try another address or tap the map.",
+    "error": "We couldn't search. Try again or mark your garden on the map.",
+    "noResults": "We couldn't find that address. You can mark your garden on the map or use your location.",
+    "pickOnMap": "Mark on the map",
+    "useMyLocation": "Use my location",
+    "missingNumber": "Without number {number}: move the marker to your house",
     "attribution": "Search by Photon · data © <osm>OpenStreetMap</osm>"
   },
   "GardenPage": {
@@ -144,6 +147,7 @@
     "location": "Location",
     "locationDescription": "Search for the address or tap the map to mark your garden. You can drag the marker to adjust it.",
     "useMyLocation": "Use my location",
+    "missingNumberHint": "We don't have number {number} on that street. Drag the marker to your house.",
     "noLocation": "No location",
     "products": "Products",
     "productsDescription": "What you offer right now. Keep it up to date so nobody travels for something that's gone.",
