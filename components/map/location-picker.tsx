@@ -13,6 +13,8 @@ import { createMarkerElement, gardenIcon } from "@/components/map/marker-icon"
 const DEFAULT_CENTER: Coordinates = [0, 0]
 const DEFAULT_ZOOM = 1
 const PICKED_ZOOM = 15
+// The visitor's city, from their IP address: close enough to find the spot.
+const APPROXIMATE_ZOOM = 11
 const MAX_ZOOM = 17
 
 // [lng, lat], as GeoJSON stores it.
@@ -22,10 +24,14 @@ export default function LocationPicker({
   value,
   onChange,
   invalid,
+  approximateCenter,
 }: {
   value: Coordinates | null
   onChange: (value: Coordinates) => void
   invalid?: boolean
+  // Where to open without a value, until the browser's geolocation (if
+  // allowed) says better.
+  approximateCenter?: Coordinates | null
 }) {
   const { resolvedTheme } = useTheme()
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -125,6 +131,23 @@ export default function LocationPicker({
   React.useEffect(() => {
     const map = mapRef.current
 
+    // Only over the untouched world view: never undo a pan, a pick or the
+    // browser's geolocation, which zoom in further.
+    if (
+      !map ||
+      !approximateCenter ||
+      markerRef.current ||
+      map.getZoom() > DEFAULT_ZOOM
+    ) {
+      return
+    }
+
+    map.jumpTo({ center: approximateCenter, zoom: APPROXIMATE_ZOOM })
+  }, [approximateCenter])
+
+  React.useEffect(() => {
+    const map = mapRef.current
+
     if (!map || !value) {
       return
     }
@@ -143,8 +166,9 @@ export default function LocationPicker({
     }
 
     // Values from outside the map (the address search, geolocation) may land
-    // off-screen or on a zoomed-out view: bring them close enough to adjust.
-    if (!map.getBounds().contains(value) || map.getZoom() < PICKED_ZOOM - 4) {
+    // off-screen or on a zoomed-out view (the whole world, or the city it
+    // opens on): bring them close enough to adjust.
+    if (!map.getBounds().contains(value) || map.getZoom() < PICKED_ZOOM - 2) {
       map.jumpTo({ center: value, zoom: Math.max(map.getZoom(), PICKED_ZOOM) })
     }
   }, [value])

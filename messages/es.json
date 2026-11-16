@@ -86,8 +86,11 @@
     "label": "Buscar dirección",
     "minLength": "Escribe al menos {min} letras.",
     "loading": "Buscando…",
-    "error": "No pudimos buscar. Inténtalo de nuevo o marca el mapa.",
-    "noResults": "Sin resultados. Prueba con otra dirección o marca el mapa.",
+    "error": "No pudimos buscar. Inténtalo de nuevo o marca tu huerto en el mapa.",
+    "noResults": "No encontramos esa dirección. Puedes marcar tu huerto en el mapa o usar tu ubicación.",
+    "pickOnMap": "Marcar en el mapa",
+    "useMyLocation": "Usar mi ubicación",
+    "missingNumber": "Sin el número {number}: ajusta el marcador a tu casa",
     "attribution": "Búsqueda de Photon · datos © <osm>OpenStreetMap</osm>"
   },
   "GardenPage": {
@@ -144,6 +147,7 @@
     "location": "Ubicación",
     "locationDescription": "Busca la dirección o toca el mapa para marcar tu huerto. Puedes arrastrar el marcador para ajustarlo.",
     "useMyLocation": "Usar mi ubicación",
+    "missingNumberHint": "No tenemos el número {number} de esa calle. Arrastra el marcador hasta tu casa.",
     "noLocation": "Sin ubicación",
     "products": "Productos",
     "productsDescription": "Lo que ofreces ahora. Mantenlo al día para que nadie viaje por algo que ya no está.",

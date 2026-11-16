@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import dynamic from "next/dynamic"
 import { LocateFixedIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -12,6 +13,7 @@ import {
 } from "@/components/gardens/form/draft"
 import type { GardenDraftState } from "@/components/gardens/form/use-garden-draft"
 import { AddressSearch } from "@/components/map/address-search"
+import { useApproximateCenter } from "@/components/map/use-approximate-center"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -136,6 +138,22 @@ export function LocationSection({ form }: { form: GardenDraftState }) {
   const errorMessage = useErrorMessage()
   const { draft, patch, errors, location } = form
   const [lng, lat] = draft.coordinates ?? []
+  const approximateCenter = useApproximateCenter()
+  const pickerRef = React.useRef<HTMLDivElement>(null)
+  // The house number a street result lacked, until the marker is moved.
+  const [missingNumber, setMissingNumber] = React.useState<string | null>(null)
+
+  function locateMe() {
+    setMissingNumber(null)
+    location.locateMe()
+  }
+
+  // Bring the map into view and hand it the keyboard, ready for a tap.
+  function pickOnMap() {
+    const picker = pickerRef.current
+    picker?.scrollIntoView({ behavior: "smooth", block: "center" })
+    picker?.querySelector<HTMLElement>("canvas")?.focus({ preventScroll: true })
+  }
 
   return (
     <FieldSet>
@@ -144,17 +162,21 @@ export function LocationSection({ form }: { form: GardenDraftState }) {
       <Field>
         <AddressSearch
           near={draft.coordinates}
+          approximateNear={approximateCenter}
           onSelect={(place) => {
             location.clearError()
+            setMissingNumber(place.missingNumber ?? null)
             patch({ coordinates: place.coordinates })
           }}
+          onPickOnMap={pickOnMap}
+          onLocateMe={locateMe}
         />
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={location.locateMe}
+            onClick={locateMe}
             disabled={location.locating}
           >
             {location.locating ? (
@@ -170,11 +192,22 @@ export function LocationSection({ form }: { form: GardenDraftState }) {
               : t("noLocation")}
           </span>
         </div>
-        <LocationPicker
-          value={draft.coordinates}
-          onChange={(coordinates) => patch({ coordinates })}
-          invalid={!!errors.location}
-        />
+        {missingNumber && (
+          <FieldDescription>
+            {t("missingNumberHint", { number: missingNumber })}
+          </FieldDescription>
+        )}
+        <div ref={pickerRef} className="scroll-mt-4">
+          <LocationPicker
+            value={draft.coordinates}
+            onChange={(coordinates) => {
+              setMissingNumber(null)
+              patch({ coordinates })
+            }}
+            invalid={!!errors.location}
+            approximateCenter={approximateCenter}
+          />
+        </div>
         <FieldError>
           {errorMessage(errors.location ?? location.error)}
         </FieldError>
