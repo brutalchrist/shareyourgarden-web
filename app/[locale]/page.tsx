@@ -16,6 +16,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { ButtonLink } from "@/components/button-link"
 import { FeaturedGardens } from "@/components/landing/featured-gardens"
 import { LandingHeader } from "@/components/landing/landing-header"
+import { LandingVisited } from "@/components/landing/landing-visited"
 import { LanguageMenuButton } from "@/components/language-menu"
 import { PRODUCT_TYPE_ICONS } from "@/components/product-type-icon"
 import {
@@ -104,6 +105,7 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
       >
         {t("skipToContent")}
       </a>
+      <LandingVisited />
       <LandingHeader />
 
       <main id="content" className="flex-1">

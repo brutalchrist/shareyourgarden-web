@@ -84,11 +84,14 @@ export default function GardenMap({
   focus,
   filter: { searchText, productType },
   onEmptyChange,
+  onGardenOpenChange,
 }: {
   focus: MapFocus | null
   filter: MapFilter
   // Whether the gardens in view, once filtered, are none.
   onEmptyChange: (isEmpty: boolean) => void
+  // Whether a garden's drawer is open.
+  onGardenOpenChange?: (open: boolean) => void
 }) {
   const t = useTranslations("MapControls")
   const tMap = useTranslations("GardenMap")
@@ -512,6 +515,10 @@ export default function GardenMap({
     selectedIdRef.current = selectedGarden?.id ?? null
     renderMarkers()
   }, [selectedGarden, renderMarkers])
+
+  React.useEffect(() => {
+    onGardenOpenChange?.(selectedGarden !== null)
+  }, [selectedGarden, onGardenOpenChange])
 
   // Bring the selected garden into the part of the map the drawer leaves
   // visible: left of the side panel, or above the bottom sheet on mobile.

@@ -16,6 +16,8 @@ export interface AnalyticsEvents {
   map_filtered: { product_type: ProductType | null }
   garden_opened: { own: boolean; product_count: number; from: "map" | "link" }
   garden_photos_opened: { product_type: string; photo_count: number }
+  map_welcome_shown: Record<string, never>
+  map_welcome_answered: { action: "learn_more" | "dismissed" }
   // Contact and messages.
   contact_started: { signed_in: boolean }
   message_sent: {

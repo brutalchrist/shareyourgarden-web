@@ -4,8 +4,10 @@ import * as React from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 
+import { useAuth } from "@/components/auth-provider"
 import { MapEmptyState } from "@/components/map/map-empty-state"
 import { MapSearch } from "@/components/map/map-search"
+import { MapWelcome, useMapWelcomePending } from "@/components/map/map-welcome"
 import { track } from "@/lib/analytics"
 import { useProductLabels, type ProductType } from "@/lib/products"
 
@@ -23,6 +25,12 @@ export function MapView() {
   const [searchText, setSearchText] = React.useState("")
   const [productType, setProductType] = React.useState<ProductType | null>(null)
   const [isEmpty, setIsEmpty] = React.useState(false)
+  const [gardenOpen, setGardenOpen] = React.useState(false)
+  const { status } = useAuth()
+  const welcomePending = useMapWelcomePending()
+  // Visitors only, and never over a garden they came to see: it waits until
+  // its drawer closes.
+  const showWelcome = status === "anonymous" && welcomePending && !gardenOpen
   const { productTypeLabel } = useProductLabels()
 
   // What people look for, once they stop typing.
@@ -44,7 +52,11 @@ export function MapView() {
       {/* The focused garden comes from the URL query, only known in the
           browser for this statically exported page. */}
       <React.Suspense>
-        <FocusedGardenMap filter={filter} onEmptyChange={setIsEmpty} />
+        <FocusedGardenMap
+          filter={filter}
+          onEmptyChange={setIsEmpty}
+          onGardenOpenChange={setGardenOpen}
+        />
       </React.Suspense>
       {/* Outside the map, so it is in the prerendered page and shows before
           MapLibre has loaded. */}
@@ -57,13 +69,18 @@ export function MapView() {
           track("map_filtered", { product_type: type })
         }}
       >
-        {isEmpty && (
-          <MapEmptyState
-            query={
-              searchText.trim() ||
-              (productType ? productTypeLabel(productType) : "")
-            }
-          />
+        {/* One card at a time: the welcome explains everything else. */}
+        {showWelcome ? (
+          <MapWelcome />
+        ) : (
+          isEmpty && (
+            <MapEmptyState
+              query={
+                searchText.trim() ||
+                (productType ? productTypeLabel(productType) : "")
+              }
+            />
+          )
         )}
       </MapSearch>
     </div>
@@ -73,9 +90,11 @@ export function MapView() {
 function FocusedGardenMap({
   filter,
   onEmptyChange,
+  onGardenOpenChange,
 }: {
   filter: MapFilter
   onEmptyChange: (isEmpty: boolean) => void
+  onGardenOpenChange: (open: boolean) => void
 }) {
   const searchParams = useSearchParams()
   const lat = Number(searchParams.get("lat"))
@@ -93,6 +112,11 @@ function FocusedGardenMap({
   )
 
   return (
-    <GardenMap focus={focus} filter={filter} onEmptyChange={onEmptyChange} />
+    <GardenMap
+      focus={focus}
+      filter={filter}
+      onEmptyChange={onEmptyChange}
+      onGardenOpenChange={onGardenOpenChange}
+    />
   )
 }

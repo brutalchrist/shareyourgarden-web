@@ -567,5 +567,11 @@
     "description": "Medimos cómo se usa ShareYourGarden para saber qué mejorar. Si aceptas, guardamos un identificador en tu navegador para reconocer cuando vuelves. Si no, medimos de forma anónima, sin guardar nada. Nunca registramos tus mensajes ni tu ubicación exacta.",
     "accept": "Aceptar",
     "reject": "Rechazar"
+  },
+  "MapWelcome": {
+    "title": "¿Primera vez aquí?",
+    "description": "Una red de vecinos que comparten lo que cultivan, sin fines de lucro.",
+    "learnMore": "Cómo funciona",
+    "dismiss": "Cerrar"
   }
 }
