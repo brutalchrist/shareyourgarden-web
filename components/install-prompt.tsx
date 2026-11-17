@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { useWelcomeTour } from "@/components/onboarding/welcome-tour-provider"
+import { track } from "@/lib/analytics"
 import { isInstalled, isIos } from "@/lib/platform"
 
 // Chromium's install event, not in TypeScript's DOM types.
@@ -86,6 +87,7 @@ export function InstallPrompt() {
       show(t("description"), () => {
         install.prompt()
         install.userChoice.then(({ outcome }) => {
+          track("pwa_install_answered", { outcome })
           if (outcome === "dismissed") rememberDismissed()
         })
       })

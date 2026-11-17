@@ -5,6 +5,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import "../globals.css"
+import { Analytics } from "@/components/analytics"
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
 import { InstallPrompt } from "@/components/install-prompt"
@@ -102,6 +103,7 @@ export default async function RootLayout({
                       <AppShell>{children}</AppShell>
                       <Toaster position="top-center" richColors />
                       <InstallPrompt />
+                      <Analytics />
                       <ServiceWorker />
                     </WelcomeTourProvider>
                   </TooltipProvider>

@@ -39,7 +39,8 @@
     "lightAppearance": "Aspecto claro",
     "darkAppearance": "Aspecto oscuro",
     "signOut": "Cerrar sesión",
-    "welcomeTour": "Ver tour de bienvenida"
+    "welcomeTour": "Ver tour de bienvenida",
+    "analytics": "Analítica"
   },
   "LanguageMenu": {
     "label": "Idioma",
@@ -559,5 +560,12 @@
     "description": "ShareYourGarden recién empieza: algunas cosas pueden fallar o cambiar. Si algo no funciona o se te ocurre una mejora, cuéntanos.",
     "feedback": "Enviar comentarios",
     "feedbackSubject": "Comentarios beta ShareYourGarden"
+  },
+  "Analytics": {
+    "label": "Analítica",
+    "title": "¿Nos ayudas a mejorar?",
+    "description": "Medimos cómo se usa ShareYourGarden para saber qué mejorar. Si aceptas, guardamos un identificador en tu navegador para reconocer cuando vuelves. Si no, medimos de forma anónima, sin guardar nada. Nunca registramos tus mensajes ni tu ubicación exacta.",
+    "accept": "Aceptar",
+    "reject": "Rechazar"
   }
 }

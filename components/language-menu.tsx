@@ -22,6 +22,7 @@ import {
   useLocalePreference,
   type LocalePreference,
 } from "@/i18n/use-locale-preference"
+import { track } from "@/lib/analytics"
 
 // "Automatic" plus every locale, shared by the user menu and the header.
 function LanguageMenuItems() {
@@ -31,7 +32,10 @@ function LanguageMenuItems() {
   return (
     <DropdownMenuRadioGroup
       value={preference}
-      onValueChange={(value: LocalePreference) => setPreference(value)}
+      onValueChange={(value: LocalePreference) => {
+        setPreference(value)
+        track("language_changed", { locale: value })
+      }}
     >
       <DropdownMenuRadioItem value="auto" closeOnClick>
         {t("auto", { language: LOCALE_NAMES[detected] })}

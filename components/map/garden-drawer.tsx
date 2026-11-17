@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/item"
 import { Separator } from "@/components/ui/separator"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { track } from "@/lib/analytics"
 import { useProductLabels } from "@/lib/products"
 import type { Garden, Product } from "@/lib/types"
 
@@ -149,7 +150,13 @@ export function GardenDrawer({
                       <ProductItem
                         key={index}
                         product={product}
-                        onOpenPhotos={() => setGallery(product)}
+                        onOpenPhotos={() => {
+                          setGallery(product)
+                          track("garden_photos_opened", {
+                            product_type: product.type,
+                            photo_count: product.images.length,
+                          })
+                        }}
                       />
                     ))}
                 </ItemGroup>

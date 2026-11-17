@@ -40,6 +40,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
+import { track } from "@/lib/analytics"
 import { messagesHref } from "@/lib/conversations"
 import { gardenEditHref, gardenMapHref } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
@@ -154,9 +155,10 @@ function GardensMenu() {
               >
                 {/* What changes most once a garden is up: straight there. */}
                 <DropdownMenuItem
-                  onClick={() =>
+                  onClick={() => {
+                    track("update_products_shortcut_used")
                     router.push(gardenEditHref(garden.id, "products"))
-                  }
+                  }}
                 >
                   <ShoppingBasketIcon />
                   {t("updateProducts")}

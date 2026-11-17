@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 
 import { MapEmptyState } from "@/components/map/map-empty-state"
 import { MapSearch } from "@/components/map/map-search"
+import { track } from "@/lib/analytics"
 import { useProductLabels, type ProductType } from "@/lib/products"
 
 // MapLibre needs `window` and WebGL, so the map only renders on the client.
@@ -23,6 +24,14 @@ export function MapView() {
   const [productType, setProductType] = React.useState<ProductType | null>(null)
   const [isEmpty, setIsEmpty] = React.useState(false)
   const { productTypeLabel } = useProductLabels()
+
+  // What people look for, once they stop typing.
+  React.useEffect(() => {
+    const query = searchText.trim().toLowerCase()
+    if (!query) return
+    const timer = setTimeout(() => track("map_searched", { query }), 1500)
+    return () => clearTimeout(timer)
+  }, [searchText])
 
   const filter = React.useMemo(
     () => ({ searchText, productType }),
@@ -43,7 +52,10 @@ export function MapView() {
         searchText={searchText}
         onSearchTextChange={setSearchText}
         productType={productType}
-        onProductTypeChange={setProductType}
+        onProductTypeChange={(type) => {
+          setProductType(type)
+          track("map_filtered", { product_type: type })
+        }}
       >
         {isEmpty && (
           <MapEmptyState

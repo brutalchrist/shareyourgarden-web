@@ -32,6 +32,7 @@ import {
 } from "@/components/map/initial-view"
 import type { MapFilter } from "@/components/map/map-view"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { track } from "@/lib/analytics"
 import { getGardensFromBounds } from "@/lib/gardens"
 import type { Garden } from "@/lib/types"
 
@@ -231,7 +232,14 @@ export default function GardenMap({
           label: gardenLabel(garden),
           raised: options.selected,
           offset,
-          activate: () => setSelectedGarden(garden),
+          activate: () => {
+            setSelectedGarden(garden)
+            track("garden_opened", {
+              own: ownIdsRef.current.has(garden.id),
+              product_count: garden.products.length,
+              from: "map",
+            })
+          },
         }
       )
     }
@@ -566,6 +574,11 @@ export default function GardenMap({
         if (pending) {
           pendingGardenIdRef.current = null
           setSelectedGarden(pending)
+          track("garden_opened", {
+            own: own.has(pending.id),
+            product_count: pending.products.length,
+            from: "link",
+          })
         }
 
         gardensRef.current = new Map(

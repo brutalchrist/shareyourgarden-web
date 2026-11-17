@@ -7,6 +7,7 @@ import { GardenForm } from "@/components/gardens/form/garden-form"
 import { GardenPageLayout } from "@/components/gardens/garden-page-layout"
 import { useMyGardens } from "@/components/my-gardens-provider"
 import { useRouter } from "@/i18n/navigation"
+import { track } from "@/lib/analytics"
 import { discardGardenDraft } from "@/lib/garden-drafts"
 import { gardenEditHref, gardenMapHref } from "@/lib/gardens"
 
@@ -23,6 +24,7 @@ export function NewGarden() {
         onSubmit={async (input) => {
           try {
             const garden = await create(input)
+            track("garden_created", { product_count: input.products.length })
             discardGardenDraft()
             toast.success(t("created", { name: garden.name }), {
               action: {

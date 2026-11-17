@@ -1,3 +1,9 @@
+# PostHog, proxied so ad blockers that block its own domain don't drop the
+# events (`api_host: "/ingest"` in instrumentation-client.ts). Before the
+# rules below, which would catch these paths.
+/ingest/static/*  https://us-assets.i.posthog.com/static/:splat  200
+/ingest/*  https://us.i.posthog.com/:splat  200
+
 # Missing pages under a locale get that locale's 404 page.
 /es/*  /es/404/  404
 /en/*  /en/404/  404

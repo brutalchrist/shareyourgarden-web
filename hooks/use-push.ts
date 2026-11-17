@@ -3,6 +3,7 @@ import { useLocale, useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { usePageVisible } from "@/hooks/use-page-visible"
+import { track } from "@/lib/analytics"
 import {
   disablePush,
   enablePush,
@@ -63,6 +64,7 @@ export function usePushToggle() {
       const next = on ? await enablePush(locale) : (await disablePush(), "off")
       checkRef.current++
       setState(next)
+      track("push_toggled", { enabled: on })
       return next
     } catch (error) {
       console.error(error)
