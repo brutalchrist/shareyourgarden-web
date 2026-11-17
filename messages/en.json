@@ -567,5 +567,11 @@
     "description": "We measure how ShareYourGarden is used to know what to improve. If you accept, we store an identifier in your browser to recognize you when you come back. If not, we measure anonymously, storing nothing. We never record your messages or your exact location.",
     "accept": "Accept",
     "reject": "Reject"
+  },
+  "MapWelcome": {
+    "title": "First time here?",
+    "description": "A network of neighbors sharing what they grow, not for profit.",
+    "learnMore": "How it works",
+    "dismiss": "Close"
   }
 }
