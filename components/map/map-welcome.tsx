@@ -15,40 +15,20 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 import { track } from "@/lib/analytics"
-
-const DISMISSED_KEY = "syg.mapWelcomeDismissed"
-
-const listeners = new Set<() => void>()
-
-function subscribe(listener: () => void) {
-  listeners.add(listener)
-  return () => {
-    listeners.delete(listener)
-  }
-}
-
-function isDismissed() {
-  try {
-    return localStorage.getItem(DISMISSED_KEY) !== null
-  } catch {
-    // Without storage the card can't remember being closed: don't show it.
-    return true
-  }
-}
-
-function dismiss() {
-  try {
-    localStorage.setItem(DISMISSED_KEY, new Date().toISOString())
-  } catch {
-    // Storage unavailable: it stays closed until the page reloads.
-  }
-  listeners.forEach((listener) => listener())
-}
+import {
+  dismissMapWelcome,
+  isMapWelcomeDismissed,
+  subscribeMapWelcome,
+} from "@/lib/map-welcome"
 
 // Whether this browser still has to see the welcome card. Prerendered pages
 // show none; the browser decides after hydrating.
 export function useMapWelcomePending() {
-  return !React.useSyncExternalStore(subscribe, isDismissed, () => true)
+  return !React.useSyncExternalStore(
+    subscribeMapWelcome,
+    isMapWelcomeDismissed,
+    () => true
+  )
 }
 
 // For visitors who land on the map without knowing the project (a shared
@@ -79,7 +59,7 @@ export function MapWelcome() {
             size="sm"
             onClick={() => {
               track("map_welcome_answered", { action: "learn_more" })
-              dismiss()
+              dismissMapWelcome()
             }}
           >
             {t("learnMore")}
@@ -92,7 +72,7 @@ export function MapWelcome() {
             title={t("dismiss")}
             onClick={() => {
               track("map_welcome_answered", { action: "dismissed" })
-              dismiss()
+              dismissMapWelcome()
             }}
           >
             <XIcon />
