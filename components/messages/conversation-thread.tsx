@@ -50,6 +50,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { usePageVisible } from "@/hooks/use-page-visible"
 import { usePushMessages } from "@/hooks/use-push"
+import { track } from "@/lib/analytics"
 import { ApiError } from "@/lib/api"
 import { toast } from "sonner"
 import {
@@ -272,6 +273,11 @@ export function ConversationThread({
 
       try {
         const sent = await sendMessage(conversationId, body, shareLocation)
+        track("message_sent", {
+          first: false,
+          shared_location: Boolean(shareLocation),
+          about_product: false,
+        })
         setPending((current) =>
           current.filter((message) => message.key !== key)
         )

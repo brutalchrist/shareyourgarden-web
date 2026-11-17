@@ -93,7 +93,8 @@ function Inbox() {
   )
 
   return (
-    <div className="flex h-full min-h-0">
+    // Conversations are private: session recordings show this as a blank box.
+    <div className="ph-no-capture flex h-full min-h-0">
       <aside
         className={cn(
           "min-h-0 w-full flex-col md:flex md:w-80 md:shrink-0 md:border-r lg:w-96",

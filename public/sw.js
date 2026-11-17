@@ -59,8 +59,10 @@ self.addEventListener("fetch", (event) => {
   // Page data for client-side navigation must match the deployed build; when
   // it fails, the router falls back to loading the page, handled below.
   if (url.searchParams.has("_rsc")) return
-  // Edge functions answer per visitor (`/api/geo`: their position).
-  if (url.pathname.startsWith("/api/")) return
+  // Edge functions answer per visitor (`/api/geo`: their position), and
+  // PostHog's proxy (`/ingest/`) serves its own, versioned scripts.
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/ingest/"))
+    return
 
   if (request.mode === "navigate") {
     event.respondWith(page(request, url))

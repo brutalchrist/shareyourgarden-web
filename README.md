@@ -13,6 +13,16 @@ cp .env.example .env.local
 
 The map opens on the visitor's city, from their IP address, through a Netlify Edge Function (`netlify/edge-functions/geo.ts`, served at `/api/geo`). Locally there is no such endpoint and the map starts where it was last left, or on the whole world, unless `NEXT_PUBLIC_DEV_CENTER` sets a `lat,lng` to stand in for it. `netlify dev` runs the function too.
 
+## Analytics
+
+Product analytics go to [PostHog](https://posthog.com) (US Cloud), and are off unless `NEXT_PUBLIC_POSTHOG_KEY` holds the project's API key. That key is not secret: it ships in the page's JavaScript. Set it in Netlify's environment variables.
+
+- **Setup:** `instrumentation-client.ts` sets PostHog up. Events go through Netlify to `/ingest` (`public/_redirects`), so ad blockers don't drop them.
+- **Events:** `lib/analytics.ts` lists the app's own events and their properties. Add new ones there, and send them with `track()`.
+- **Consent:** a banner asks for consent (`components/analytics.tsx`). Accepting measures with cookies; rejecting, or not answering yet, measures anonymously without cookies or storage. Signed-in users who accept are identified by their internal id, never their email.
+- **Required in PostHog's project settings:** turn on **cookieless mode**, or PostHog drops the anonymous events.
+- **Privacy:** session recordings mask what users type. Private text on screen (conversations, the owner's garden location, the account menu) is blocked with the `ph-no-capture` class. Keep it on any new screen that shows private data.
+
 ## Scripts
 
 - `pnpm dev`: start the dev server at `http://localhost:3000`

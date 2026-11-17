@@ -60,6 +60,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { track } from "@/lib/analytics"
 import {
   PRODUCT_IMAGES_MAX,
   PRODUCT_TYPES,
@@ -270,7 +271,14 @@ function QuantityStepper({
       <InputGroupAddon>
         <InputGroupButton
           size="icon-sm"
-          onClick={() => onChange(stepQuantity(quantity, -1))}
+          onClick={() => {
+            const next = stepQuantity(quantity, -1)
+            onChange(next)
+            track("product_quantity_stepped", {
+              direction: "down",
+              sold_out: next === "0",
+            })
+          }}
           disabled={quantity.trim() !== "" && value <= 0}
           aria-label={t("decrease", { name })}
         >
@@ -290,7 +298,13 @@ function QuantityStepper({
       <InputGroupAddon align="inline-end">
         <InputGroupButton
           size="icon-sm"
-          onClick={() => onChange(stepQuantity(quantity, 1))}
+          onClick={() => {
+            onChange(stepQuantity(quantity, 1))
+            track("product_quantity_stepped", {
+              direction: "up",
+              sold_out: false,
+            })
+          }}
           aria-label={t("increase", { name })}
         >
           <PlusIcon />

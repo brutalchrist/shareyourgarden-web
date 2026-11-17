@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "@/i18n/navigation"
+import { track } from "@/lib/analytics"
 import { ApiError } from "@/lib/api"
 import {
   findConversationAboutGarden,
@@ -150,7 +151,10 @@ export function ContactGarden({ garden }: { garden: Garden }) {
     <Button
       size="lg"
       className="w-full"
-      onClick={() => setPanel(isAuthenticated ? "compose" : "signin")}
+      onClick={() => {
+        setPanel(isAuthenticated ? "compose" : "signin")
+        track("contact_started", { signed_in: isAuthenticated })
+      }}
     >
       <MessageCircleIcon data-icon="inline-start" />
       {t("proposeExchange")}
@@ -306,6 +310,11 @@ function QuickComposer({
         body: message.trim(),
         ...(product ? { productName: product } : {}),
       })
+      track("message_sent", {
+        first: true,
+        shared_location: false,
+        about_product: Boolean(product),
+      })
       toast.success(t("sent", { name: garden.owner.name }), {
         action: {
           label: t("viewConversation"),
@@ -324,7 +333,8 @@ function QuickComposer({
   return (
     <form
       aria-labelledby={titleId}
-      className="flex flex-col gap-3"
+      // Out of session recordings: a private message being written.
+      className="ph-no-capture flex flex-col gap-3"
       onSubmit={(event) => {
         event.preventDefault()
         void send()

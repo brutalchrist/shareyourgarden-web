@@ -62,6 +62,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { track } from "@/lib/analytics"
 import { discardGardenDraft } from "@/lib/garden-drafts"
 import { useProductLabels } from "@/lib/products"
 import type { Garden, GardenInput } from "@/lib/types"
@@ -114,6 +115,13 @@ export function GardenForm({
       ?.scrollTo({ top: 0 })
   }, [isMobile, section])
 
+  // How far people get when creating a garden on a phone.
+  React.useEffect(() => {
+    if (isMobile && !garden && section) {
+      track("garden_create_step_viewed", { step: section })
+    }
+  }, [isMobile, garden, section])
+
   // Focuses the first error to fix, once it renders: right away, or after
   // moving to the step or section that has it.
   const focusPending = React.useRef(false)
@@ -162,6 +170,16 @@ export function GardenForm({
     setPending(true)
     try {
       await onSubmit(toInput(form.draft))
+      if (garden) {
+        const saved = toDraft(garden)
+        track("garden_saved", {
+          layout: !isMobile ? "page" : section ? "section" : "overview",
+          sections: SECTIONS.filter(
+            (part) =>
+              sectionSnapshot(form.draft, part) !== sectionSnapshot(saved, part)
+          ),
+        })
+      }
       return true
     } catch {
       return false
@@ -280,7 +298,10 @@ export function GardenForm({
         <EditOverview
           garden={garden}
           form={form}
-          onOpen={nav.open}
+          onOpen={(part) => {
+            track("garden_section_opened", { section: part })
+            nav.open(part)
+          }}
           onSubmit={onSubmit}
         />
         {overviewActions && (
@@ -402,6 +423,7 @@ function EditOverview({
     setSavingVisibility(true)
     try {
       await onSubmit(toInput({ ...saved, active }))
+      track("garden_visibility_changed", { visible: active })
     } catch {
       form.patch({ active: !active })
     } finally {
@@ -448,6 +470,8 @@ function EditOverview({
 
         <SectionItem
           section="location"
+          // Out of session recordings, like the location section itself.
+          className="ph-no-capture"
           onOpen={onOpen}
           changed={changedIn("location")}
           invalid={invalidIn("location")}
@@ -530,8 +554,10 @@ function SectionItem({
   onOpen,
   header,
   footer,
+  className,
   children,
 }: {
+  className?: string
   section: Section
   action?: string
   count?: number
@@ -549,7 +575,7 @@ function SectionItem({
   return (
     <Item
       variant="outline"
-      className="relative has-[>button:hover]:bg-muted/50"
+      className={cn("relative has-[>button:hover]:bg-muted/50", className)}
     >
       <button
         type="button"

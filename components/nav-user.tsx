@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  ChartNoAxesColumnIcon,
   CompassIcon,
   EllipsisVerticalIcon,
   LogOutIcon,
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/sidebar"
 import { UserAvatar } from "@/components/user-avatar"
 import { usePushToggle } from "@/hooks/use-push"
+import { analyticsEnabled, reopenConsent } from "@/lib/analytics"
 
 // Based on the `NavUser` from shadcn's dashboard-01 block.
 export function NavUser() {
@@ -53,7 +55,8 @@ export function NavUser() {
   }
 
   const details = (
-    <div className="grid flex-1 text-left text-sm leading-tight">
+    // Out of session recordings: the user's name and email.
+    <div className="ph-no-capture grid flex-1 text-left text-sm leading-tight">
       <span className="truncate font-medium">{user.name ?? user.email}</span>
       {user.name && (
         <span className="truncate text-xs text-muted-foreground">
@@ -99,6 +102,12 @@ export function NavUser() {
                 <CompassIcon />
                 {t("welcomeTour")}
               </DropdownMenuItem>
+              {analyticsEnabled && (
+                <DropdownMenuItem onClick={reopenConsent}>
+                  <ChartNoAxesColumnIcon />
+                  {t("analytics")}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             {/* Toggles to the opposite appearance and keeps the menu open. */}

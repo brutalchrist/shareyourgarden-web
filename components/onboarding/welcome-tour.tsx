@@ -33,6 +33,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { track } from "@/lib/analytics"
 import { feedbackHref } from "@/lib/feedback"
 import type { User } from "@/lib/types"
 
@@ -238,6 +239,9 @@ function TourBody({
                 <a
                   className="font-medium text-foreground underline underline-offset-3"
                   href={feedbackHref(t("feedbackSubject"))}
+                  onClick={() =>
+                    track("beta_feedback_clicked", { from: "tour" })
+                  }
                 >
                   {chunks}
                 </a>

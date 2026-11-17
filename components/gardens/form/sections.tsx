@@ -156,7 +156,9 @@ export function LocationSection({ form }: { form: GardenDraftState }) {
   }
 
   return (
-    <FieldSet>
+    // Out of session recordings: where the owner's garden (often their home)
+    // is.
+    <FieldSet className="ph-no-capture">
       <FieldLegend>{t("location")}</FieldLegend>
       <FieldDescription>{t("locationDescription")}</FieldDescription>
       <Field>

@@ -13,6 +13,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { track } from "@/lib/analytics"
 import { feedbackHref } from "@/lib/feedback"
 
 // The landing's "beta" badge, inside the app: a tap explains it and offers a
@@ -39,6 +40,7 @@ export function BetaBadge({
         </PopoverHeader>
         <a
           href={feedbackHref(t("feedbackSubject"))}
+          onClick={() => track("beta_feedback_clicked", { from: "badge" })}
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           <MailIcon data-icon="inline-start" />
