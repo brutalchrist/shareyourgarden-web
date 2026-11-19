@@ -1,6 +1,6 @@
 name: CI
 
-# Lint, typecheck and build. Deploys are handled by Netlify.
+# Lint, typecheck and build. Production deploys run from `deploy.yml` on tags.
 on:
   push:
     branches: [master]

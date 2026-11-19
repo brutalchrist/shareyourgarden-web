@@ -28,3 +28,19 @@ Product analytics go to [PostHog](https://posthog.com) (US Cloud), and are off u
 - `pnpm dev`: start the dev server at `http://localhost:3000`
 - `pnpm build`: production build
 - `pnpm lint` / `pnpm typecheck` / `pnpm format`
+
+## Deploys
+
+Netlify builds a deploy preview for every pull request, but it no longer publishes `master` on its own (`[context.production]` in `netlify.toml`). Production changes only with a release tag:
+
+```bash
+git switch master && git pull
+git tag -a v0.1.0 -m "v0.1.0"
+git push origin v0.1.0
+```
+
+The tag runs `.github/workflows/deploy.yml`, which checks that the tagged commit is on `master`, builds it with Netlify's production environment variables and publishes it. Tags follow [Semantic Versioning](https://semver.org) with a `v` prefix (the old `20.x` tags are from the 2020 version of the site).
+
+- **Going back:** in Netlify, open an earlier deploy (each is named after its tag) and choose **Publish deploy**. Or run the **Deploy** workflow by hand with an earlier tag.
+- **Required in GitHub:** the `NETLIFY_AUTH_TOKEN` (a Netlify personal access token) and `NETLIFY_SITE_ID` secrets, in the `production` environment or the repository.
+- **Required in Netlify:** keep **auto publishing** on. A locked production deploy makes the workflow fail.
