@@ -60,8 +60,10 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        # npx, not `pnpm dlx`: pnpm refuses to install netlify-cli because its
+        # dependencies (esbuild, unix-dgram) have build scripts it hasn't approved.
         run: |
-          pnpm dlx netlify-cli@27.20.0 deploy \
+          npx --yes netlify-cli@27.20.0 deploy \
             --prod \
             --context production \
             --message "$TAG ($(git rev-parse --short HEAD))"
