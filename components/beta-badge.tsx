@@ -46,6 +46,11 @@ export function BetaBadge({
           <MailIcon data-icon="inline-start" />
           {t("feedback")}
         </a>
+        {process.env.APP_VERSION && (
+          <p className="text-xs text-muted-foreground">
+            {t("version", { version: process.env.APP_VERSION })}
+          </p>
+        )}
       </PopoverContent>
     </Popover>
   )
