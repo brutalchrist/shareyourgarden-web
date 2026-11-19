@@ -559,7 +559,8 @@
     "title": "Estamos en beta",
     "description": "ShareYourGarden recién empieza: algunas cosas pueden fallar o cambiar. Si algo no funciona o se te ocurre una mejora, cuéntanos.",
     "feedback": "Enviar comentarios",
-    "feedbackSubject": "Comentarios beta ShareYourGarden"
+    "feedbackSubject": "Comentarios beta ShareYourGarden",
+    "version": "Versión {version}"
   },
   "Analytics": {
     "label": "Analítica",
