@@ -6,6 +6,12 @@
   NODE_VERSION = "22"
   NEXT_PUBLIC_API_URL = "https://shareyourgarden-backend.onrender.com"
 
+# Production is published by `.github/workflows/deploy.yml` when a `v*` tag is
+# pushed, so Netlify skips its own builds of `master`. Deploy previews for pull
+# requests still build. The CLI used by that workflow doesn't run `ignore`.
+[context.production]
+  ignore = "exit 0"
+
 # The browser checks for a new service worker on every visit; never serve it
 # from a cache, or updates to it take up to a day to arrive.
 [[headers]]

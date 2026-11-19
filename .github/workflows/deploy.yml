@@ -1,0 +1,68 @@
+name: Deploy
+
+# Publishes a release to production on Netlify. Netlify no longer deploys
+# `master` on its own (see `netlify.toml`): production changes only when a
+# `v*` tag is pushed, or when this workflow is run by hand for an existing tag,
+# for instance to go back to an earlier release.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to deploy, e.g. v0.1.0
+        required: true
+
+permissions:
+  contents: read
+
+# One production deploy at a time, in the order they were started.
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          # Full history, to check that the tag is on `master`.
+          fetch-depth: 0
+
+      - name: Check the tag is on master
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/master; then
+            echo "::error::$TAG is not on master; only commits merged to master are deployed."
+            exit 1
+          fi
+
+      # Version comes from the `packageManager` field in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Builds with `netlify.toml` and the site's production environment
+      # variables from Netlify (such as `NEXT_PUBLIC_POSTHOG_KEY`), then uploads
+      # the site and its edge functions and publishes them.
+      - name: Build and deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          pnpm dlx netlify-cli@27.20.0 deploy \
+            --prod \
+            --context production \
+            --message "$TAG ($(git rev-parse --short HEAD))"
+          echo "Deployed $TAG to production." >> "$GITHUB_STEP_SUMMARY"
