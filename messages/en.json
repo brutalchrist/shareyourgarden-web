@@ -369,6 +369,15 @@
     "readOnlyLabel": "Read-only",
     "tooManyMessages": "You're sending messages too fast. Wait a moment."
   },
+  "SafetyTips": {
+    "title": "Tips for your first meetup",
+    "tips": {
+      "publicPlace": "Meet somewhere public or busy, like a market or a park.",
+      "tellSomeone": "Let someone you trust know where you'll be and who with.",
+      "privateData": "Don't share sensitive details by message, like passwords or bank details.",
+      "block": "If something feels off, you can block the person from the conversation menu."
+    }
+  },
   "Offline": {
     "metaTitle": "Offline",
     "title": "You are offline",

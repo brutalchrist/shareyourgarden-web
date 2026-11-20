@@ -16,6 +16,7 @@ import { toast } from "sonner"
 
 import { useAuth } from "@/components/auth-provider"
 import { GoogleSignInButton } from "@/components/google-sign-in-button"
+import { SafetyTips } from "@/components/messages/safety-tips"
 import { Badge } from "@/components/ui/badge"
 import { ButtonLink } from "@/components/button-link"
 import { Button } from "@/components/ui/button"
@@ -414,6 +415,8 @@ function QuickComposer({
           </span>
         )}
       </div>
+
+      <SafetyTips />
 
       <div className="flex items-center justify-end gap-2">
         <Button
