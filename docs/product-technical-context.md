@@ -75,6 +75,7 @@ Fuera de `AppShell` y dentro de los proveedores: `Toaster` (sonner, arriba al ce
 | --- | --- |
 | `NEXT_PUBLIC_API_URL` | URL del backend. Por defecto `http://localhost:1337`. En Netlify: `https://shareyourgarden-backend.onrender.com` |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Client ID OAuth web de Google. Debe coincidir con `GOOGLE_CLIENT_ID` del backend |
+| `NEXT_PUBLIC_FEEDBACK_EMAIL` | Correo de los enlaces de comentarios de la beta y de contacto. Se configura como variable del entorno `production` en GitHub (`deploy.yml`); sin él, esos enlaces no aparecen |
 | `NEXT_PUBLIC_DEV_CENTER` | Opcional, solo desarrollo: `"lat,lng"` donde abre el mapa en lugar de `/api/geo` |
 | `URL` | Lo define Netlify en el build; se usa como `metadataBase` |
 

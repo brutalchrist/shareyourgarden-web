@@ -24,6 +24,7 @@ export function BetaBadge({
   align?: "start" | "center" | "end"
 }) {
   const t = useTranslations("Beta")
+  const feedback = feedbackHref(t("feedbackSubject"))
 
   return (
     <Popover>
@@ -38,14 +39,16 @@ export function BetaBadge({
           <PopoverTitle>{t("title")}</PopoverTitle>
           <PopoverDescription>{t("description")}</PopoverDescription>
         </PopoverHeader>
-        <a
-          href={feedbackHref(t("feedbackSubject"))}
-          onClick={() => track("beta_feedback_clicked", { from: "badge" })}
-          className={buttonVariants({ variant: "outline", size: "sm" })}
-        >
-          <MailIcon data-icon="inline-start" />
-          {t("feedback")}
-        </a>
+        {feedback && (
+          <a
+            href={feedback}
+            onClick={() => track("beta_feedback_clicked", { from: "badge" })}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            <MailIcon data-icon="inline-start" />
+            {t("feedback")}
+          </a>
+        )}
         {process.env.APP_VERSION && (
           <p className="text-xs text-muted-foreground">
             {t("version", { version: process.env.APP_VERSION })}

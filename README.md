@@ -15,6 +15,8 @@ The map opens on the visitor's city, from their IP address, through a Netlify Ed
 
 ## Analytics
 
+The beta feedback and contact links write to `NEXT_PUBLIC_FEEDBACK_EMAIL`, set as a variable of the `production` environment on GitHub (read by `.github/workflows/deploy.yml`) so the address stays out of this repository. Without it, those links are left out.
+
 Product analytics go to [PostHog](https://posthog.com) (US Cloud), and are off unless `NEXT_PUBLIC_POSTHOG_KEY` holds the project's API key. That key is not secret: it ships in the page's JavaScript. Set it in Netlify's environment variables.
 
 - **Setup:** `instrumentation-client.ts` sets PostHog up. Events go through Netlify to `/ingest` (`public/_redirects`), so ad blockers don't drop them.
