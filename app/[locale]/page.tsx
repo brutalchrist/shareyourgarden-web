@@ -96,6 +96,7 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params
   setRequestLocale(locale as Locale)
   const t = await getTranslations("Landing")
+  const feedback = feedbackHref(t("why.feedbackSubject"))
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -152,14 +153,17 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
             </p>
             <p className="text-sm text-muted-foreground">
               {t.rich("why.beta", {
-                link: (chunks) => (
-                  <a
-                    href={feedbackHref(t("why.feedbackSubject"))}
-                    className="rounded-sm font-medium text-foreground underline underline-offset-3 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-                  >
-                    {chunks}
-                  </a>
-                ),
+                link: (chunks) =>
+                  feedback ? (
+                    <a
+                      href={feedback}
+                      className="rounded-sm font-medium text-foreground underline underline-offset-3 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    >
+                      {chunks}
+                    </a>
+                  ) : (
+                    chunks
+                  ),
               })}
             </p>
           </div>
@@ -301,12 +305,14 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-muted-foreground sm:flex-row lg:px-6">
           <p>{t("footer.rights", { year: new Date().getFullYear() })}</p>
           <div className="flex items-center gap-2">
-            <a
-              href={feedbackHref(t("why.feedbackSubject"))}
-              className="rounded-sm px-1 underline-offset-3 outline-none hover:text-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              {t("footer.contact")}
-            </a>
+            {feedback && (
+              <a
+                href={feedback}
+                className="rounded-sm px-1 underline-offset-3 outline-none hover:text-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                {t("footer.contact")}
+              </a>
+            )}
             <LanguageMenuButton />
           </div>
         </div>

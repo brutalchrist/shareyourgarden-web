@@ -56,10 +56,13 @@ jobs:
       # Builds with `netlify.toml` and the site's production environment
       # variables from Netlify (such as `NEXT_PUBLIC_POSTHOG_KEY`), then uploads
       # the site and its edge functions and publishes them.
+      # `NEXT_PUBLIC_FEEDBACK_EMAIL` comes from the `production` environment's
+      # variables on GitHub, so the address isn't written in this repository.
       - name: Build and deploy to Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NEXT_PUBLIC_FEEDBACK_EMAIL: ${{ vars.NEXT_PUBLIC_FEEDBACK_EMAIL }}
         # npx, not `pnpm dlx`: pnpm refuses to install netlify-cli because its
         # dependencies (esbuild, unix-dgram) have build scripts it hasn't approved.
         run: |

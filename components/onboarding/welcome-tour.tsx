@@ -160,6 +160,7 @@ function TourBody({
   Description: typeof DialogDescription | typeof DrawerDescription
 }) {
   const t = useTranslations("WelcomeTour")
+  const feedback = feedbackHref(t("feedbackSubject"))
   const { gardens } = useMyGardens()
   const touchStart = React.useRef<number | null>(null)
 
@@ -235,17 +236,20 @@ function TourBody({
         {isLast && (
           <p className="text-sm text-muted-foreground">
             {t.rich("beta", {
-              link: (chunks) => (
-                <a
-                  className="font-medium text-foreground underline underline-offset-3"
-                  href={feedbackHref(t("feedbackSubject"))}
-                  onClick={() =>
-                    track("beta_feedback_clicked", { from: "tour" })
-                  }
-                >
-                  {chunks}
-                </a>
-              ),
+              link: (chunks) =>
+                feedback ? (
+                  <a
+                    className="font-medium text-foreground underline underline-offset-3"
+                    href={feedback}
+                    onClick={() =>
+                      track("beta_feedback_clicked", { from: "tour" })
+                    }
+                  >
+                    {chunks}
+                  </a>
+                ) : (
+                  chunks
+                ),
             })}
           </p>
         )}
