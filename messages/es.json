@@ -369,6 +369,15 @@
     "readOnlyLabel": "Solo lectura",
     "tooManyMessages": "Estás enviando mensajes muy rápido. Espera un momento."
   },
+  "SafetyTips": {
+    "title": "Consejos para el primer encuentro",
+    "tips": {
+      "publicPlace": "Júntense en un lugar público o de paso, como una feria o una plaza.",
+      "tellSomeone": "Cuéntale a alguien de confianza dónde y con quién vas a estar.",
+      "privateData": "No compartas datos sensibles por mensaje, como claves o datos bancarios.",
+      "block": "Si algo te incomoda, puedes bloquear a la persona desde el menú de la conversación."
+    }
+  },
   "Offline": {
     "metaTitle": "Sin conexión",
     "title": "Estás sin conexión",
